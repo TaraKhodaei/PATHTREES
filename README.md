@@ -1,2 +1,2 @@
 # pathtrees_project
-Path trees among among pairs of trees
+Path trees among pairs of trees
