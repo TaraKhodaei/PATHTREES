@@ -2,6 +2,7 @@
 #
 # (c) Tara Khodaie, Tallahassee FL 2021
 #
+DEBUG=False
 import sys
 import numpy as np
 
@@ -97,8 +98,9 @@ def pathtrees(treefile, terminallist, numpathtrees):
         print("\n\n\nnewick of T1 :\n", treelist[0])
         print("\nnewick of T2 :\n", treelist[1])     #TARA
         sub_newicks , newick = subtree.Sub_Newicks(T1_path, disjoint_indices[0] )
-        print("\nsubtree newicks of path tree :\n",sub_newicks)
-        print("\nnewick of pathtree :\n", newick)
+        if DEBUG:
+            print("\nsubtree newicks of path tree :\n",sub_newicks)
+            print("\nnewick of pathtree :\n", newick)
         #myfile.write(newick + '\n')
         thetreelist.append(newick)
     #myfile.close()

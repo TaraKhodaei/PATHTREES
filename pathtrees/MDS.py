@@ -81,7 +81,7 @@ def best_likelihoods(Likelihood):
     return list(zip(idx,Like_Big))
 
 
-def plot_MDS(M,Likelihood, bestlike, treelist, pathlist):
+def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2D MDS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     X= MDS(M,2)
     fig = plt.figure(figsize=(12,5))
@@ -115,14 +115,14 @@ def plot_MDS(M,Likelihood, bestlike, treelist, pathlist):
     axes[1].set_ylabel('Coordinate 2')
     axes[1].set_zlabel('Coordinate 3')
     plt.tight_layout()
-    plt.savefig("MDS")
-    plt.show()
+    plt.savefig(plotfile)
+    #plt.show()
 
 
 #~~~~~~~~~~~~~~~~~~~interpolation_griddata (Contour & Surface)~~~~~~~~~~~~~~~~~~~~~~
 #meth: linear, cubic, nearest
 
-def interpolate_grid(M,Likelihood, bestlike, StartTrees):
+def interpolate_grid(filename, N,n, M,Likelihood, bestlike, StartTrees):
     meth= 'cubic'
     num=100
     X= MDS(M,2)
@@ -173,8 +173,9 @@ def interpolate_grid(M,Likelihood, bestlike, StartTrees):
     ax2.set_ylabel('Coordinate 2', labelpad=10)
     ax2.set_zlabel('Coordinate 3', labelpad=10)
     fig.tight_layout()
-    plt.savefig('Contour_Surface_{}.png'.format(meth), format='png')
-    plt.show()
+    plt.savefig(filename)
+    #,'Contour_Surface_{}.png'.format(meth), format='png')
+    #plt.show()
 
 
 
@@ -192,5 +193,6 @@ if __name__ == "__main__":
     n = len(treelist)
     N= len(pathlist)
     distances = read_GTP_distances(n,GTPOUTPUT)
-    plot_MDS(distances, Likelihood, bestlike, treelist, pathlist)
+    file = "TESTPLOT.pdf"
+    plot_MDS(file,N,n,distances, Likelihood, bestlike, treelist, pathlist)
     interpolate_grid(distances,Likelihood, bestlike, StartTrees)
