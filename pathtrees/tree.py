@@ -29,7 +29,7 @@
 # - istip            : returns true if node is a tip
 # PB Oct 2011
 
-import sys
+
 
 import sys
 from pathlib import Path
@@ -44,6 +44,7 @@ sys.path.append(str(file.parent))
 
 
 import numpy as np
+from numpy.random import default_rng
 from scipy.optimize import linprog
 import likelihood as like
 
@@ -353,7 +354,7 @@ class Tree(Node):
         return (m, M)
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Outsude class functions  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Outside class functions  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def TreesDistance(m, M, c):      # 0<=c <=1     (Peter: For scaling)
     s0=np.sum(np.array(m[0]))
@@ -383,3 +384,28 @@ def skip_comment(tree):      # to remove the brackets []
     tree_new = tree_new[tree_new.find('=')+1:]
     return tree_new
 
+def create_random_tree(labels,blens):
+    nodes = labels[:]
+    #print(blens)
+    biter = iter(blens)
+    #print(biter)
+    rng = default_rng()
+    print(nodes)
+    while len(nodes)>1:
+        a,b = rng.permutation(range(len(nodes)))[:2] #rng.integers(low=0, high=len(nodes), size=2)
+        la,lb = next(biter),next(biter)
+        c = f'({nodes[a]}:{la:.10f},{nodes[b]}:{lb:.10f})'
+        nodes[a] = c
+        nodes.pop(b)
+        #print(nodes)
+    #print(nodes)
+    #sys.exit()
+    return nodes[0]+":0.0;"
+    
+def generate_random_tree(labels,totaltreelength):
+    rng = default_rng()
+    a = [1]*(len(labels)*2)
+    blen = rng.dirichlet(a)
+    rt = create_random_tree(labels, blen.tolist())
+    return rt
+    
