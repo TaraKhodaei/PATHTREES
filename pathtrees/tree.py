@@ -397,7 +397,7 @@ def create_random_tree(labels,blens):
         c = f'({nodes[a]}:{la:.10f},{nodes[b]}:{lb:.10f})'
         nodes[a] = c
         nodes.pop(b)
-        #print(nodes)
+        print(len(nodes))
     #print(nodes)
     #sys.exit()
     return nodes[0]+":0.0;"
