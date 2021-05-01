@@ -425,7 +425,8 @@ def subtrees(treelist, terminallist):
 
 
 def Sub_Newicks(T, disjoint_indices):       # ***** DEBUG *****
-    print("***TEST : len(T) ****", len(T))
+    if DEBUG:
+        print("***TEST : len(T) ****", len(T))
     sub_newicks_list  = []
     for i in range(len(T)): #****************  BIFURCATING  **************
         #        print(f"\n=========== TEST 1 ========\n {T[i]}\n")
@@ -433,10 +434,12 @@ def Sub_Newicks(T, disjoint_indices):       # ***** DEBUG *****
         #        print(f"\n=========== TEST 2 ========\n T1:\n{T1}\n\n\n")
         if i in disjoint_indices:
             newick_sub = splittree.print_newick_string(T1[0], T1[1], T1[2], T1[3] )
-            print(f"subT{i} --> disjoint :", newick_sub)
+            if DEBUG:
+                print(f"subT{i} --> disjoint :", newick_sub)
         if i not in disjoint_indices:
             newick_sub  = '('+str(T1[0][0])+':'+str(T1[2][0])+','+ str(T1[0][1])+':'+str(T1[2][1])+')'+':0.0'
-            print(f"subT{i} --> NOT disjoint :", newick_sub)
+            if DEBUG:
+                print(f"subT{i} --> NOT disjoint :", newick_sub)
         sub_newicks_list.append(newick_sub)
     if DEBUG:
         print("sub_newicks list :", sub_newicks_list)
@@ -458,16 +461,18 @@ def path_legs(num, T1, T2, T1_edge_dict, T2_edge_dict):      # lamda a number in
     subT2 = T2[num]
     A = subT1[-1]
     B = subT2[-1]
-    print(f"\n===> starting subtree :\n {subT1}")
-    print(f"\n===> ending subtree :\n {subT2}")
+    if DEBUG:
+        print(f"\n===> starting subtree :\n {subT1}")
+        print(f"\n===> ending subtree :\n {subT2}")
 #    print("\n\n\nsubT1 = ", subT1)
 #    print("subT2 = ", subT2)
 #    print("\n\n\nA = ", A)
 #    print("\nB = ", B)
 
     k= len(A)
-    print(f"\n\n===> k = {k}")
-    print(f"\n===> number of legs (orthants) = k+1 = {k+1}")
+    if DEBUG:
+        print(f"\n\n===> k = {k}")
+        print(f"\n===> number of legs (orthants) = k+1 = {k+1}")
 
     lambda_limits = [0]
     for i in range(k):
@@ -482,7 +487,8 @@ def path_legs(num, T1, T2, T1_edge_dict, T2_edge_dict):      # lamda a number in
     for i in range(1,k):
         epsilon.append(list(itertools.chain.from_iterable([B[0:i] , A[i:k]])))
     epsilon.append(B)
-    print(f"\n===> lambda_limits = {lambda_limits}")
+    if DEBUG:
+        print(f"\n===> lambda_limits = {lambda_limits}")
     return(lambda_limits, epsilon)
 
 

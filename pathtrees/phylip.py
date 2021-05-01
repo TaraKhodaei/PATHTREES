@@ -13,6 +13,8 @@ def readData(file):     #testdata.phy : sequences
     f.close()
     numind,numsites = (data.pop(0)).split()
     for i in data:
+        if i=='':
+            continue
         l = i[:10]    #this assumes standard phylip format
         s = i[11:]    #
         label.append(l.strip())
