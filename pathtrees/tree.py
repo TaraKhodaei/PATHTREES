@@ -391,13 +391,17 @@ def create_random_tree(labels,blens):
     #print(biter)
     rng = default_rng()
     print(nodes)
+    print(labels)
+    print(len(blens))
     while len(nodes)>1:
         a,b = rng.permutation(range(len(nodes)))[:2] #rng.integers(low=0, high=len(nodes), size=2)
         la,lb = next(biter),next(biter)
+        # [(a:4,b:2),c,d,e]
+        # [((a:4,b:2):4,e:2),c,d]
         c = f'({nodes[a]}:{la:.10f},{nodes[b]}:{lb:.10f})'
         nodes[a] = c
         nodes.pop(b)
-        print(len(nodes))
+        print("@nodelen",len(nodes))
     #print(nodes)
     #sys.exit()
     return nodes[0]+":0.0;"
@@ -407,5 +411,6 @@ def generate_random_tree(labels,totaltreelength):
     a = [1]*(len(labels)*2)
     blen = rng.dirichlet(a)
     rt = create_random_tree(labels, blen.tolist())
+    print(rt)
     return rt
     

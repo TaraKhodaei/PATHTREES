@@ -113,8 +113,8 @@ if __name__ == "__main__":
     print(args)
 
     labels, sequences, variable_sites = ph.readData(datafile)
-    #print(labels)
-    #print(variable_sites)
+    print(labels)
+    print(variable_sites)
     #sys.exit()
     if num_random_trees>0:
         totaltreelength = ph.guess_totaltreelength(variable_sites)
