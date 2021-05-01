@@ -104,7 +104,8 @@ def test():
 	gd = nodeLikelihood(ga,gb,tad,tbd,Q)
 	ge = nodeLikelihood(gd,gc,tde,tce,Q)
 	l = logLikelihood(ge,basefreq)
-	print ("log Likelihood = ", l)
+	if DEBUG:
+                print ("log Likelihood = ", l)
 
 
 if __name__ == '__main__':

@@ -39,10 +39,10 @@ def masterpathtrees(treelist): #this is the master treelist
                 continue
             #form a treelist of the pair
             create_treepair(ti,tj) #this writes into a file GTPTREELIST
-            print("run gtp")
+            #print("run gtp")
             run_gtp(GTPTREELIST, GTPTERMINALLIST)
             mypathtrees = pt.pathtrees(GTPTREELIST, GTPTERMINALLIST, NUMPATHTREES)
-            print("LOOP",i,j)
+            #print("LOOP",i,j)
             allpathtrees.extend(mypathtrees)
             #save or manipulate your pathtrees
     return [a.strip() for a in allpathtrees]
@@ -92,76 +92,101 @@ def myparser():
                         default=0, action='store',type=int,
                         help='Generate num_random_trees rooted trees using the sequence data individual names.')
 
+    parser.add_argument('-g','--outgroup', dest='outgroup',
+                        default=None, action='store',
+                        help='Forces an outgroup when generating random trees.')
+
+    parser.add_argument('-i','--iterate', dest='num_iterations',
+                        default=0, action='store',type=int,
+                        help='Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees, this will add an iteration number to the outputdir, and also adds iteration to the plotting.')
+
     args = parser.parse_args()
     return args
 
     
 if __name__ == "__main__":
-    #DEBUG = True
+    DEBUG = False
     args = myparser() # parses the commandline arguments
     start_trees = args.STARTTREES
     datafile = args.DATAFILE
     outputdir = args.outputdir
     keep = args.verbose == True
     num_random_trees = args.num_random_trees
+    outgroup = args.outgroup
+    num_iterations = args.num_iterations+1
     plotfile = args.plotfile
-    if plotfile != None:
-        plotfile2 = "contour"+plotfile
+    if num_iterations<=1:
+        os.system(f'mkdir -p {outputdir}')
+        outputdir = [outputdir]
+        if plotfile != None:
+            plotfile2 = "contour_"+plotfile
+    else:
+        plotfile2 = []
+        o = outputdir
+        outputdir=[]
+        for it in range(1,num_iterations):
+            os.system(f'mkdir -p {o}{it}')
+            outputdir.append(f'{o}{it}')
+            plotfile2.append(f"contour_{it}_{plotfile}")
     NUMPATHTREES = args.NUMPATHTREES
-    os.system(f'mkdir -p {outputdir}')
+
     #    print(args.plotfile)
     print(args)
 
     labels, sequences, variable_sites = ph.readData(datafile)
-    print(labels)
-    print(variable_sites)
+    #print(labels)
+    #print(variable_sites)
     #sys.exit()
     if num_random_trees>0:
         totaltreelength = ph.guess_totaltreelength(variable_sites)
-        randomtrees = [tree.generate_random_tree(labels, totaltreelength) for _ in range(num_random_trees)]
+        randomtrees = [tree.generate_random_tree(labels, totaltreelength, outgroup) for _ in range(num_random_trees)]
         #print(randomtrees)
         #sys.exit()
         with open(start_trees,'a') as f:
             for rt in randomtrees:
                 print(rt,file=f)
-    
-    tic = time.perf_counter()
+    print(f'Calculating paths through tree space')
+    tictotal = time.perf_counter()
     with open(start_trees,'r') as f:
         StartTrees = [line.strip() for line in f]
-    Pathtrees = masterpathtrees(StartTrees)
-
-    Treelist= StartTrees+Pathtrees
-    #Treelist = [s.replace('\n', '') for s in trees]
-    Likelihoods = likelihoods(Treelist,sequences)
+    # iterations, this is done at least once for standard operation
+    #
+    for it1 in range(1,num_iterations):
+        tic = time.perf_counter()
+        it = it1-1
+        print(f'Iteration {it1}')
+        Pathtrees = masterpathtrees(StartTrees)
+        Treelist= StartTrees+Pathtrees
+        Likelihoods = likelihoods(Treelist,sequences)
     
-    store_results(outputdir,'likelihood',Likelihoods)
-    store_results(outputdir,'treelist',Treelist)
-    store_results(outputdir,'starttrees',StartTrees)
-    store_results(outputdir,'pathtrees',Pathtrees)
-    
-    toc = time.perf_counter()
-    time1 = toc - tic
-    #print(50*"=")
-    print(f"\nTime of generating pathtrees results = {time1}")
-
-    tic2 = time.perf_counter()
-    #if DEBUG:
-    newtreelist = os.path.join(outputdir, 'treelist')
-    print('Calculate geodesic distance among all pathtrees',file=sys.stderr)
-    run_gtp(newtreelist, GTPTERMINALLIST)
-    os.system(f'mv pathtrees/gtp/output.txt {outputdir}/')
-    if not keep:
-        os.system(f'rm {GTPTERMINALLIST}')
-        os.system(f'rm {GTPTREELIST}')
-    toc2 = time.perf_counter()
-    time2 = toc2 - tic2
-    print(f"Time of GTP distances of all trees = {time2}")
-    if plotfile != None:
-        bestlike = plo.best_likelihoods(Likelihoods)
-        n = len(Treelist)
-        N= len(Pathtrees)
-        distancefile = os.path.join(outputdir, 'output.txt')
-        distances = plo.read_GTP_distances(n,distancefile)
-        plo.plot_MDS(plotfile, N, n, distances, Likelihoods, bestlike, Treelist, Pathtrees)
-        plo.interpolate_grid(plotfile2, N, n, distances,Likelihoods, bestlike, StartTrees)
+        store_results(outputdir[it],'likelihood',Likelihoods)
+        store_results(outputdir[it],'treelist',Treelist)
+        store_results(outputdir[it],'starttrees',StartTrees)
+        store_results(outputdir[it],'pathtrees',Pathtrees)
+        toc = time.perf_counter()
+        time1 = toc - tic
+        print(f"Time of generating pathtrees results = {time1}")
+        tic2 = time.perf_counter()
+        #if DEBUG:
+        newtreelist = os.path.join(outputdir[it], 'treelist')
+        print('Calculate geodesic distance among all pathtrees')
+        run_gtp(newtreelist, GTPTERMINALLIST)
+        os.system(f'mv pathtrees/gtp/output.txt {outputdir[it]}/')
+        if not keep:
+            os.system(f'rm {GTPTERMINALLIST}')
+            os.system(f'rm {GTPTREELIST}')
+        toc2 = time.perf_counter()
+        time2 = toc2 - tic2
+        print(f"Time of GTP distances of all trees = {time2}")
+        if plotfile != None:
+            bestlike = plo.best_likelihoods(Likelihoods)
+            n = len(Treelist)
+            N= len(Pathtrees)
+            distancefile = os.path.join(outputdir[it], 'output.txt')
+            distances = plo.read_GTP_distances(n,distancefile)
+            if DEBUG:
+                plo.plot_MDS(plotfile, N, n, distances, Likelihoods, bestlike, Treelist, Pathtrees)
+            plo.interpolate_grid(plotfile2[it], N, n, distances,Likelihoods, bestlike, StartTrees)
+        if it1 < num_iterations:
+            StartTrees = [Treelist[tr] for tr in list(zip(*bestlike))[0]]
 

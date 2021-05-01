@@ -504,88 +504,110 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
     B = subT2[-1]
     A_flatten = list(itertools.chain.from_iterable(A))  # "itertools.chain.from_iterable" returns a flattened iterable containing all the elements of the input iterable (hear, it remove the biggest sublists brackets inside a nested list).
     B_flatten = list(itertools.chain.from_iterable(B))
-#    print("\n\n\nsubT1 = ", subT1)
-#    print("subT2 = ", subT2)
-    print(f"\n\n===> A = {A}")
-    print(f"\n===> A_flatten = {A_flatten}")
-    print(f"\n===> B = {B}")
-    print(f"\n===> B_flatten = {B_flatten}")
+    #    print("\n\n\nsubT1 = ", subT1)
+    #    print("subT2 = ", subT2)
+    if DEBUG:
+        print(f"\n\n===> A = {A}")
+        print(f"\n===> A_flatten = {A_flatten}")
+        print(f"\n===> B = {B}")
+        print(f"\n===> B_flatten = {B_flatten}")
 
     
     k= len(A)
 #    print(f"\nk = {k} ")
     flatten_epsilon = [ list(itertools.chain.from_iterable(item)) for item in epsilon]
-    print(f"\n\n\n===> epsilon :\n {epsilon}")
-    print(f"\n===> flatten_epsilon :\n {flatten_epsilon}")
+    if DEBUG:
+        print(f"\n\n\n===> epsilon :\n {epsilon}")
+        print(f"\n===> flatten_epsilon :\n {flatten_epsilon}")
 
     i = [j for j in range(k+1) if lambda_limits[j]<= lamda <=lambda_limits[j+1]][0]    # i in [0:k]----> number of leg that lamda is there
-    print(f"\n\n\n===> for lambda {lamda}: \n i={i} \nsubtree is on the leg(i={i})= {flatten_epsilon[i]}  \n(NOTE: leg index starting from zero)\n\n")
+    if DEBUG:
+        print(f"\n\n\n===> for lambda {lamda}: \n i={i} \nsubtree is on the leg(i={i})= {flatten_epsilon[i]}  \n(NOTE: leg index starting from zero)\n\n")
     
     EdgeLength_i=[]
     if i<(k):
         if lamda < lambda_limits[i+1]:
-            print("\n***********  NOTE:  Not on the border  ***********" )
+            if DEBUG:
+                print("\n***********  NOTE:  Not on the border  ***********" )
             for  edge in flatten_epsilon[i]:
-                print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
+                if DEBUG:
+                    print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
                 if edge in A_flatten:
                     j = next(i for i, v in enumerate(A) if edge in v)
-                    print(f"edge in  A_j = A_{j}")
-                    print("A[j] = ", A[j])
-                    print("B[j] = ", B[j])
+                    if DEBUG:
+                        print(f"edge in  A_j = A_{j}")
+                        print("A[j] = ", A[j])
+                        print("B[j] = ", B[j])
                     Aj_norm = np.linalg.norm([T1_edge_dict[str(e)] for e in A[j]])
-                    print("Aj_norm = ", Aj_norm)
+                    if DEBUG:
+                        print("Aj_norm = ", Aj_norm)
                     Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
-                    print("Bj_norm = ", Bj_norm)
+                    if DEBUG:
+                        print("Bj_norm = ", Bj_norm)
         #            EdgeLength_i.append(format(  (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])   , '.5f') )
                     EdgeLength_i.append( (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])  )
-                    print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
+                    if DEBUG:
+                        print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
                 if edge in B_flatten:
                     j = next(i for i, v in enumerate(B) if edge in v)    #"j" : the index of B_j of B that edge is inside that
-                    print(f"edge in  B_j = B_{j}")
-                    print("A[j] = ", A[j])
-                    print("B[j] = ", B[j])
+                    if DEBUG:
+                        print(f"edge in  B_j = B_{j}")
+                        print("A[j] = ", A[j])
+                        print("B[j] = ", B[j])
                     Aj_norm = np.linalg.norm([T1_edge_dict[str(e)] for e in A[j]])
-                    print("Aj_norm = ", Aj_norm)
+                    if DEBUG:                         
+                        print("Aj_norm = ", Aj_norm)
                     Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
-                    print("Bj_norm = ", Bj_norm)
+                    if DEBUG:
+                        print("Bj_norm = ", Bj_norm)
         #            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
                     EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
                     print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
         #    EdgeLength_i = [eval(s.rstrip()) for s in EdgeLength_i]       # "eval" to convert string representation of list to a list
 
         if lamda == lambda_limits[i+1]:
-            print("\n*********** NOTE:  On the border  ***********")
+            if DEBUG:
+                print("\n*********** NOTE:  On the border  ***********")
             border_ZeroEdges = [e for e in flatten_epsilon[i] if e not in flatten_epsilon[i+1]]
-            print(f"\nborder_ZeroEdges = {border_ZeroEdges}")
+            if DEBUG:
+                print(f"\nborder_ZeroEdges = {border_ZeroEdges}")
             for  edge in flatten_epsilon[i]:
-                print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
+                if DEBUG:
+                    print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
                 if edge in border_ZeroEdges:
                     EdgeLength_i.append(0.0)
                 else:
                     if edge in A_flatten:
                         j = next(i for i, v in enumerate(A) if edge in v)
-                        print(f"edge in  A_j = A_{j}")
-                        print("A[j] = ", A[j])
-                        print("B[j] = ", B[j])
+                        if DEBUG:
+                            print(f"edge in  A_j = A_{j}")
+                            print("A[j] = ", A[j])
+                            print("B[j] = ", B[j])
                         Aj_norm = np.linalg.norm([T1_edge_dict[str(e)] for e in A[j]])
-                        print("Aj_norm = ", Aj_norm)
+                        if DEBUG:
+                            print("Aj_norm = ", Aj_norm)
                         Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
-                        print("Bj_norm = ", Bj_norm)
+                        if DEBUG:
+                            print("Bj_norm = ", Bj_norm)
                         #            EdgeLength_i.append(format(  (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])   , '.5f') )
                         EdgeLength_i.append( (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])  )
                         print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
                     if edge in B_flatten:
                         j = next(i for i, v in enumerate(B) if edge in v)    #"j" : the index of B_j of B that edge is inside that
-                        print(f"edge in  B_j = B_{j}")
-                        print("A[j] = ", A[j])
-                        print("B[j] = ", B[j])
+                        if DEBUG:
+                            print(f"edge in  B_j = B_{j}")
+                            print("A[j] = ", A[j])
+                            print("B[j] = ", B[j])
                         Aj_norm = np.linalg.norm([T1_edge_dict[str(e)] for e in A[j]])
-                        print("Aj_norm = ", Aj_norm)
+                        if DEBUG:
+                            print("Aj_norm = ", Aj_norm)
                         Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
-                        print("Bj_norm = ", Bj_norm)
+                        if DEBUG:
+                            print("Bj_norm = ", Bj_norm)
                         #            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
                         EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
-                        print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
+                        if DEBUG:
+                            print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
             #    EdgeLength_i = [eval(s.rstrip()) for s in EdgeLength_i]       # "eval" to convert string representation of list to a list
             
             
@@ -593,24 +615,30 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
     if i==k:
         print("\n***********  NOTE:  On the last leg  ***********" )
         for  edge in flatten_epsilon[i]:
-            print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
+            if DEBUG:
+                print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
             j = next(i for i, v in enumerate(B) if edge in v)    #"j" : the index of B_j of B that edge is inside that
-            print(f"edge in  B_j = B_{j}")
-            print("A[j] = ", A[j])
-            print("B[j] = ", B[j])
+            if DEBUG:
+                print(f"edge in  B_j = B_{j}")
+                print("A[j] = ", A[j])
+                print("B[j] = ", B[j])
             Aj_norm = np.linalg.norm([T1_edge_dict[str(e)] for e in A[j]])
-            print("Aj_norm = ", Aj_norm)
+            if DEBUG:
+                print("Aj_norm = ", Aj_norm)
             Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
-            print("Bj_norm = ", Bj_norm)
+            if DEBUG:
+                print("Bj_norm = ", Bj_norm)
             #            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
             EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
-            print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
+            if DEBUG:
+                print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
 
 
 
     
     EdgeLength_i = [round(elem,precision) for elem in EdgeLength_i ]
-    print(f"\nEdgeLength_i ={EdgeLength_i}" )      #TEST
+    if DEBUG:
+        print(f"\nEdgeLength_i ={EdgeLength_i}" )      #TEST
     edited_subtree = copy.deepcopy(subT1)     #"deepcopy" to make sure the changes in copy does not effect origional list
     edited_subtree[1][1:] = flatten_epsilon[i]
     
@@ -619,9 +647,10 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
 
     edited_subtree[2] = list( (1-lamda)*(np.array(subT1[2]))  + lamda*(np.array(subT2[2]) ) )  # length of tips(leaves) " (1-lambda)*e_T +lambda*e_T' "
     edited_subtree[2] = [round(elem,precision) for elem in edited_subtree[2] ]
-    print("\n\nstarting subtree :\n", subT1)
-    print("ending subtree :\n", subT2)
-    print("\n\nEditted starting subtree :\n", edited_subtree)
+    if DEBUG:
+        print("\n\nstarting subtree :\n", subT1)
+        print("ending subtree :\n", subT2)
+        print("\n\nEditted starting subtree :\n", edited_subtree)
 
     return(edited_subtree)     #The subtree number "num" in T1 should be replaced with this "edited_subtree" for the given "lamba".
 

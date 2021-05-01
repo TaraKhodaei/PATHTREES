@@ -384,15 +384,22 @@ def skip_comment(tree):      # to remove the brackets []
     tree_new = tree_new[tree_new.find('=')+1:]
     return tree_new
 
-def create_random_tree(labels,blens):
+def create_random_tree(labels,blens,outgroup=None):
     nodes = labels[:]
+    if outgroup != None:
+        if outgroup not in nodes:
+            print("Warning: outgroup was not correctly specified")
+            sys.exit(-1)
     #print(blens)
     biter = iter(blens)
     #print(biter)
     rng = default_rng()
-    print(nodes)
-    print(labels)
-    print(len(blens))
+    #print(nodes)
+    #print(labels)
+    #print(len(blens))
+    if outgroup != None:
+        i = nodes.index(outgroup)
+        nodes.pop(i)
     while len(nodes)>1:
         a,b = rng.permutation(range(len(nodes)))[:2] #rng.integers(low=0, high=len(nodes), size=2)
         la,lb = next(biter),next(biter)
@@ -401,16 +408,20 @@ def create_random_tree(labels,blens):
         c = f'({nodes[a]}:{la:.10f},{nodes[b]}:{lb:.10f})'
         nodes[a] = c
         nodes.pop(b)
-        print("@nodelen",len(nodes))
+        #print("@nodelen",len(nodes))
     #print(nodes)
+    if outgroup != None:
+        la,lb = next(biter),next(biter)
+        c = f'({nodes[0]}:{la:.10f},{outgroup}:{lb:.10f})'
+        nodes[0] = c
     #sys.exit()
     return nodes[0]+":0.0;"
     
-def generate_random_tree(labels,totaltreelength):
+def generate_random_tree(labels,totaltreelength,outgroup=None):
     rng = default_rng()
     a = [1]*(len(labels)*2)
     blen = rng.dirichlet(a)
-    rt = create_random_tree(labels, blen.tolist())
-    print(rt)
+    rt = create_random_tree(labels, blen.tolist(), outgroup)
+    #print(rt)
     return rt
     

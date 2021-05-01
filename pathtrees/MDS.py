@@ -145,8 +145,10 @@ def interpolate_grid(filename, N,n, M,Likelihood, bestlike, StartTrees):
         ax1.scatter(X[i,0],X[i,1],c='r',s=12)
         ax1.text(X[i,0],X[i,1],i,color='black', size=7,)
     ax1.grid(linestyle=':', linewidth='0.3', color='black')
-    ax1.set_xlim(np.min(X[:,0])-0.01, np.max(X[:,0])+0.01)
-    ax1.set_ylim(np.min(X[:,1])-0.01, np.max(X[:,1])+0.01)
+    #ax1.set_xlim(np.min(X[:,0])-0.01, np.max(X[:,0])+0.01)
+    #ax1.set_ylim(np.min(X[:,1])-0.01, np.max(X[:,1])+0.01)
+    ax1.set_xlim(np.min(X[:,0]), np.max(X[:,0]))
+    ax1.set_ylim(np.min(X[:,1]), np.max(X[:,1]))
     ax1.set_xlabel('Coordinate 1')
     ax1.set_ylabel('Coordinate 2')
 
@@ -172,6 +174,9 @@ def interpolate_grid(filename, N,n, M,Likelihood, bestlike, StartTrees):
     ax2.set_xlabel('Coordinate 1', labelpad=10)
     ax2.set_ylabel('Coordinate 2', labelpad=10)
     ax2.set_zlabel('Coordinate 3', labelpad=10)
+    ax2.set_xlim(np.min(X[:,0]), np.max(X[:,0]))
+    ax2.set_ylim(np.min(X[:,1]), np.max(X[:,1]))
+
     fig.tight_layout()
     plt.savefig(filename)
     #,'Contour_Surface_{}.png'.format(meth), format='png')
