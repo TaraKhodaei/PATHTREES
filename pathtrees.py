@@ -138,8 +138,10 @@ if __name__ == "__main__":
     #print(variable_sites)
     #sys.exit()
     if num_random_trees>0:
+        from numpy.random import default_rng
         totaltreelength = ph.guess_totaltreelength(variable_sites)
-        randomtrees = [tree.generate_random_tree(labels, totaltreelength, outgroup) for _ in range(num_random_trees)]
+        rng = default_rng()        
+        randomtrees = [tree.generate_random_tree(labels, rng.uniform(0.2,100)*totaltreelength, outgroup) for _ in range(num_random_trees)]
         #print(randomtrees)
         #sys.exit()
         with open(start_trees,'a') as f:

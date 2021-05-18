@@ -390,7 +390,7 @@ def create_random_tree(labels,blens,outgroup=None):
         if outgroup not in nodes:
             print("Warning: outgroup was not correctly specified")
             sys.exit(-1)
-    #print(blens)
+    print("@",len(blens),file=sys.stderr)
     biter = iter(blens)
     #print(biter)
     rng = default_rng()
@@ -400,12 +400,14 @@ def create_random_tree(labels,blens,outgroup=None):
     if outgroup != None:
         i = nodes.index(outgroup)
         nodes.pop(i)
+    counter = 0
     while len(nodes)>1:
         a,b = rng.permutation(range(len(nodes)))[:2] #rng.integers(low=0, high=len(nodes), size=2)
         la,lb = next(biter),next(biter)
         # [(a:4,b:2),c,d,e]
         # [((a:4,b:2):4,e:2),c,d]
         c = f'({nodes[a]}:{la:.10f},{nodes[b]}:{lb:.10f})'
+        counter += 2
         nodes[a] = c
         nodes.pop(b)
         #print("@nodelen",len(nodes))
@@ -414,13 +416,15 @@ def create_random_tree(labels,blens,outgroup=None):
         la,lb = next(biter),next(biter)
         c = f'({nodes[0]}:{la:.10f},{outgroup}:{lb:.10f})'
         nodes[0] = c
+        counter += 2
     #sys.exit()
+    print("@",counter,file=sys.stderr)
     return nodes[0]+":0.0;"
     
 def generate_random_tree(labels,totaltreelength,outgroup=None):
     rng = default_rng()
-    a = [1]*(len(labels)*2)
-    blen = rng.dirichlet(a)
+    a = [1]*(-2 + len(labels)*2)
+    blen = totaltreelength * rng.dirichlet(a)
     rt = create_random_tree(labels, blen.tolist(), outgroup)
     #print(rt)
     return rt

@@ -562,7 +562,8 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
                         print("Bj_norm = ", Bj_norm)
         #            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
                     EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
-                    print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
+                    if DEBUG:
+                        print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
         #    EdgeLength_i = [eval(s.rstrip()) for s in EdgeLength_i]       # "eval" to convert string representation of list to a list
 
         if lamda == lambda_limits[i+1]:
@@ -591,7 +592,8 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
                             print("Bj_norm = ", Bj_norm)
                         #            EdgeLength_i.append(format(  (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])   , '.5f') )
                         EdgeLength_i.append( (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])  )
-                        print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
+                        if DEBUG:
+                            print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
                     if edge in B_flatten:
                         j = next(i for i, v in enumerate(B) if edge in v)    #"j" : the index of B_j of B that edge is inside that
                         if DEBUG:
@@ -613,7 +615,8 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
             
             
     if i==k:
-        print("\n***********  NOTE:  On the last leg  ***********" )
+        if DEBUG:
+            print("\n***********  NOTE:  On the last leg  ***********" )
         for  edge in flatten_epsilon[i]:
             if DEBUG:
                 print(f"\n\nFor edge in flatten_epsilon[i={i}] -----> edge = {edge}")
