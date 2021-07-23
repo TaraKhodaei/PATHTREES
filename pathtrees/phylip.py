@@ -5,7 +5,7 @@
 #                  and returns a list of strings 
 # PB Oct 2011, PB,MK April 2021
 DEBUG = False
-def readData(file):     #testdata.phy : sequences
+def readData(file, type='STANDARD'):     #testdata.phy : sequences
     f = open(file,'r')
     label =[]
     sequence=[]
@@ -15,8 +15,14 @@ def readData(file):     #testdata.phy : sequences
     for i in data:
         if i=='':
             continue
-        l = i[:10]    #this assumes standard phylip format
-        s = i[11:]    #
+        if type=='STANDARD':
+            l = i[:10]    #this assumes standard phylip format
+            s = i[11:]    #
+        else:
+            index = i.rfind('  ')
+            l = i[:index]
+            s = i[index+1:]
+            
         label.append(l.strip())
         sequence.append(s.strip())
     if DEBUG:

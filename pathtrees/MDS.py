@@ -80,6 +80,19 @@ def best_likelihoods(Likelihood):
     print("Best Likelihoods = ", Like_Big)
     return list(zip(idx,Like_Big))
 
+def bestNstep_likelihoods(Likelihood, n, step):
+    #Note : we did not consider likelihood for PathTrees
+    #sort=sorted(Likelihood)
+    lenL = len(Likelihood)
+    if n > lenL:
+        n=lenL
+    sort_index= sorted(range(len(Likelihood)), key=lambda k: Likelihood[k])
+    idx=sort_index[-n::step]    #10 best
+    Like_Big = [Likelihood[i] for i in idx]
+    print("Picked trees = ",idx)
+    print("Picked Likelihoods = ", Like_Big)
+    return list(zip(idx,Like_Big))
+
 
 def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2D MDS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

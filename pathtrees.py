@@ -100,6 +100,10 @@ def myparser():
                         default=0, action='store',type=int,
                         help='Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees, this will add an iteration number to the outputdir, and also adds iteration to the plotting.')
 
+    parser.add_argument('-e','--extended', dest='phyliptype',
+                        default=None, action='store_true',
+                        help='If the phylip dataset is in the extended format, use this.')
+
     args = parser.parse_args()
     return args
 
@@ -115,6 +119,11 @@ if __name__ == "__main__":
     outgroup = args.outgroup
     num_iterations = args.num_iterations+1
     plotfile = args.plotfile
+    phyliptype = args.phyliptype
+    if phyliptype:
+        type = 'EXTENDED'
+    else:
+        type = 'STANDARD'
     if num_iterations<=1:
         os.system(f'mkdir -p {outputdir}')
         outputdir = [outputdir]
@@ -133,7 +142,7 @@ if __name__ == "__main__":
     #    print(args.plotfile)
     print(args)
 
-    labels, sequences, variable_sites = ph.readData(datafile)
+    labels, sequences, variable_sites = ph.readData(datafile, type)
     #print(labels)
     #print(variable_sites)
     #sys.exit()
@@ -157,6 +166,7 @@ if __name__ == "__main__":
         tic = time.perf_counter()
         it = it1-1
         print(f'Iteration {it1}')
+        store_results(outputdir[it],f'starttrees-{it1}',StartTrees)
         Pathtrees = masterpathtrees(StartTrees)
         Treelist= StartTrees+Pathtrees
         Likelihoods = likelihoods(Treelist,sequences)
@@ -180,8 +190,12 @@ if __name__ == "__main__":
         toc2 = time.perf_counter()
         time2 = toc2 - tic2
         print(f"Time of GTP distances of all trees = {time2}")
+        #if experiment:
+        bestlike = plo.bestNstep_likelihoods(Likelihoods,20,2)
+        print("@",bestlike)
+        #else:
+        #    bestlike = plo.best_likelihoods(Likelihoods)
         if plotfile != None:
-            bestlike = plo.best_likelihoods(Likelihoods)
             n = len(Treelist)
             N= len(Pathtrees)
             distancefile = os.path.join(outputdir[it], 'output.txt')
@@ -191,4 +205,4 @@ if __name__ == "__main__":
             plo.interpolate_grid(plotfile2[it], N, n, distances,Likelihoods, bestlike, StartTrees)
         if it1 < num_iterations:
             StartTrees = [Treelist[tr] for tr in list(zip(*bestlike))[0]]
-
+            print("@length of start trees after an iteration: ",len(StartTrees))
