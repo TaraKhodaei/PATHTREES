@@ -23,7 +23,7 @@ def readData(file, type='STANDARD'):     #testdata.phy : sequences
             l = i[:index]
             s = i[index+1:]
             
-        label.append(l.strip())
+        label.append(l.strip().replace(' ','_'))
         sequence.append(s.strip())
     if DEBUG:
         print ("Phylip file:", file)
@@ -34,6 +34,7 @@ def readData(file, type='STANDARD'):     #testdata.phy : sequences
     varsites = [len([i for i in list(set(si)) if i!='-']) for si in zip(*varsites)]
     varsites = [sum([vi>1 for vi in varsites]),len(varsites)] 
     #print(varsites)
+    #print(label)
     return label,sequence,varsites
 
 def readTreeString(file):     #testdata.tre : Newick trees

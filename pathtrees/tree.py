@@ -395,7 +395,8 @@ def create_random_tree(labels,blens,outgroup=None):
     #print(biter)
     rng = default_rng()
     #print(nodes)
-    #print(labels)
+    #print("@@@@@@@@",labels)
+    #sys.exit()
     #print(len(blens))
     if outgroup != None:
         i = nodes.index(outgroup)
@@ -427,5 +428,6 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     blen = totaltreelength * rng.dirichlet(a)
     rt = create_random_tree(labels, blen.tolist(), outgroup)
     #print(rt)
+    #sys.exit()
     return rt
     
