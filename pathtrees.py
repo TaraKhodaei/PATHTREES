@@ -88,6 +88,9 @@ def myparser():
     parser.add_argument('-n','--np', '--numpathtrees', dest='NUMPATHTREES',
                         default=10, action='store',type=int,
                         help='Number of trees along the path between two initial trees')
+    parser.add_argument('-b','--best', '--numbesttrees', dest='NUMBESTTREES',
+                        default=10, action='store',type=int,
+                        help='Number of trees selected from the best likliehood trees for the next round of refinement')
     parser.add_argument('-r','--randomtrees', dest='num_random_trees',
                         default=0, action='store',type=int,
                         help='Generate num_random_trees rooted trees using the sequence data individual names.')
@@ -103,6 +106,9 @@ def myparser():
     parser.add_argument('-e','--extended', dest='phyliptype',
                         default=None, action='store_true',
                         help='If the phylip dataset is in the extended format, use this.')
+    parser.add_argument('-bound','--hull', '--boundary', dest='proptype',
+                        default=None, action='store_true',
+                        help='Start the iteration using a convex hull instead of n best likelihood trees.')
 
     args = parser.parse_args()
     return args
@@ -119,6 +125,7 @@ if __name__ == "__main__":
     outgroup = args.outgroup
     num_iterations = args.num_iterations+1
     plotfile = args.plotfile
+    proptype = args.proptype
     phyliptype = args.phyliptype
     if phyliptype:
         type = 'EXTENDED'
@@ -137,7 +144,9 @@ if __name__ == "__main__":
             os.system(f'mkdir -p {o}{it}')
             outputdir.append(f'{o}{it}')
             plotfile2.append(f"contour_{it}_{plotfile}")
+
     NUMPATHTREES = args.NUMPATHTREES
+    NUMBESTTREES = args.NUMBESTTREES
 
     #    print(args.plotfile)
     print(args)

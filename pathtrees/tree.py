@@ -21,6 +21,7 @@
 #                      (downpass)
 #     -likelihood    : calculates the log likelihood of the whole tree
 #                      (uses Tree.condLikelihood)
+#     [not implemented yet] -optimize      : optimize branch length (likelihood)
 #     -setParameters : sets the mutation rate matrix and basefrequencies
 #     -printLnL      : prints log likelihood of tree
 #     -getLnL        : returns log likelihood
