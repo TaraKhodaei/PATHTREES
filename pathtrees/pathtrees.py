@@ -22,7 +22,7 @@ import tree
 import itertools
 import copy
 
-DEBUG=True
+DEBUG=False
 
 def pathtrees(treefile, terminallist, numpathtrees):
     '''

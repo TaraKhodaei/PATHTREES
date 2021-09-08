@@ -142,7 +142,7 @@ def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
 #~~~~~~~~~~~~~~~~~~~interpolation_griddata (Contour & Surface)~~~~~~~~~~~~~~~~~~~~~~
 #meth: linear, cubic, nearest
 
-def interpolate_grid(filename, N, n, M, Likelihood, bestlike, StartTrees, hull_indices=None):
+def interpolate_grid(it, filename, N, n, M, Likelihood, bestlike, Treelist, StartTrees, hull_indices=None):
     meth= 'cubic'
     num=100
     numstarttrees = len(StartTrees)

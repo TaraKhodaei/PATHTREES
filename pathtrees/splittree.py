@@ -31,6 +31,9 @@ class Redirectedstdout:
     
 
 def print_newick_string(tips,edges,tiplen,edgelen):
+    if len(edges)==0:     #Tara did this for debuging
+        newick  = '('+str(tips[0])+':'+str(tiplen[0])+','+ str(tips[1])+':'+str(tiplen[1])+')'+':0.0'
+        return  newick  # this should probably abort!
     treenodes = {}
     for name,blen in zip(tips,tiplen):
         p = tree.Node()

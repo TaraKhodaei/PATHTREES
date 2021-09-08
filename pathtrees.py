@@ -10,6 +10,7 @@ import pathtrees.likelihood as like
 import pathtrees.phylip as ph
 import pathtrees.tree as tree
 import pathtrees.MDS as plo
+import pathtrees.wrf as wrf
 
 import numpy as np
 import time
@@ -109,6 +110,9 @@ def myparser():
     parser.add_argument('-bound','--hull', '--boundary', dest='proptype',
                         default=None, action='store_true',
                         help='Start the iteration using a convex hull instead of n best likelihood trees.')
+    parser.add_argument('-f','--fast', '--wrf', dest='fast',
+                        default=None, action='store_true',
+                        help='use weighted Robinson-Foulds distance for MDS plotting [fast], if false use GTP derived geodesic distance [slow]')
 
     args = parser.parse_args()
     return args
@@ -125,7 +129,10 @@ if __name__ == "__main__":
     outgroup = args.outgroup
     num_iterations = args.num_iterations+1
     plotfile = args.plotfile
+    fast = args.fast
     proptype = args.proptype
+    if proptype:
+        from scipy.spatial import ConvexHull
     phyliptype = args.phyliptype
     if phyliptype:
         type = 'EXTENDED'
@@ -147,7 +154,7 @@ if __name__ == "__main__":
 
     NUMPATHTREES = args.NUMPATHTREES
     NUMBESTTREES = args.NUMBESTTREES
-
+    STEPSIZE = 1  # perhaps this should be part of options
     #    print(args.plotfile)
     print(args)
 
@@ -189,29 +196,54 @@ if __name__ == "__main__":
         print(f"Time of generating pathtrees results = {time1}")
         tic2 = time.perf_counter()
         #if DEBUG:
+        #--------------
         newtreelist = os.path.join(outputdir[it], 'treelist')
-        print('Calculate geodesic distance among all pathtrees')
-        run_gtp(newtreelist, GTPTERMINALLIST)
-        os.system(f'mv pathtrees/gtp/output.txt {outputdir[it]}/')
-        if not keep:
-            os.system(f'rm {GTPTERMINALLIST}')
-            os.system(f'rm {GTPTREELIST}')
-        toc2 = time.perf_counter()
-        time2 = toc2 - tic2
-        print(f"Time of GTP distances of all trees = {time2}")
+        if not fast:
+            print('Calculate geodesic distance among all pathtrees')
+            run_gtp(newtreelist, GTPTERMINALLIST)
+            os.system(f'mv pathtrees/gtp/output.txt {outputdir[it]}/')
+            if not keep:
+                os.system(f'rm {GTPTERMINALLIST}')
+                os.system(f'rm {GTPTREELIST}')
+            toc2 = time.perf_counter()
+            time2 = toc2 - tic2
+            print(f"Time of GTP distances of all trees = {time2}")
         #if experiment:
-        bestlike = plo.bestNstep_likelihoods(Likelihoods,20,2)
+        bestlike = plo.bestNstep_likelihoods(Likelihoods,NUMBESTTREES,STEPSIZE)
         print("@",bestlike)
         #else:
         #    bestlike = plo.best_likelihoods(Likelihoods)
         if plotfile != None:
             n = len(Treelist)
             N= len(Pathtrees)
-            distancefile = os.path.join(outputdir[it], 'output.txt')
-            distances = plo.read_GTP_distances(n,distancefile)
+            if not fast:
+                distancefile = os.path.join(outputdir[it], 'output.txt')
+                distances = plo.read_GTP_distances(n,distancefile)
+            else:
+                #print(newtreelist)
+                print("using weighted Robinson-Foulds distance for plotting")
+                distances = wrf.RF_distances(n, newtreelist)
+
+            if proptype:
+                idx = list(zip(*bestlike))[0]   
+                X= plo.MDS(distances,2)
+                X1= X[idx, :]
+                #                print("\nlen of X =",np.shape(X1))
+                hull = ConvexHull(X1)
+                hull_indices = hull.vertices      # Get the indices of the hull points.
+                print("len of hull_indices =",len(hull_indices))
+                print("hull_indices =",hull_indices)
+                hull_idx = [idx[i] for i in hull_indices]
+                print("hull_idx  =",hull_idx )
+                hull_pts = X[hull_idx, :]       # These are the actual points.
+                Boundary_Trees = [Treelist[i] for i in hull_idx]
+                Boundary_Trees = [s.replace('\n', '') for s in Boundary_Trees]
+            else:
+                hull_idx = None
+
             if DEBUG:
                 plo.plot_MDS(plotfile, N, n, distances, Likelihoods, bestlike, Treelist, Pathtrees)
-            plo.interpolate_grid(plotfile2[it], N, n, distances,Likelihoods, bestlike, StartTrees)
+            plo.interpolate_grid(it, plotfile2[it], N, n, distances,Likelihoods, bestlike, Treelist, StartTrees, hull_idx)
         if it1 < num_iterations:
             StartTrees = [Treelist[tr] for tr in list(zip(*bestlike))[0]]
             print("@length of start trees after an iteration: ",len(StartTrees))
