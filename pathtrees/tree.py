@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-
+DEBUG=False
 # node and tree class
 # class Node defines:
 #     -Node (see __init__)
@@ -233,7 +233,11 @@ class Tree(Node):
             self.insertSequence(p.left,label,sequences)
             self.insertSequence(p.right,label,sequences)
         else:
-            pos = label.index(p.name.strip())
+            the_name = p.name.strip()
+            the_name.replace(' ','_')
+            if DEBUG:
+                print("@@@ tipname", the_name, "Labels:",label)
+            pos = label.index(the_name.strip())
             p.sequence = like.tipCondLikelihood(sequences[pos])
 
 
