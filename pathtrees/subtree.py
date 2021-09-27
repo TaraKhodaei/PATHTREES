@@ -333,28 +333,18 @@ def subtrees(treelist, terminallist):
 
 
     disjoint_indices_T1=[]
-    for i, item in enumerate(flatten_A):
-        for j, support in enumerate(T1_editted):
-            if len(support)>1:
-                if any (set(x) == set(item) for x in support):
-                    disjoint_indices_T1.append(j)
-                    T1[j].append(A_list[i])
-#    print("\nTree1 subtrees with supports:\n",T1)
-#    print("\ndisjoint_indices_T1 : ",disjoint_indices_T1)
 
-
-    disjoint_indices_T2=[]
-    for i, item in enumerate(flatten_B):
-        for j, support in enumerate(T2_editted):
-            if len(support)>1:
-                if any (set(x) == set(item) for x in support):
-                    disjoint_indices_T2.append(j)
-                    T2[j].append(B_list[i])
-#    print("\nTree2 subtrees with supports:\n",T2)
-#    print("\ndisjoint_indices_T2 : ",disjoint_indices_T2)
-
-
-#    print(f'\n\n***************  Test : GTP Support list based on subs"  ****************\n')
+    for i in range(len(flatten_A)):
+        GTP_sub_tips = set(flatten_A[i]+flatten_B[i])
+        #print(f"\n\n\n----> GTP_sub_tips : {GTP_sub_tips}")
+        for j, sub in enumerate(T1_editted):  #TEST sep10
+            if ( set(GTP_sub_tips) <= set(sub[0])  ):
+                disjoint_indices_T1.append(j)
+                T1[j].append(A_list[i])
+                T2[j].append(B_list[i])
+                break
+            
+    disjoint_indices_T2 = disjoint_indices_T1   
 
     Tree1 = Results[0]
     Tree1 = [[item[i] for item in Tree1] for i in range(len(Tree1[0]))]
@@ -390,32 +380,32 @@ def subtrees(treelist, terminallist):
                         b[i].extend(list(set(a)-set(sub_dict[1][m])))
 #    print("\nB_list_editted :\n",B_list_editted)
 
-    Tree1_editted = sub_list[0]
-    Tree2_editted = sub_list[1]
+##    Tree1_editted = sub_list[0]
+##    Tree2_editted = sub_list[1]
 #    print("\n\nEditted Tree1 subtrees (edges) :\n", Tree1_editted)
 #    print("\n\nEditted Tree2 subtrees (edges) :\n", Tree2_editted)
     
-    disjoint_indices_Tree1=[]
-    for i, item in enumerate(flatten_A):
-        for j, support in enumerate(Tree1_editted):
-            if len(support)>1:
-                if any (set(x) == set(item) for x in support):
-                    disjoint_indices_Tree1.append(j)
-                    Tree1[j].append(A_list_editted[i])
+###    disjoint_indices_Tree1=[]
+##    for i, item in enumerate(flatten_A):
+##        for j, support in enumerate(Tree1_editted):
+##            if len(support)>1:
+##                if any (set(x) == set(item) for x in support):
+##                    disjoint_indices_Tree1.append(j)
+##                    Tree1[j].append(A_list_editted[i])
 #    print("\n\n\nTree1 subtrees with supports:\n",Tree1)
 #    print("\ndisjoint_indices_Tree1 : ",disjoint_indices_Tree1)
 
-    disjoint_indices_Tree2=[]
-    for i, item in enumerate(flatten_B):
-        for j, support in enumerate(Tree2_editted):
-            if len(support)>1:
-                if any (set(x) == set(item) for x in support):
-                    disjoint_indices_Tree2.append(j)
-                    Tree2[j].append(B_list_editted[i])
+##    disjoint_indices_Tree2=[]
+##    for i, item in enumerate(flatten_B):
+##        for j, support in enumerate(Tree2_editted):
+##            if len(support)>1:
+##                if any (set(x) == set(item) for x in support):
+##                    disjoint_indices_Tree2.append(j)
+##                    Tree2[j].append(B_list_editted[i])
 #    print("\n\n\nTree2 subtrees with supports:\n",Tree2)
 #    print("\ndisjoint_indices_Tree2 : ",disjoint_indices_Tree2)
 
-    Results_subtrees =[Tree1, Tree2, [sorted(disjoint_indices_Tree1) , sorted(disjoint_indices_Tree2)]]
+    Results_subtrees =[T1, T2, [sorted(disjoint_indices_T1) , sorted(disjoint_indices_T2)]]
 #    np.savetxt ('Results_subtrees.txt', Results_subtrees,  fmt='%s' , delimiter=', ')
 
     return(Results_subtrees, tip_dict, edge_dict)

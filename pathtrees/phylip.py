@@ -4,7 +4,7 @@
 # -readTreeString: read NEWICK formated trees from a file 
 #                  and returns a list of strings 
 # PB Oct 2011, PB,MK April 2021
-DEBUG = False
+DEBUG = True
 def readData(file, type='STANDARD'):     #testdata.phy : sequences
     f = open(file,'r')
     label =[]
@@ -29,6 +29,8 @@ def readData(file, type='STANDARD'):     #testdata.phy : sequences
         print ("Phylip file:", file)
         print ("    species:", numind)
         print ("    sites:  ", numsites)
+        print ("first label:",label[0])
+        print ("last  label:",label[-1])
     varsites = [list(si) for si in sequence if len(si)>0]
     #print(len(varsites),len(varsites[0]))
     varsites = [len([i for i in list(set(si)) if i!='-']) for si in zip(*varsites)]

@@ -63,6 +63,7 @@ def getName(s):
 
 
 def istip(p):
+    #print("istip:",p)
     if((p.left == -1) & (p.right == -1) & (p.name != "root")):
         return True
     else:
@@ -105,7 +106,54 @@ class Node:
         self.right = right
         self.ancestor = -1
         self.blength = -1
-    
+
+    def optimize_branch(self,thetree):
+        f = thetree.likelihood()
+        store = self.blength
+        #print("before change:",f)
+        if store < 0.0001:
+            h = 0.001
+        else:
+            h = 0.25 * store
+        self.blength = store - h
+        if self.blength < 0.0:
+            self.blength = 0.0
+        f0 = thetree.likelihood()
+        #print("f0:",f0, "[blen=", store - h,"]")
+        self.blength = store + h
+        f2 = thetree.likelihood()
+        print(f'f2={f2} f0={f0} h={h} [f={f}]')
+        if f2 == -np.inf and f0 == -np.inf:
+            return
+        if np.abs(f2-f0) > 0.0001 and h > 0.0001:
+            fdash = (f2 - f0)/h
+            ftwodash = ((f2 - 2*f + f0)/(h*h))
+            self.blength = store - fdash / ftwodash
+            if self.blength < 0.0:
+                self.blength = 0.0
+        else:
+            fdash = 0.0
+            ftwodash=1.0
+            self.blength = store
+        x = thetree.likelihood()
+        #print(f"final:b={self.blength},borig={store}, f'={fdash}/f''={ftwodash}, [{f}, {f0}, {f2}, lnL={x}")
+        mult = 0.5
+        counter = 0
+        while x == -np.inf or x < f or x < f0 or x < f2:
+            self.blength = store - mult * fdash / ftwodash
+            fdash /= 2.0
+            mult /= 2.0
+            if self.blength < 0.0:
+                self.blength = 0.0
+            x = thetree.likelihood()
+            if fdash < 0.00001 or counter > 5:
+                break
+            counter += 1
+            #if DEBUG:
+            #print(f"@@@final:b={self.blength},borig={store}, f'={fdash}/f''={ftwodash}, [{f}, {f0}, {f2}, lnL={x}")
+        #else:
+        #    print(f"opt lnL {x}")
+
     def myprint(self,file=sys.stdout):
         """
         Prints the content of a node: name if any and branchlengths if any
@@ -257,7 +305,23 @@ class Tree(Node):
     def likelihood(self):
         self.condLikelihood(self.root)
         self.lnL = like.logLikelihood(self.root.sequence,self.basefreqs)
-    
+        return self.lnL
+
+    def optimize(self):
+        self.optimize_branch(self.root)
+        #print("finished1",self.likelihood())
+        #self.optimize_branch(self.root)
+        #print("finished2",self.likelihood())
+        return self.lnL
+        
+    def optimize_branch(self,p):
+        if not(istip(p)):
+            self.optimize_branch(p.left)
+            p.optimize_branch(self)   
+            self.optimize_branch(p.right)
+            p.optimize_branch(self)
+        else:
+            p.optimize_branch(self)   
     
     def setParameters(self,Q,basefreqs):
         self.Q = Q
@@ -436,3 +500,42 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     #sys.exit()
     return rt
     
+if __name__ == "__main__":
+        #    import data
+    if "--test" in sys.argv:
+        import phylip as ph
+        infile = sys.argv[2]
+        starttrees = sys. argv[3]
+        labels, sequences, variable_sites = ph.readData(infile)
+        with open(starttrees,'r') as f:
+            StartTrees = [line.strip() for line in f]
+            #    data = Data()
+            #    newick = data.read()
+        for newick in StartTrees:
+            mtree = Tree()
+            mtree.myread(newick,mtree.root)
+            mtree.insertSequence(mtree.root,labels,sequences)
+            original = mtree.likelihood()
+            #print("orig", original)
+            best = mtree.optimize()
+            print("orig vs best",original, best)
+            print(newick)
+            mtree.myprint(mtree.root)
+    else:
+        newick = "(0BAA:0.0164907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
+        labels = ["0BAA","0BAB","0BAC","0BAD"]
+        sequences = ['AA','GA','CA','CC']
+        #root = Node()
+        mtree = Tree()
+        mtree.myread(newick,mtree.root)
+        mtree.insertSequence(mtree.root,labels,sequences)
+        original = mtree.likelihood()
+        #print("orig", original)
+        best = mtree.optimize()
+        print("orig vs best",original, best)
+        #best = mtree.optimize()
+        #print("orig vs best",original, best)
+        #best = mtree.optimize()
+        #print("orig vs best",original, best)
+        print(newick)
+        mtree.myprint(mtree.root)

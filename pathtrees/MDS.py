@@ -142,10 +142,10 @@ def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
 #~~~~~~~~~~~~~~~~~~~interpolation_griddata (Contour & Surface)~~~~~~~~~~~~~~~~~~~~~~
 #meth: linear, cubic, nearest
 
-def interpolate_grid(it, filename, N, n, M, Likelihood, bestlike, Treelist, StartTrees, hull_indices=None):
+def interpolate_grid(it, filename, n, M, Likelihood, bestlike, Treelist, StartTrees, hull_indices=None):
     meth= 'cubic'
     num=100
-    numstarttrees = len(StartTrees)
+    N = len(StartTrees)
     X= MDS(M,2)
     xx = np.linspace(np.min(X),np.max(X),num)
     yy =  np.linspace(np.min(X),np.max(X),num)
@@ -166,9 +166,9 @@ def interpolate_grid(it, filename, N, n, M, Likelihood, bestlike, Treelist, Star
     vmin, vmax = min(Likelihood), max(Likelihood)    #To keep consistency between colors, use the vmin, vmax arguments when breaking up the points to use colormap and different markers for different values
     
     if it==0:
-        ax1.scatter(X[:N,0], X[:N,1], c=Likelihood[:N] ,alpha=1, marker='^', vmin = vmin, vmax = vmax, cmap='viridis',  edgecolors="black", linewidths=0.5, s=35, label=f"{numstarttrees} Starting trees")     #starttrees
+        ax1.scatter(X[:N,0], X[:N,1], c=Likelihood[:N] ,alpha=1, marker='^', vmin = vmin, vmax = vmax, cmap='viridis',  edgecolors="black", linewidths=0.5, s=35, label=f"{N} Starting trees")     #starttrees
     if it>0:
-        ax1.scatter(X[:N-1,0], X[:N-1,1], c=Likelihood[:N-1] ,alpha=1, marker='^', vmin = vmin, vmax = vmax, cmap='viridis',  edgecolors="black", linewidths=0.5, s=35, label=f"{numstarttrees} Starting trees")     #starttrees without previous best tree
+        ax1.scatter(X[:N-1,0], X[:N-1,1], c=Likelihood[:N-1] ,alpha=1, marker='^', vmin = vmin, vmax = vmax, cmap='viridis',  edgecolors="black", linewidths=0.5, s=35, label=f"{N} Starting trees")     #starttrees without previous best tree
         ax1.scatter(X[N-1,0], X[N-1,1], c=Likelihood[N-1] ,alpha=1, marker='^', vmin = vmin, vmax = vmax, cmap='viridis',      edgecolors="black", linewidths=1.2, s=80, label="Previous best tree \nLogLike {:4.4f}".format(Likelihood[N-1]))   #best tree from the previous iteration
 
     points = ax1.scatter(X[N:,0], X[N:,1], alpha=0.8,  marker='o', c=Likelihood[N:] , cmap='viridis',  edgecolors="black", linewidths=0.3, s=5, label="All {} Path trees".format(len(Treelist)))  #PathTrees

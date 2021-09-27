@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
 #
+DEBUG=False
+
 import sys
 from pathlib import Path
 file = Path(__file__).resolve()
@@ -29,8 +31,133 @@ class Redirectedstdout:
     def __str__(self):
         return self._string_io.getvalue()
     
-
 def print_newick_string(tips,edges,tiplen,edgelen):
+    if DEBUG:
+        print(tips)
+        print(edges)
+        print(tiplen)
+        print(edgelen)
+
+    treenodes = {}
+    interior={}
+    finished={}
+    for name,blen in zip(tips,tiplen):
+        p = tree.Node()
+        p.name = name
+        p.blength = blen
+        #print(name,end=' ')
+        treenodes[name]=p
+    tmp = zip(edges,edgelen)
+    sorted_edges = sorted(tmp,key=lambda x: len(x[0]))
+    count = 0
+    for edge,elen in sorted_edges:
+        count += 1
+        p = tree.Node()
+        p.blength = elen
+        ledge = len(edge)
+        x = sorted(edge)
+        z ='|'.join(x)
+        p.name = z
+        treenodes[z] = p
+        pick=[]
+        for e in x:
+            pick.append(e)  # find all atoms [=tips]
+        #print("count, pick", count,pick)
+        if len(pick)==2: # if there are only 2 this is easy
+            # because the interior node connects two tips
+            q = treenodes[pick[0]]
+            p.left = q
+            q.ancestor = p
+            q = treenodes[pick[1]]
+            p.right = q
+            q.ancestor = p
+            del treenodes[pick[0]] #delete these tips from dict
+            del treenodes[pick[1]] #
+            finished[pick[0]]=z
+            finished[pick[1]]=z
+            interior[z]=[pick[:1]]
+            if DEBUG:
+                print(f"assembled {z} from {pick[0]} and {pick[1]}")
+        else:
+            # if pick contains more than 3 atoms then either this is
+            # - tip + interior
+            # - interior + interior, find first tip + interior
+            candidate=[]
+            name = None
+            for key in pick:
+                #print('checking',key)
+                if key in treenodes:
+                    name = key  #we found a tip
+                    #print("found tip",name)
+                else:
+                    # this must be an interior
+                    interiorkeys = interior.keys()
+                    for inter in interiorkeys:
+                        if key in inter.split('|'):
+                            candidate.append([inter,key])
+            #for can in candidate:
+            # print(f"potential interior {can}")
+            candi = list(set([c[0] for c in candidate]))
+            if len(candi)==1 and name!=None:
+                # because the interior node connects a tip + interior
+                q = treenodes[name]
+                p.left = q
+                q.ancestor = p
+                q = treenodes[candi[0]]
+                p.right = q
+                q.ancestor = p
+                del treenodes[name] #delete these tips from dict
+                del treenodes[candi[0]] #
+                #finished[name]=z
+                #finished[candi[0]]=z
+                del interior[candi[0]]
+                interior[z]=[[name,candi[0]]]
+                if DEBUG:
+                    print(f"assembled {z} from {name} and {candi[0]}")
+            elif len(candi)==2 and name == None:
+                # because the interior node connects a interior + interior
+                q = treenodes[candi[0]]
+                p.left = q
+                q.ancestor = p
+                q = treenodes[candi[1]]
+                p.right = q
+                q.ancestor = p
+                del treenodes[candi[0]] #delete these tips from dict
+                del treenodes[candi[1]] #
+                finished[candi[0]]=z
+                finished[candi[1]]=z
+                del interior[candi[0]]
+                del interior[candi[1]]
+                interior[z]=[[candi[0],candi[1]]]
+                if DEBUG:
+                    print(f"assembled {z} from {name} and {candi[0]}")
+            else:
+                print("Problem with splittree.py")
+                print("remaining",candi)
+                print("remaining2",candidate)
+                sys.exit()
+    subtrees = list(treenodes.values())
+    if len(subtrees)!=2:
+        print(f"problem in splittree.py with assembling last subtrees {treenodes}")
+        sys.exit()
+    root = tree.Node()
+    root.name = 'root'
+    root.left=subtrees[0]
+    root.right=subtrees[1]
+    root.left.ancestor = root
+    root.right.ancestor = root
+    root.blength = 0.0
+    t = tree.Tree()
+    t.root = root
+    t.remove_internal_labels(t.root)
+    with Redirectedstdout() as newick:
+        t.myprint(t.root, file=sys.stdout)
+    if DEBUG:
+        print("Newick",str(newick))
+    return str(newick)
+
+    
+def print_newick_string_obsolete(tips,edges,tiplen,edgelen):
     if len(edges)==0:     #Tara did this for debuging
         newick  = '('+str(tips[0])+':'+str(tiplen[0])+','+ str(tips[1])+':'+str(tiplen[1])+')'+':0.0'
         return  newick  # this should probably abort!
