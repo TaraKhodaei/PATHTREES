@@ -21,7 +21,8 @@ DEBUG=False
 #                      (downpass)
 #     -likelihood    : calculates the log likelihood of the whole tree
 #                      (uses Tree.condLikelihood)
-#     [not implemented yet] -optimize      : optimize branch length (likelihood)
+#     -optimizeNR    : optimize branch length (likelihood) using Newton-Raphson {works on some trees}
+#     -optimize      : use Nelder Mead optimization
 #     -setParameters : sets the mutation rate matrix and basefrequencies
 #     -printLnL      : prints log likelihood of tree
 #     -getLnL        : returns log likelihood
@@ -48,6 +49,7 @@ import numpy as np
 from numpy.random import default_rng
 from scipy.optimize import linprog
 import likelihood as like
+import optimize as opt
 
 #=========================================  Peter code  ==========================================
 
@@ -86,7 +88,8 @@ class Node:
         self.ancestor = -1
         self.blength = -1
         self.sequence = []
-    
+        self.clean = False
+        
     def tip(self,name):
         """
         sets the name of a tip
@@ -122,7 +125,8 @@ class Node:
         #print("f0:",f0, "[blen=", store - h,"]")
         self.blength = store + h
         f2 = thetree.likelihood()
-        print(f'f2={f2} f0={f0} h={h} [f={f}]')
+        if DEBUG:
+            print(f'f2={f2} f0={f0} h={h} [f={f}]')
         if f2 == -np.inf and f0 == -np.inf:
             return
         if np.abs(f2-f0) > 0.0001 and h > 0.0001:
@@ -302,12 +306,60 @@ class Tree(Node):
                                              self.Q)
         #print ("\ninternal node: p=",p,"\n      condlike[first site]=",p.sequence.tolist()[:1])
 
+    
+
+
+        
     def likelihood(self):
         self.condLikelihood(self.root)
         self.lnL = like.logLikelihood(self.root.sequence,self.basefreqs)
         return self.lnL
 
-    def optimize(self):
+    def delegate_extract(self,p,delegate):
+        if not(istip(p)):
+            self.delegate_extract(p.left,delegate)
+            self.delegate_extract(p.right,delegate)
+            type=''
+            if istip(p.left):
+                p.left.clean=True
+                type+='t'
+            else:
+                p.left.clean=False
+                type+='i'
+            if istip(p.right):
+                p.right.clean=True
+                type+='t'
+            else:
+                p.right.clean=False
+                type+='i'
+            p.clean = False
+            if p.name=='root':
+                type+='r'
+            else:
+                type+='i'
+            delegate.append([p.left,p.right,p, type])
+
+    def delegate_calclike(self,delegates):
+        blen=[]
+        seq =[]
+        done = False
+        while not done:
+            for d in delegates:
+                #print(d)
+                if d[0].clean and d[1].clean:
+                    d[2].sequence = like.nodeLikelihood(d[0].sequence,d[1].sequence,d[0].blength, d[1].blength, self.Q)
+                    d[2].clean = True
+                    if d[3][2]=='r':
+                        done = True
+                        break
+                else:
+                    continue
+        #print('before lnL')        
+        self.lnL = like.logLikelihood(self.root.sequence,self.basefreqs)
+        #print(self.lnL)
+        return self.lnL
+        
+    def optimizeNR(self):
         self.optimize_branch(self.root)
         #print("finished1",self.likelihood())
         #self.optimize_branch(self.root)
@@ -322,7 +374,19 @@ class Tree(Node):
             p.optimize_branch(self)
         else:
             p.optimize_branch(self)   
-    
+
+            
+    def optimize(self):
+        # minimize using Nelder-Mead
+        x,fval,iterations, tree1 = opt.minimize_neldermead(self, maxiter=None, initial_simplex=None, xatol=1e-2, fatol=1e-2, adaptive=False)
+        delegates =[]
+        tree1.delegate_extract(tree1.root,delegates):
+        instruct_delegate_branchlengths(x,delegates)
+        tree1.lnL = -fval
+        if DEBUG:
+            print("optimize tree likelihood:", -fval,iterations)
+        return(tree1)
+            
     def setParameters(self,Q,basefreqs):
         self.Q = Q
         self.basefreqs = basefreqs
@@ -424,6 +488,33 @@ class Tree(Node):
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Outside class functions  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def extract_delegate_branchlengths(delegates):
+    x0 = []
+    s0=[]
+    clean0=[]
+    type0=[]
+    for d in delegates:
+        x0.extend([d[0].blength,d[1].blength])
+        s0.append([d[0].sequence,d[1].sequence,d[2].sequence])
+        clean0.append([d[1].clean,d[2].clean])
+        type0.append(d[3])
+    return x0,s0,clean0,type0
+
+def instruct_delegate_branchlengths(x0, delegates):
+    z=0
+    for d in delegates:
+        if d[0].blength != x0[z]:
+            d[0].blength = x0[z]
+            if d[3][0]!='t':
+                d[0].clean = False
+            d[2].clean = False
+        z += 1
+        if d[1].blength != x0[z]:
+            d[1].blength = x0[z]
+            if d[3][1]!='t':
+                d[1].clean = False
+            d[2].clean = False
+        z += 1
 
 def TreesDistance(m, M, c):      # 0<=c <=1     (Peter: For scaling)
     s0=np.sum(np.array(m[0]))
@@ -501,6 +592,7 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     return rt
     
 if __name__ == "__main__":
+    nelder = True
         #    import data
     if "--test" in sys.argv:
         import phylip as ph
@@ -511,31 +603,92 @@ if __name__ == "__main__":
             StartTrees = [line.strip() for line in f]
             #    data = Data()
             #    newick = data.read()
+        print('\n\n\nNelder-Mead optimization')
         for newick in StartTrees:
-            mtree = Tree()
-            mtree.myread(newick,mtree.root)
-            mtree.insertSequence(mtree.root,labels,sequences)
-            original = mtree.likelihood()
-            #print("orig", original)
-            best = mtree.optimize()
-            print("orig vs best",original, best)
-            print(newick)
-            mtree.myprint(mtree.root)
+            if not nelder:
+                mtree = Tree()
+                mtree.myread(newick,mtree.root)
+                mtree.insertSequence(mtree.root,labels,sequences)
+                original = mtree.likelihood()
+                #print("orig", original)
+                ###best = mtree.optimize()
+                ###print("orig vs best",original, best)
+                ###print(newick)
+                mtree.myprint(mtree.root)
+                import time
+                tic = time.perf_counter()
+                original = mtree.likelihood()
+                toc = time.perf_counter()
+                print("Timer:", toc-tic)     
+                print("orig", original)
+                delegate = []
+                print()
+                tic = time.perf_counter()
+                mtree.root.name='root'
+                mtree.delegate_extract(mtree.root,delegate)
+                x = mtree.delegate_calclike(delegate)
+                toc = time.perf_counter()
+                print("Timer:", toc-tic)     
+                #print("delegate",x)
+            else:
+                #print('\n\n\nNelder-Mead optimization')
+                mtree = Tree()
+                mtree.myread(newick,mtree.root)
+                mtree.insertSequence(mtree.root,labels,sequences)
+                newtree = mtree.optimize()
+                #print(mtree.lnL)
+
     else:
-        newick = "(0BAA:0.0164907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
+        newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
         labels = ["0BAA","0BAB","0BAC","0BAD"]
         sequences = ['AA','GA','CA','CC']
         #root = Node()
         mtree = Tree()
         mtree.myread(newick,mtree.root)
         mtree.insertSequence(mtree.root,labels,sequences)
+        import time
+        tic = time.perf_counter()
         original = mtree.likelihood()
-        #print("orig", original)
-        best = mtree.optimize()
+        toc = time.perf_counter()
+        print("Timer:", toc-tic)     
+        print("orig", original)
+        best = mtree.optimizeNR()
         print("orig vs best",original, best)
         #best = mtree.optimize()
         #print("orig vs best",original, best)
         #best = mtree.optimize()
         #print("orig vs best",original, best)
-        print(newick)
+        ###print(newick)
         mtree.myprint(mtree.root)
+        delegate = []
+        print('non-tree likelihood evaluation')
+        newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
+        labels = ["0BAA","0BAB","0BAC","0BAD"]
+        sequences = ['AA','GA','CA','CC']
+        #root = Node()
+        mtree = Tree()
+        mtree.myread(newick,mtree.root)
+        mtree.insertSequence(mtree.root,labels,sequences)
+        tic = time.perf_counter()
+        mtree.root.name='root'
+        mtree.delegate_extract(mtree.root,delegate)
+        #for de in delegate:
+        #    print(de[0].name,de[0].blength,de[0].sequence)
+        #    print(de[1].name,de[1].blength,de[1].sequence)
+        #    print(de[2].name,de[2].blength,de[2].sequence)
+        #    print(de[3],"\n")
+        x = mtree.delegate_calclike(delegate)
+        toc = time.perf_counter()
+        print("Timer:", toc-tic)
+        print("non-tree like",x)
+        print('Nelder-Mead calculation')
+        newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
+        labels = ["0BAA","0BAB","0BAC","0BAD"]
+        sequences = ['AA','GA','CA','CC']
+        #root = Node()
+        mtree = Tree()
+        mtree.myread(newick,mtree.root)
+        mtree.insertSequence(mtree.root,labels,sequences)
+        mtree.optimize()
+        print(mtree.lnL)
+        

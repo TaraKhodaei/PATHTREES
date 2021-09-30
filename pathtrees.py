@@ -53,9 +53,9 @@ def masterpathtrees(treelist): #this is the master treelist
     return [a.strip() for a in allpathtrees]
 
 def likelihoods(trees,sequences, opt=False):
-    print("Likelihood",f"number of trees:{len(trees)}")
-    print("Likelihood",f"number of sequences:{len(sequences)}")
-    print("Likelihood",f"optimize:{opt}")
+    print("Likelihood:",f"number of trees:{len(trees)}")
+    print("Likelihood:",f"number of sequences:{len(sequences)}")
+    print("Likelihood:",f"optimize:{opt}")
     likelihood_values=[]
     newtrees = [] # for opt=True
     lt = len(trees)
@@ -76,7 +76,7 @@ def likelihoods(trees,sequences, opt=False):
             likelihood_values.append(t.lnL)
             with split.Redirectedstdout() as newick:
                 t.myprint(t.root,file=sys.stdout)    
-            newtrees.append(str(newick))
+            newtrees.append(str(newick)+';')
         else:
             t.likelihood()
             likelihood_values.append(t.lnL)
@@ -212,11 +212,12 @@ if __name__ == "__main__":
         Pathtrees = masterpathtrees(StartTrees)
         slen = len(StartTrees)
         Treelist= StartTrees+Pathtrees
-        Likelihoods, newtrees  = likelihoods(Treelist,sequences,opt)
+        Likelihoods, newtreelist  = likelihoods(Treelist,sequences,opt)
         if opt:
             StartTrees = newtreelist[:slen]
             Pathtrees = newtreelist[slen:]
             Treelist = newtreelist[:]
+        Likelihoods = [like if like != -np.inf else -10**8 for like in Likelihoods]
         store_results(outputdir[it],'likelihood',Likelihoods)
         store_results(outputdir[it],'treelist',Treelist)
         store_results(outputdir[it],'starttrees',StartTrees)
