@@ -52,9 +52,12 @@ import likelihood as like
 import optimize as opt
 
 #=========================================  Peter code  ==========================================
+#import re
+
 
 def getName(s):
     name = ""
+    #s = re.sub('[&.*?]', '', s)
     for j in range(len(s)):
         if((s[j]==')') | (s[j]=='(') | (s[j]==':') | (s[j]==' ') | (s[j]==',')):
             return j,name
@@ -223,6 +226,11 @@ class Tree(Node):
         """
 #        print("@",self.i)
 #        print(newick[self.i:])
+        #if newick[self.i] =='[':
+        #    while newick[self.i]!=']':
+        #        self.i += 1
+        #    self.i += 1
+
         if(newick[self.i]=="("):
             q = Node()
             p.left = q
@@ -231,6 +239,10 @@ class Tree(Node):
             if(newick[self.i]!=','):
                 print ("error reading, failed to find ',' in %s" % newick)
             self.i += 1
+         #   if newick[self.i] =='[':
+         #       while newick[self.i]!=']':
+         #           self.i += 1
+         #       self.i += 1
             q = Node()
             p.right = q
             q.ancestor = p
@@ -258,6 +270,11 @@ class Tree(Node):
                 else:
                     print ("error reading, failed to find ')' in %s" % newick)
             self.i += 1
+          #  if newick[self.i] =='[':
+          #      while newick[self.i]!=']':
+          #          self.i += 1
+          #      self.i += 1
+
         if newick[self.i] == ';':
 #            print("reached end")
             return
@@ -380,7 +397,7 @@ class Tree(Node):
         # minimize using Nelder-Mead
         x,fval,iterations, tree1 = opt.minimize_neldermead(self, maxiter=None, initial_simplex=None, xatol=1e-2, fatol=1e-2, adaptive=False)
         delegates =[]
-        tree1.delegate_extract(tree1.root,delegates):
+        tree1.delegate_extract(tree1.root,delegates)
         instruct_delegate_branchlengths(x,delegates)
         tree1.lnL = -fval
         if DEBUG:
