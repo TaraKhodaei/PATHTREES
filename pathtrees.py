@@ -5,6 +5,14 @@
 import sys
 import os
 
+import sys
+from pathlib import Path
+file = Path(__file__).resolve()
+parent = file.parent
+sys.path.append(str(file.parent))
+current = os.getcwd()
+
+
 import pathtrees.pathtrees as pt
 import pathtrees.likelihood as like
 import pathtrees.phylip as ph
@@ -19,18 +27,20 @@ import time
 
 GTPTREELIST = 'gtptreelist' # a pair of trees formed from the master treelist
 GTPTERMINALLIST = 'terminal_output_gtp'  #GTP terminal output
+GTPOUTPUT = 'output.txt' #GTP output file , check later in the source!
 NUMPATHTREES = 10  #number of trees in path
-GTP = 'pathtrees/gtp'
+GTP = os.path.join(parent, 'pathtrees','gtp')
 
-def create_treepair(ti,tj):
-    f = open(GTPTREELIST,'w')
+def create_treepair(ti,tj,pairtreelist):
+    f = open(pairtreelist,'w')
     f.write(ti.strip())
     f.write("\n")
     f.write(tj.strip())
     f.write('\n')
+    f.close()
 
-def run_gtp(gtptreelist,gtpterminallist):
-    os.system(f"cd  {GTP}; java -jar gtp.jar -v ../../{gtptreelist} > ../../{gtpterminallist}")
+def run_gtp(gtptreelist,gtpterminallist,gtpoutput):
+    os.system(f"cd  {GTP}; java -jar gtp.jar -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}")
     
 def masterpathtrees(treelist): #this is the master treelist
     # loop over treelist:
@@ -43,10 +53,11 @@ def masterpathtrees(treelist): #this is the master treelist
             if j<=i:
                 continue
             #form a treelist of the pair
-            create_treepair(ti,tj) #this writes into a file GTPTREELIST
-            #print("run gtp")
-            run_gtp(GTPTREELIST, GTPTERMINALLIST)
-            mypathtrees = pt.pathtrees(GTPTREELIST, GTPTERMINALLIST, NUMPATHTREES)
+            create_treepair(ti,tj,GTPTREELIST) #writes to a file GTPTREELIST
+            print("run gtp")
+            run_gtp(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
+            print(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
+            mypathtrees = pt.internalpathtrees(GTPTREELIST, GTPTERMINALLIST, NUMPATHTREES)
             #print("LOOP",i,j)
             allpathtrees.extend(mypathtrees)
             #save or manipulate your pathtrees
@@ -207,8 +218,9 @@ if __name__ == "__main__":
         it = it1-1
         print(f'Iteration {it1}')
         #store_results(outputdir[it],f'starttrees-{it1}',StartTrees)
-        GTPTREELIST = f'{outputdir[it]}/gtptreelist' # a pair of trees formed from the master treelist
-        GTPTERMINALLIST = f'{outputdir[it]}/terminal_output_gtp'  #GTP terminal output
+        GTPTREELIST = os.path.join(current,outputdir[it],'gtptreelist') # a pair of trees formed from the master treelist
+        GTPTERMINALLIST = os.path.join(current,outputdir[it],'terminal_output_gtp')  #GTP terminal output
+        GTPOUTPUT = os.path.join(current,outputdir[it],'output.txt')  #GTP output file
         Pathtrees = masterpathtrees(StartTrees)
         slen = len(StartTrees)
         Treelist= StartTrees+Pathtrees
@@ -231,8 +243,8 @@ if __name__ == "__main__":
         newtreelist = os.path.join(outputdir[it], 'treelist')
         if not fast:
             print('Calculate geodesic distance among all pathtrees')
-            run_gtp(newtreelist, GTPTERMINALLIST)
-            #delete this? os.system(f'mv pathtrees/gtp/output.txt {outputdir[it]}/')
+            run_gtp(newtreelist, GTPTERMINALLIST,GTPOUTPUT)
+            #os.system(f'mv pathtrees/gtp/output.txt {outputdir[it]}/')
             #if not keep:
             #    os.system(f'rm {GTPTERMINALLIST}')
             #    os.system(f'rm {GTPTREELIST}')
@@ -241,7 +253,7 @@ if __name__ == "__main__":
             print(f"Time of GTP distances of all trees = {time2}")
         #if experiment:
         bestlike = plo.bestNstep_likelihoods(Likelihoods,NUMBESTTREES,STEPSIZE)
-        print("@",bestlike)
+        #print("@",bestlike)
         #else:
         #    bestlike = plo.best_likelihoods(Likelihoods)
         if plotfile != None:
@@ -249,7 +261,8 @@ if __name__ == "__main__":
             N = len(Pathtrees)
             if not fast:
                 print("using GTP distance for plotting")
-                distancefile = os.path.join(outputdir[it], 'output.txt')
+                #distancefile = os.path.join(outputdir[it], 'output.txt')
+                distancefile = GTPOUTPUT
                 distances = plo.read_GTP_distances(n,distancefile)
             else:
                 #print(newtreelist)

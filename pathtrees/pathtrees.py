@@ -24,7 +24,7 @@ import copy
 
 DEBUG=False
 
-def pathtrees(treefile, terminallist, numpathtrees):
+def internalpathtrees(treefile, terminallist, numpathtrees):
     '''
     Generates a path between two trees using the geodesic
     '''
