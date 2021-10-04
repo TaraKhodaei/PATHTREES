@@ -82,7 +82,10 @@ def likelihoods(trees,sequences, opt=False):
         t.setParameters(Q,basefreqs)
         #calculate likelihood and return it
         if opt:
-            t.optimize()
+            if NR:
+                t.optimizeNR()
+            else:
+                t.optimize()
             print(f"optimized tree {i} of {lt} with lnL={t.lnL}")
             likelihood_values.append(t.lnL)
             with split.Redirectedstdout() as newick:
@@ -147,6 +150,10 @@ def myparser():
                         default=False, action='store_true',
                         help='calculates the pathtrees and then finds optimal branchlengths for each of them')
 
+    parser.add_argument('-optnr','--optimizenr', '--optnr', dest='NR',
+                        default=False, action='store_true',
+                        help='calculates the pathtrees and then finds optimal branchlengths using Newton-Raphson for each of them')
+
     args = parser.parse_args()
     return args
 
@@ -164,6 +171,7 @@ if __name__ == "__main__":
     plotfile = args.plotfile
     fast = args.fast
     opt = args.opt
+    NR = args.NR
     proptype = args.proptype
     if proptype:
         from scipy.spatial import ConvexHull

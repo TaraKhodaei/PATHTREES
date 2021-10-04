@@ -48,6 +48,7 @@ sys.path.append(str(file.parent))
 import numpy as np
 from numpy.random import default_rng
 from scipy.optimize import linprog
+from scipy.optimize import minimize
 import likelihood as like
 import optimize as opt
 
@@ -117,8 +118,8 @@ class Node:
         f = thetree.likelihood()
         store = self.blength
         #print("before change:",f)
-        if store < 0.0001:
-            h = 0.001
+        if store < 0.000001:
+            h = 0.000001
         else:
             h = 0.25 * store
         self.blength = store - h
@@ -132,7 +133,7 @@ class Node:
             print(f'f2={f2} f0={f0} h={h} [f={f}]')
         if f2 == -np.inf and f0 == -np.inf:
             return
-        if np.abs(f2-f0) > 0.0001 and h > 0.0001:
+        if np.abs(f2-f0) > 0.000001 and h > 0.000001:
             fdash = (f2 - f0)/h
             ftwodash = ((f2 - 2*f + f0)/(h*h))
             self.blength = store - fdash / ftwodash
@@ -146,14 +147,14 @@ class Node:
         #print(f"final:b={self.blength},borig={store}, f'={fdash}/f''={ftwodash}, [{f}, {f0}, {f2}, lnL={x}")
         mult = 0.5
         counter = 0
-        while x == -np.inf or x < f or x < f0 or x < f2:
+        while x == -np.inf or x < f: # or x < f0 or x < f2:
             self.blength = store - mult * fdash / ftwodash
             fdash /= 2.0
             mult /= 2.0
             if self.blength < 0.0:
                 self.blength = 0.0
             x = thetree.likelihood()
-            if fdash < 0.00001 or counter > 5:
+            if fdash < 0.00001 or counter > 20:
                 break
             counter += 1
             #if DEBUG:
@@ -391,8 +392,26 @@ class Tree(Node):
             p.optimize_branch(self)
         else:
             p.optimize_branch(self)   
-
             
+    def scioptimize(self):
+        # minimize using Nelder-Mead
+        delegates=[]
+        self.delegate_extract(self.root,delegates)
+        x0,s0,clean0,type0 = extract_delegate_branchlengths(delegates)
+        bounds = [(0,100)]*len(x0)
+        result = minimize(neldermeadlike, x0, args=(delegates,self),method='Nelder-Mead',bounds=bounds)
+        #result = minimize(neldermeadlike, x0, args=(delegates,self),method='L-BFGS-B',bounds=bounds)
+        x = result['x']
+        iterations = result['nit']
+        print(x,iterations)
+        #x,fval,iterations, tree1 = minimize(neldermeadlike, x0, args=(delegates,self),method='Nelder-Mead')
+        #,maxiter=None, initial_simplex=None, xatol=1e-2, fatol=1e-2, adaptive=False)
+        instruct_delegate_branchlengths(x,delegates)
+        self.delegate_calclike(delegates)
+        #if DEBUG:
+        print("scioptimize: optimize tree likelihood:", self.lnL,iterations)
+        return(self)
+
     def optimize(self):
         # minimize using Nelder-Mead
         x,fval,iterations, tree1 = opt.minimize_neldermead(self, maxiter=None, initial_simplex=None, xatol=1e-2, fatol=1e-2, adaptive=False)
@@ -400,10 +419,11 @@ class Tree(Node):
         tree1.delegate_extract(tree1.root,delegates)
         instruct_delegate_branchlengths(x,delegates)
         tree1.lnL = -fval
-        if DEBUG:
-            print("optimize tree likelihood:", -fval,iterations)
+        #if DEBUG:
+        print("optimize tree likelihood:", -fval,iterations)
         return(tree1)
-            
+
+    
     def setParameters(self,Q,basefreqs):
         self.Q = Q
         self.basefreqs = basefreqs
@@ -505,6 +525,13 @@ class Tree(Node):
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Outside class functions  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def neldermeadlike(x0,*args): # args is (delegates,tree1)
+    
+    delegates,tree1 = args
+    
+    instruct_delegate_branchlengths(x0,delegates)
+    return -tree1.delegate_calclike(delegates)
+
 def extract_delegate_branchlengths(delegates):
     x0 = []
     s0=[]
@@ -609,6 +636,7 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     return rt
     
 if __name__ == "__main__":
+    import time
     nelder = True
         #    import data
     if "--test" in sys.argv:
@@ -618,94 +646,70 @@ if __name__ == "__main__":
         labels, sequences, variable_sites = ph.readData(infile)
         with open(starttrees,'r') as f:
             StartTrees = [line.strip() for line in f]
-            #    data = Data()
-            #    newick = data.read()
+    
         print('\n\n\nNelder-Mead optimization')
         for newick in StartTrees:
-            if not nelder:
-                mtree = Tree()
-                mtree.myread(newick,mtree.root)
-                mtree.insertSequence(mtree.root,labels,sequences)
-                original = mtree.likelihood()
-                #print("orig", original)
-                ###best = mtree.optimize()
-                ###print("orig vs best",original, best)
-                ###print(newick)
-                mtree.myprint(mtree.root)
-                import time
-                tic = time.perf_counter()
-                original = mtree.likelihood()
-                toc = time.perf_counter()
-                print("Timer:", toc-tic)     
-                print("orig", original)
-                delegate = []
-                print()
-                tic = time.perf_counter()
-                mtree.root.name='root'
-                mtree.delegate_extract(mtree.root,delegate)
-                x = mtree.delegate_calclike(delegate)
-                toc = time.perf_counter()
-                print("Timer:", toc-tic)     
-                #print("delegate",x)
-            else:
-                #print('\n\n\nNelder-Mead optimization')
-                mtree = Tree()
-                mtree.myread(newick,mtree.root)
-                mtree.insertSequence(mtree.root,labels,sequences)
-                newtree = mtree.optimize()
-                #print(mtree.lnL)
-
+            mtree = Tree()
+            mtree.myread(newick,mtree.root)
+            mtree.insertSequence(mtree.root,labels,sequences)
+            tic = time.perf_counter()
+            original = mtree.likelihood()
+            toc = time.perf_counter()
+            print("Likelihood calculation\nTimer:", toc-tic)     
+            print("using downpass algorithm:", original)
+            delegate = []
+            print()
+            tic = time.perf_counter()
+            mtree.root.name='root'
+            mtree.delegate_extract(mtree.root,delegate)
+            x = mtree.delegate_calclike(delegate)
+            toc = time.perf_counter()
+            print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
+            print('\n\n\nNelder-Mead optimization')
+            tic = time.perf_counter()
+            newtree = mtree.optimize()
+            toc = time.perf_counter()
+            newtree.likelihood()
+            print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL)
     else:
         newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
         labels = ["0BAA","0BAB","0BAC","0BAD"]
         sequences = ['AA','GA','CA','CC']
-        #root = Node()
         mtree = Tree()
         mtree.myread(newick,mtree.root)
         mtree.insertSequence(mtree.root,labels,sequences)
-        import time
         tic = time.perf_counter()
         original = mtree.likelihood()
         toc = time.perf_counter()
-        print("Timer:", toc-tic)     
-        print("orig", original)
-        best = mtree.optimizeNR()
-        print("orig vs best",original, best)
-        #best = mtree.optimize()
-        #print("orig vs best",original, best)
-        #best = mtree.optimize()
-        #print("orig vs best",original, best)
-        ###print(newick)
-        mtree.myprint(mtree.root)
+        print("Likelihood calculation\nTimer:", toc-tic)     
+        print("using downpass algorithm:", original)
         delegate = []
-        print('non-tree likelihood evaluation')
-        newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
-        labels = ["0BAA","0BAB","0BAC","0BAD"]
-        sequences = ['AA','GA','CA','CC']
-        #root = Node()
-        mtree = Tree()
-        mtree.myread(newick,mtree.root)
-        mtree.insertSequence(mtree.root,labels,sequences)
+        print()
         tic = time.perf_counter()
         mtree.root.name='root'
         mtree.delegate_extract(mtree.root,delegate)
-        #for de in delegate:
-        #    print(de[0].name,de[0].blength,de[0].sequence)
-        #    print(de[1].name,de[1].blength,de[1].sequence)
-        #    print(de[2].name,de[2].blength,de[2].sequence)
-        #    print(de[3],"\n")
         x = mtree.delegate_calclike(delegate)
         toc = time.perf_counter()
-        print("Timer:", toc-tic)
-        print("non-tree like",x)
-        print('Nelder-Mead calculation')
-        newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
-        labels = ["0BAA","0BAB","0BAC","0BAD"]
-        sequences = ['AA','GA','CA','CC']
-        #root = Node()
-        mtree = Tree()
-        mtree.myread(newick,mtree.root)
-        mtree.insertSequence(mtree.root,labels,sequences)
-        mtree.optimize()
-        print(mtree.lnL)
+        print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
+
+        tic = time.perf_counter()
+        newtree = mtree.scioptimize()
+        toc = time.perf_counter()
+        print(newtree.lnL)
+        lnl = newtree.likelihood()
+        print("\n\n\nNelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",lnl)
+        m2tree = Tree()
+        m2tree.myread(newick,m2tree.root)
+        m2tree.insertSequence(m2tree.root,labels,sequences)
+
+        tic = time.perf_counter()
+        newtree12 = m2tree.optimizeNR()
+        newtree22 = m2tree.optimizeNR()
+        newtree32 = m2tree.optimizeNR()
+        newtree42 = m2tree.optimizeNR()
+        toc = time.perf_counter()
+        #newtree2.likelihood()
+        print("Newton-Raphson optimization:\nTimer:", toc-tic,"\nlnL=",newtree12,newtree22,newtree32,newtree42)
+        #newtree.myprint(newtree.root)
+        #newtree2.myprint(newtree2.root)
         

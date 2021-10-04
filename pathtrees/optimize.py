@@ -39,7 +39,7 @@ def minimize_neldermead(tree1, maxiter=None, initial_simplex=None, xatol=1e-4, f
     #l = len(tiplen)
     #print(x0)
     x0 = np.asfarray(x0).flatten() # is this needed? because the x0 should be flat
-    #print(x0)
+    #print("blen:",x0)
     if adaptive:
         dim = float(len(x0))
         delta_r = 1
@@ -85,11 +85,12 @@ def minimize_neldermead(tree1, maxiter=None, initial_simplex=None, xatol=1e-4, f
 
     # initialization of f_sim vector
     f_sim = np.empty((N + 1,), float)
-    temp = -tree1.delegate_calclike(delegates)
+    #
     for k in range(N + 1):
         #tree1 = splittree.print_newick_string(tips,edges,sim[k][:l],sim[k][l:])    #new2
         #f_sim[k] = likelihoods(tree1,sequences,labels)
-        f_sim[k] = temp
+        tree.instruct_delegate_branchlengths(sim[k],delegates)
+        f_sim[k] = -tree1.delegate_calclike(delegates)
 
     ind = np.argsort(f_sim)
     f_sim = np.take(f_sim, ind, 0)
@@ -173,7 +174,7 @@ def minimize_neldermead(tree1, maxiter=None, initial_simplex=None, xatol=1e-4, f
         f_sim = np.take(f_sim, ind, 0)
         #print(f"\n\niteration #{iterations}\nsim[0] = {sim[0]}\n\n")
         iterations += 1
-    
+        #print("iter",iterations,"like",np.min(f_sim))
     
     x = sim[0]
     fval = np.min(f_sim)
