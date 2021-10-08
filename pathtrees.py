@@ -81,7 +81,7 @@ def likelihoods(trees,sequences, opt=False):
         Q, basefreqs = like.JukesCantor()
         t.setParameters(Q,basefreqs)
         #calculate likelihood and return it
-        if opt:
+        if opt:  
             if NR:
                 t.optimizeNR()
             else:
@@ -146,13 +146,20 @@ def myparser():
                         default=None, action='store_true',
                         help='use weighted Robinson-Foulds distance for MDS plotting [fast], if false use GTP derived geodesic distance [slow]')
 
+    parser.add_argument('-allopt','--alloptimize', '--allopt', dest='allopt',
+                        default=False, action='store_true',
+                        help='calculates the pathtrees and then finds all optimal branchlengths for each of them')
+
+    parser.add_argument('-opt','--optimize', '--opt', dest='opt',
+                        default=False, action='store_true',
+                        help='finds optimal branchlengths for the best trees')
     parser.add_argument('-opt','--optimize', '--opt', dest='opt',
                         default=False, action='store_true',
                         help='calculates the pathtrees and then finds optimal branchlengths for each of them')
 
     parser.add_argument('-optnr','--optimizenr', '--optnr', dest='NR',
                         default=False, action='store_true',
-                        help='calculates the pathtrees and then finds optimal branchlengths using Newton-Raphson for each of them')
+                        help='finds optimal branchlengths using Newton-Raphson for each of them')
 
     args = parser.parse_args()
     return args
@@ -170,6 +177,7 @@ if __name__ == "__main__":
     num_iterations = args.num_iterations+1
     plotfile = args.plotfile
     fast = args.fast
+    allopt = args.allopt
     opt = args.opt
     NR = args.NR
     proptype = args.proptype
@@ -232,8 +240,8 @@ if __name__ == "__main__":
         Pathtrees = masterpathtrees(StartTrees)
         slen = len(StartTrees)
         Treelist= StartTrees+Pathtrees
-        Likelihoods, newtreelist  = likelihoods(Treelist,sequences,opt)
-        if opt:
+        Likelihoods, newtreelist  = likelihoods(Treelist,sequences,allopt)
+        if allopt:
             StartTrees = newtreelist[:slen]
             Pathtrees = newtreelist[slen:]
             Treelist = newtreelist[:]
