@@ -115,7 +115,7 @@ class Node:
         self.blength = -1
 
     def optimize_branch(self,thetree):
-        f = thetree.likelihood()
+        f = -thetree.likelihood()
         store = self.blength
         #print("before change:",f)
         if store < 0.000001:
@@ -125,40 +125,38 @@ class Node:
         self.blength = store - h
         if self.blength < 0.0:
             self.blength = 0.0
-        f0 = thetree.likelihood()
+        f0 = -thetree.likelihood()
         #print("f0:",f0, "[blen=", store - h,"]")
         self.blength = store + h
-        f2 = thetree.likelihood()
+        f2 = -thetree.likelihood()
         if DEBUG:
             print(f'f2={f2} f0={f0} h={h} [f={f}]')
-        if f2 == -np.inf and f0 == -np.inf:
+        if f2 == np.inf and f0 == np.inf:
             return
         if np.abs(f2-f0) > 0.000001 and h > 0.000001:
             fdash = (f2 - f0)/h
-            ftwodash = ((f2 - 2*f + f0)/(h*h))
-            self.blength = store - fdash / ftwodash
+            #ftwodash = ((f2 - 2*f + f0)/(h*h))
+            self.blength = store - f / fdash
             if self.blength < 0.0:
                 self.blength = 0.0
         else:
             fdash = 0.0
-            ftwodash=1.0
             self.blength = store
-        x = thetree.likelihood()
-        #print(f"final:b={self.blength},borig={store}, f'={fdash}/f''={ftwodash}, [{f}, {f0}, {f2}, lnL={x}")
+        x = -thetree.likelihood()
+        #print(f"final:b={self.blength},borig={store}, f={f}/f'={fdash}, [{f}, {f0}, {f2}, lnL={x}")
         mult = 0.5
         counter = 0
-        while x == -np.inf or x < f: # or x < f0 or x < f2:
-            self.blength = store - mult * fdash / ftwodash
-            fdash /= 2.0
+        while x == np.inf or x > f: # or x < f0 or x < f2:
+            self.blength = store - mult * f / fdash
             mult /= 2.0
             if self.blength < 0.0:
                 self.blength = 0.0
-            x = thetree.likelihood()
-            if fdash < 0.00001 or counter > 20:
+            x = -thetree.likelihood()
+            if np.abs(fdash) < 0.00001 or counter > 20:
                 break
             counter += 1
             #if DEBUG:
-            #print(f"@@@final:b={self.blength},borig={store}, f'={fdash}/f''={ftwodash}, [{f}, {f0}, {f2}, lnL={x}")
+            #print(f"@@@final:b={self.blength}, mult={mult} borig={store}, f={f}/f'={fdash}, [{f}, {f0}, {f2}, lnL={x}")
         #else:
         #    print(f"opt lnL {x}")
 
@@ -166,7 +164,7 @@ class Node:
         """
         Prints the content of a node: name if any and branchlengths if any
         """
-        if(self.name!=""):
+        if(self.name!="" and self.name!='root'):
             print (self.name,end='',file=file)
         if(self.blength != -1):
             print (":%s" % str(self.blength),end='',file=file)
@@ -251,23 +249,28 @@ class Tree(Node):
             #if p is ’root’ of unrooted tree then
             if(newick[self.i]!=')'):
                 if(newick[self.i]==','): # unrooted tree?
-                    print("unrooted")
+                    print("unrooted", file=sys.stderr)
                     q = Node()
 #                    print(p.right)
 #                    print(p.left)
 #                    print(p.ancestor)
-                    p.myprint()
+                    ##p.myprint()
 #                    print("####end")
                     p.ancestor = q
-                    q.right = p
-                    p = Node()
+                    p.name = ''
+                    p.blength=0.0
+                    q.name = 'root'
+                    q.blength = 0.0
                     q.left = p
+                    p = Node()
+                    q.right = p
+                    p.ancestor = q
                     self.root = q
                     self.i += 1
                     self.myread(newick,p)
 #                    print("***",end=' ')
-                    p.myprint()
-                    q.myprint()
+                    #p.myprint()
+                    #q.myprint()
                 else:
                     print ("error reading, failed to find ')' in %s" % newick)
             self.i += 1
@@ -414,7 +417,7 @@ class Tree(Node):
 
     def optimize(self):
         # minimize using Nelder-Mead
-        x,fval,iterations, tree1 = opt.minimize_neldermead(self, maxiter=None, initial_simplex=None, xatol=1e-2, fatol=1e-2, adaptive=False)
+        x,fval,iterations, tree1 = opt.minimize_neldermead(self, maxiter=200, maxiter_multiplier=200, initial_simplex=None, xatol=1e-4, fatol=1e-4, adaptive=False, bounds=[0,10])
         delegates =[]
         tree1.delegate_extract(tree1.root,delegates)
         instruct_delegate_branchlengths(x,delegates)
@@ -637,40 +640,50 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     
 if __name__ == "__main__":
     import time
-    nelder = True
+    nelder = False
         #    import data
     if "--test" in sys.argv:
         import phylip as ph
         infile = sys.argv[2]
         starttrees = sys. argv[3]
-        labels, sequences, variable_sites = ph.readData(infile)
+        if "--extend" in sys.argv: 
+            labels, sequences, variable_sites = ph.readData(infile,'Extend')
+        else:
+            labels, sequences, variable_sites = ph.readData(infile)
         with open(starttrees,'r') as f:
             StartTrees = [line.strip() for line in f]
     
-        print('\n\n\nNelder-Mead optimization')
+        #print('\n\n\nNelder-Mead optimization')
         for newick in StartTrees:
             mtree = Tree()
             mtree.myread(newick,mtree.root)
+            #mtree.myprint(mtree.root)
+            #print(";")
+            #continue
             mtree.insertSequence(mtree.root,labels,sequences)
             tic = time.perf_counter()
             original = mtree.likelihood()
             toc = time.perf_counter()
-            print("Likelihood calculation\nTimer:", toc-tic)     
-            print("using downpass algorithm:", original)
+            #print("Likelihood calculation\nTimer:", toc-tic)     
+            #print("using downpass algorithm:", original)
             delegate = []
-            print()
+            #print()
             tic = time.perf_counter()
             mtree.root.name='root'
             mtree.delegate_extract(mtree.root,delegate)
             x = mtree.delegate_calclike(delegate)
             toc = time.perf_counter()
-            print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
-            print('\n\n\nNelder-Mead optimization')
+            #print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
+            #print('\n\n\nNelder-Mead optimization')
             tic = time.perf_counter()
-            newtree = mtree.optimize()
+            if nelder:
+                newtree = mtree.optimize()
+            else:
+                newtree = mtree
             toc = time.perf_counter()
             newtree.likelihood()
-            print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL)
+            print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL,file=sys.stderr)
+            newtree.myprint(newtree.root)
     else:
         newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
         labels = ["0BAA","0BAB","0BAC","0BAD"]
@@ -704,12 +717,12 @@ if __name__ == "__main__":
 
         tic = time.perf_counter()
         newtree12 = m2tree.optimizeNR()
-        newtree22 = m2tree.optimizeNR()
-        newtree32 = m2tree.optimizeNR()
-        newtree42 = m2tree.optimizeNR()
+        #newtree22 = m2tree.optimizeNR()
+        #newtree32 = m2tree.optimizeNR()
+        #newtree42 = m2tree.optimizeNR()
         toc = time.perf_counter()
         #newtree2.likelihood()
-        print("Newton-Raphson optimization:\nTimer:", toc-tic,"\nlnL=",newtree12,newtree22,newtree32,newtree42)
+        print("Newton-Raphson optimization:\nTimer:", toc-tic,"\nlnL=",newtree12)
         #newtree.myprint(newtree.root)
         #newtree2.myprint(newtree2.root)
         

@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 #
-# takes a treelist of all trees that we want to form pathes among them
+# main code for the pathtrees project either check in the parser() section or
+# then execute python pathtrees.py --help
+# to learn more
 #
+#
+# (c) Tara Khodaei and Peter Beerli, Tallahassee 2021
+# this project is licensed to you under the MIT opensource license
+# 
 import sys
 import os
 
@@ -54,9 +60,9 @@ def masterpathtrees(treelist): #this is the master treelist
                 continue
             #form a treelist of the pair
             create_treepair(ti,tj,GTPTREELIST) #writes to a file GTPTREELIST
-            print("run gtp")
+            #print("run gtp")
             run_gtp(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
-            print(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
+            #print(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
             mypathtrees = pt.internalpathtrees(GTPTREELIST, GTPTERMINALLIST, NUMPATHTREES)
             #print("LOOP",i,j)
             allpathtrees.extend(mypathtrees)
@@ -64,9 +70,10 @@ def masterpathtrees(treelist): #this is the master treelist
     return [a.strip() for a in allpathtrees]
 
 def likelihoods(trees,sequences, opt=False):
-    print("Likelihood:",f"number of trees:{len(trees)}")
-    print("Likelihood:",f"number of sequences:{len(sequences)}")
-    print("Likelihood:",f"optimize:{opt}")
+    if DEBUG:
+        print("Likelihood:",f"number of trees:{len(trees)}")
+        print("Likelihood:",f"number of sequences:{len(sequences)}")
+        print("Likelihood:",f"optimize:{opt}")
     likelihood_values=[]
     newtrees = [] # for opt=True
     lt = len(trees)
@@ -86,7 +93,8 @@ def likelihoods(trees,sequences, opt=False):
                 t.optimizeNR()
             else:
                 t.optimize()
-            print(f"optimized tree {i} of {lt} with lnL={t.lnL}")
+            if DEBUG:
+                print(f"optimized tree {i} of {lt} with lnL={t.lnL}")
             likelihood_values.append(t.lnL)
             with split.Redirectedstdout() as newick:
                 t.myprint(t.root,file=sys.stdout)    
@@ -94,7 +102,8 @@ def likelihoods(trees,sequences, opt=False):
         else:
             t.likelihood()
             likelihood_values.append(t.lnL)
-            print("Likelihood:",f"lnL={t.lnL} {newtree[:50]}")
+            if DEBUG:
+                print("Likelihood:",f"lnL={t.lnL} {newtree[:50]}")
     return likelihood_values, newtrees
 
 def store_results(outputdir,filename,the_list):
@@ -153,9 +162,6 @@ def myparser():
     parser.add_argument('-opt','--optimize', '--opt', dest='opt',
                         default=False, action='store_true',
                         help='finds optimal branchlengths for the best trees')
-    parser.add_argument('-opt','--optimize', '--opt', dest='opt',
-                        default=False, action='store_true',
-                        help='calculates the pathtrees and then finds optimal branchlengths for each of them')
 
     parser.add_argument('-optnr','--optimizenr', '--optnr', dest='NR',
                         default=False, action='store_true',
@@ -254,8 +260,7 @@ if __name__ == "__main__":
         time1 = toc - tic
         print(f"Time of generating pathtrees results = {time1}")
         tic2 = time.perf_counter()
-        #if DEBUG:
-        #--------------
+
         newtreelist = os.path.join(outputdir[it], 'treelist')
         if not fast:
             print('Calculate geodesic distance among all pathtrees')
@@ -267,11 +272,27 @@ if __name__ == "__main__":
             toc2 = time.perf_counter()
             time2 = toc2 - tic2
             print(f"Time of GTP distances of all trees = {time2}")
-        #if experiment:
+        
         bestlike = plo.bestNstep_likelihoods(Likelihoods,NUMBESTTREES,STEPSIZE)
-        #print("@",bestlike)
-        #else:
-        #    bestlike = plo.best_likelihoods(Likelihoods)
+
+        if opt:
+            bestindex = list(zip(*bestlike))[0]
+            besttrees = np.take(Treelist,bestindex)
+            newbestlikelihood, newbesttrees = likelihoods(besttrees,sequences)
+            print("@bestlike",newbestlikelihood)
+            newbestlikelihood, newbesttrees = likelihoods(besttrees,sequences, opt)
+            print("@bestlike",newbestlikelihood)
+            z = 0
+            for tr in bestindex:
+                Treelist[tr] = newbesttrees[z]
+                Likelihoods[tr] = newbestlikelihood[z]
+                z += 1
+            store_results(outputdir[it],'likelihood',Likelihoods)
+            store_results(outputdir[it],'treelist',Treelist)
+            store_results(outputdir[it],'starttrees',Treelist[:slen])
+            store_results(outputdir[it],'pathtrees',Treelist[slen:])
+
+                
         if plotfile != None:
             n = len(Treelist)
             N = len(Pathtrees)
@@ -304,7 +325,9 @@ if __name__ == "__main__":
 
             if DEBUG:
                 plo.plot_MDS(plotfile, N, n, distances, Likelihoods, bestlike, Treelist, Pathtrees)
+                
             plo.interpolate_grid(it, plotfile2[it], n, distances,Likelihoods, bestlike, Treelist, StartTrees, hull_idx)
+
         if it1 < num_iterations:
             StartTrees = [Treelist[tr] for tr in list(zip(*bestlike))[0]]
-            print("@length of start trees after an iteration: ",len(StartTrees))
+            print("Number of start trees after an iteration: ",len(StartTrees))
