@@ -4,9 +4,9 @@
 # -readTreeString: read NEWICK formated trees from a file 
 #                  and returns a list of strings 
 # PB Oct 2011, PB,MK April 2021
-DEBUG = True
-def readData(file, type='STANDARD'):     #testdata.phy : sequences
-    f = open(file,'r')
+DEBUG = False
+def readData(myfile, type='STANDARD'):     #testdata.phy : sequences
+    f = open(myfile,'r')
     label =[]
     sequence=[]
     data = f.readlines()
@@ -26,11 +26,11 @@ def readData(file, type='STANDARD'):     #testdata.phy : sequences
         label.append(l.strip().replace(' ','_'))
         sequence.append(s.strip())
     if DEBUG:
-        print ("Phylip file:", file)
-        print ("    species:", numind)
-        print ("    sites:  ", numsites)
-        print ("first label:",label[0])
-        print ("last  label:",label[-1])
+        print ("Phylip file:", myfile, file=sys.stderr)
+        print ("    species:", numind, file=sys.stderr)
+        print ("    sites:  ", numsites, file=sys.stderr)
+        print ("first label:",label[0], file=sys.stderr)
+        print ("last  label:",label[-1], file=sys.stderr)
     varsites = [list(si) for si in sequence if len(si)>0]
     #print(len(varsites),len(varsites[0]))
     varsites = [len([i for i in list(set(si)) if i!='-']) for si in zip(*varsites)]
@@ -39,8 +39,8 @@ def readData(file, type='STANDARD'):     #testdata.phy : sequences
     #print(label)
     return label,sequence,varsites
 
-def readTreeString(file):     #testdata.tre : Newick trees
-    f = open(file,'r')
+def readTreeString(myfile):     #testdata.tre : Newick trees
+    f = open(myfile,'r')
     data = f.readlines()
     f.close()
     return data

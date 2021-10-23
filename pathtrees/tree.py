@@ -10,7 +10,8 @@ DEBUG=False
 #     -debugprint   : prints the content of a node
 # class Tree defines:
 #     -Tree (see __init__) : defines root, basefrequencies and JukesCantor rate matrix
-#     -myprint      : prints the tree in NEWICK format
+#     -myprint      : prints the tree in NEWICK format recursively
+#     -treeprint    : calls myprint and addes 0.0 and prints to file;
 #     -myread       : reads a NEWICK string and creates a tree
 #     -printTiplabels: prints tip labels
 #     -insertSequence: uses a list of labels and sequences to match the
@@ -206,6 +207,14 @@ class Tree(Node):
             print (")",end='',file=file)
         p.myprint(file=file)
         print ("",end='',file=file)
+
+    def treeprint(self,file=sys.stdout):
+        if isinstance(file,str):
+            myfile = open(file,'w')
+        else:
+            myfile = file
+        self.myprint(self.root,myfile)
+        print(";",file=myfile)
     
     def remove_internal_labels(self,p):
         """
@@ -683,7 +692,7 @@ if __name__ == "__main__":
             toc = time.perf_counter()
             newtree.likelihood()
             print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL,file=sys.stderr)
-            newtree.myprint(newtree.root)
+            newtree.treeprint(sys.stdout)            
     else:
         newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
         labels = ["0BAA","0BAB","0BAC","0BAD"]
