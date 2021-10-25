@@ -63,9 +63,10 @@ def logLikelihood(g,basefreq):
         print(f"g0={g0} basefreq={basefreq} gT={gT}")
         return -Inf
     try:
+        #print("g0=",g0)
         ssum = np.sum(np.log(g0))
     except:
-        #print("g0=",g0)
+        #print("*g0=",g0)
         #sys.exit()
         pass
     return ssum
