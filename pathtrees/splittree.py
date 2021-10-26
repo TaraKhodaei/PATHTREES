@@ -152,6 +152,8 @@ def print_newick_string(tips,edges,tiplen,edgelen):
     t.remove_internal_labels(t.root)
     with Redirectedstdout() as newick:
         t.myprint(t.root, file=sys.stdout)
+        print(';',file=sys.stdout)
+        #t.treeprint(file=sys.stdout)
     if DEBUG:
         print("Newick",str(newick))
     return str(newick)
@@ -237,7 +239,8 @@ def print_newick_string_obsolete(tips,edges,tiplen,edgelen):
     t.root=q
     t.remove_internal_labels(t.root)
     with Redirectedstdout() as newick:
-        t.myprint(t.root,file=sys.stdout)    
+        t.myprint(t.root,file=sys.stdout)
+        print(';',file=sys.stdout)
     return str(newick)
 
 #if __name__ == "__main__":
