@@ -17,6 +17,7 @@ def readData(myfile, type='STANDARD'):     #testdata.phy : sequences
             continue
         if type=='STANDARD':
             l = i[:10]    #this assumes standard phylip format
+            #print("myread()",l)
             s = i[11:]    #
         else:
             index = i.rfind('  ')
@@ -24,6 +25,7 @@ def readData(myfile, type='STANDARD'):     #testdata.phy : sequences
             s = i[index+1:]
             
         label.append(l.strip().replace(' ','_'))
+        #print("myread()",l.replace(' ','_').strip())
         sequence.append(s.strip())
     if DEBUG:
         print ("Phylip file:", myfile, file=sys.stderr)

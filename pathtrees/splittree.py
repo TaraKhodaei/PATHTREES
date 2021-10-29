@@ -151,9 +151,9 @@ def print_newick_string(tips,edges,tiplen,edgelen):
     t.root = root
     t.remove_internal_labels(t.root)
     with Redirectedstdout() as newick:
-        t.myprint(t.root, file=sys.stdout)
-        print(';',file=sys.stdout)
-        #t.treeprint(file=sys.stdout)
+        #t.myprint(t.root, file=sys.stdout)
+        #print(';',file=sys.stdout)
+        t.treeprint(file=sys.stdout)
     if DEBUG:
         print("Newick",str(newick))
     return str(newick)
@@ -162,6 +162,7 @@ def print_newick_string(tips,edges,tiplen,edgelen):
 def print_newick_string_obsolete(tips,edges,tiplen,edgelen):
     if len(edges)==0:     #Tara did this for debuging
         newick  = '('+str(tips[0])+':'+str(tiplen[0])+','+ str(tips[1])+':'+str(tiplen[1])+')'+':0.0'
+        sys.exit()
         return  newick  # this should probably abort!
     treenodes = {}
     for name,blen in zip(tips,tiplen):
@@ -239,8 +240,9 @@ def print_newick_string_obsolete(tips,edges,tiplen,edgelen):
     t.root=q
     t.remove_internal_labels(t.root)
     with Redirectedstdout() as newick:
-        t.myprint(t.root,file=sys.stdout)
-        print(';',file=sys.stdout)
+        #t.myprint(t.root,file=sys.stdout)
+        #print(';',file=sys.stdout)
+        t.treeprint(file=sys.stdout)
     return str(newick)
 
 #if __name__ == "__main__":

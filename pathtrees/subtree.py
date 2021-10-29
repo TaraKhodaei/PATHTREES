@@ -437,7 +437,7 @@ def Sub_Newicks(T, disjoint_indices):       # ***** DEBUG *****
     newick = sub_newicks_list[-1]
     for i in range(len(sub_newicks_list)-2, -1,-1):
         newick = newick.replace(str('subT' + str(i)), sub_newicks_list[i][:-4])
-    #    print("\n\nnewick : ", newick)
+    #print("\nnewick : ", newick)
     newick = newick+';'
     #    np.savetxt ('newick', newick,  fmt='%s')
     return(sub_newicks_list, newick)

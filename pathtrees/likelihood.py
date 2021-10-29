@@ -20,6 +20,7 @@ import scipy.linalg   #
 #
 # set this to true if you want intermediate output
 DEBUG = False
+HUGE = 1000000
 
 def JukesCantor():
 	Q =  np.array(
@@ -61,7 +62,7 @@ def logLikelihood(g,basefreq):
     
     if g0.any() <=0:
         print(f"g0={g0} basefreq={basefreq} gT={gT}")
-        return -Inf
+        return -HUGE
     try:
         #print("g0=",g0)
         ssum = np.sum(np.log(g0))

@@ -70,6 +70,7 @@ def masterpathtrees(treelist): #this is the master treelist
     return [a.strip() for a in allpathtrees]
 
 def likelihoods(trees,sequences, opt=False):
+    #global labels
     if DEBUG:
         print("Likelihood:",f"number of trees:{len(trees)}")
         print("Likelihood:",f"number of sequences:{len(sequences)}")
@@ -92,7 +93,15 @@ def likelihoods(trees,sequences, opt=False):
             if NR:
                 t.optimizeNR()
             else:
-                t.optimize()
+                #t.optimize()
+                pnewick = t.paupoptimize(datafile,filetype)
+                pnewtree = Tree()
+                pnewtree.root.name='root'
+                pnewtree.root.blength=0.0
+                pnewtree.myread(pnewick,newtree.root)
+                pnewtree.insertSequence(pnewtree.root,labels,sequences)
+                pnewtree.likelihood()
+                t = pnewtree
             if DEBUG:
                 print(f"optimized tree {i} of {lt} with lnL={t.lnL}")
             likelihood_values.append(t.lnL)
@@ -191,9 +200,11 @@ if __name__ == "__main__":
         from scipy.spatial import ConvexHull
     phyliptype = args.phyliptype
     if phyliptype:
-        type = 'EXTENDED'
+        ttype = 'EXTENDED'
+        filetype = 'RelPHYLIP'
     else:
-        type = 'STANDARD'
+        ttype = 'STANDARD'
+        filetype = 'PHYLIP'
     if num_iterations<=1:
         os.system(f'mkdir -p {outputdir}')
         outputdir = [outputdir]
@@ -214,8 +225,9 @@ if __name__ == "__main__":
 
     #    print(args.plotfile)
     print(args)
-
-    labels, sequences, variable_sites = ph.readData(datafile, type)
+    print(datafile)
+    print(ttype)
+    labels, sequences, variable_sites = ph.readData(datafile, ttype)
     #print(labels)
     #print(variable_sites)
     #sys.exit()

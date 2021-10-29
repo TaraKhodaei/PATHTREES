@@ -34,7 +34,7 @@ DEBUG=False
 # PB Oct 2011
 
 
-
+import io
 import sys
 from pathlib import Path
 file = Path(__file__).resolve()
@@ -116,8 +116,49 @@ class Node:
         self.right = right
         self.ancestor = -1
         self.blength = -1
-
+        
     def optimize_branch(self,thetree):
+        iterations = 10
+        it = 1
+        ite = 0
+        eps = 0.00001
+        b = self.blength
+        borig = b
+        done = False
+        firsttime = True
+        while it < iterations and ite < 20 and not done:
+            slope, curve, like = centered(b, self, thetree)
+            better = False
+            if firsttime:
+                bold = b
+                oldlike = like
+                firsttime = False
+                better = True
+                it += 1
+            else:
+                if like > oldlike:
+                    #print(oldlike,like,b,bold,end=' @ ')
+                    bold = b
+                    oldlike = like
+                    better = True
+                it += 1
+            if better:
+                if np.abs(slope)<eps:
+                    break
+                #    slope = eps
+                b = b + slope/np.abs(curve)
+                if b < eps:
+                    b = eps
+            else:
+                if np.abs(b - bold) < eps:
+                    ite = 20
+                b = (b + 19.0 * bold) / 20.
+            ite  += 1
+            done = np.abs(b-bold) < 0.1*eps
+        self.blength = bold
+        thetree.lnL = oldlike
+        
+    def optimize_branch_notwell(self,thetree):
         f = -thetree.likelihood()
         store = self.blength
         #print("before change:",f)
@@ -221,7 +262,20 @@ class Tree(Node):
         print(";",file=myfile)
         if is_open:
             f.close()
-        
+
+    #this prints the newick string into a variable
+    
+    def treeprintvar(self):
+        old_stdout = sys.stdout
+        new_stdout = io.StringIO()
+        sys.stdout = new_stdout
+        self.myprint(self.root,file=sys.stdout)
+        print(";",file=sys.stdout)
+        mynewick = new_stdout.getvalue()
+        sys.stdout = old_stdout
+        return mynewick
+
+    
     def remove_internal_labels(self,p):
         """
             prints a tree in Newick format
@@ -263,14 +317,10 @@ class Tree(Node):
             self.myread(newick,q)
             #if p is ’root’ of unrooted tree then
             if(newick[self.i]!=')'):
+                print("@ near unrooted section",newick[self.i:])
                 if(newick[self.i]==','): # unrooted tree?
-                    print("unrooted", file=sys.stderr)
+                    print("@ unrooted", file=sys.stderr)
                     q = Node()
-#                    print(p.right)
-#                    print(p.left)
-#                    print(p.ancestor)
-                    ##p.myprint()
-#                    print("####end")
                     p.ancestor = q
                     p.name = ''
                     p.blength=0.0
@@ -282,6 +332,7 @@ class Tree(Node):
                     p.ancestor = q
                     self.root = q
                     self.i += 1
+                    print("@",newick[self.i:])
                     self.myread(newick,p)
 #                    print("***",end=' ')
                     #p.myprint()
@@ -322,10 +373,10 @@ class Tree(Node):
             self.insertSequence(p.right,label,sequences)
         else:
             the_name = p.name.strip()
-            #print(the_name)
+            #print("isnertSequence", the_name)
             #print()
             
-            the_name.replace(' ','_')
+            #the_name.replace(' ','_')
             if DEBUG:
                 print("@@@ tipname", the_name, "Labels:",label)
             #print("@#@", the_name)
@@ -445,13 +496,15 @@ class Tree(Node):
         print("optimize tree likelihood:", -fval,iterations)
         return(tree1)
 
-    def paupoptimize(self, infile):
+    def paupoptimize(self, infile, filetype='RelPHYLIP'):
         #create newick
+        treefile = 'temp_paup_tree'
+        paupfile = 'temp_paup_tree_optimize.nex'
         self.treeprint(file='temp_paup_tree')
-        write_nexus('temp_paup_tree_optimize.nex',infile,'temp_paup_tree')
-        run_paup('temp_paup_tree_optimize.nex')
-        newick = phy.readTreeString('temp_paup_tree')
-        return(newick)
+        write_nexus(paupfile,infile,treefile, filetype)
+        run_paup(paupfile)
+        localnewick = phy.readTreeString(treefile+'out')
+        return(localnewick[-1].strip())
     
     def setParameters(self,Q,basefreqs):
         self.Q = Q
@@ -664,15 +717,16 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     #sys.exit()
     return rt
 
-def write_nexus(nexfile,phylipfile,treefile):
+def write_nexus(nexfile,phylipfile,treefile,filetype):
     f = open(nexfile,'w')
     print('begin paup;',file=f)
-    print(f'   tonex from={phylipfile} format=RelPHYLIP to=/tmp/temp.nex  replace=yes;',file=f)
-    print(f'    execute /tmp/temp.nex;',file=f)
+    print(f'  set crit=likelihood;',file=f)
+    print(f'  tonex from={phylipfile} format={filetype} to=/tmp/temp.nex  replace=yes;',file=f)
+    print(f'   execute /tmp/temp.nex;',file=f)
     print(f'   gettree file={treefile} warntree=no;',file=f)
     print('    lset nst=1 basefreq=equal;',file=f)
     print('    lscore / replace=yes;',file=f)
-    print('    savetree br=user format=newick maxdecimals=10 replace=yes;',file=f)
+    print(f'    savetree / br=yes trees=all format=newick maxdecimals=10 replace=yes file={treefile}out;',file=f)
     print('    quit;',file=f)
     print('end;',file=f)
     f.close()
@@ -680,6 +734,27 @@ def write_nexus(nexfile,phylipfile,treefile):
 def run_paup(nexfile):
     os.system(f'(paup -n {nexfile}) 2>1 > paup_temp.log')
 
+def centered(b, thenode, thetree):
+    eps = 0.000001
+    h = 0.01
+    if b>eps:
+        h = b/2
+    if b-h < eps:
+        bl=eps
+    else:
+        bl = b-h
+    bu = b + h
+    thenode.blength = b
+    f = thetree.likelihood()
+    thenode.blength = bl
+    fl = thetree.likelihood()
+    thenode.blength = bu
+    fu = thetree.likelihood()
+    #print("centered",fu,f,fl)
+    slope = (fu - fl)/h
+    curve = (fu - 2*f + fl) / (h*h)
+    return slope, curve, f
+    
 if __name__ == "__main__":
     import time
     nelder = False
@@ -690,8 +765,11 @@ if __name__ == "__main__":
         starttrees = sys. argv[3]
         if "--extend" in sys.argv: 
             labels, sequences, variable_sites = ph.readData(infile,'Extend')
+            filetype = 'RelPHYLIP'
         else:
             labels, sequences, variable_sites = ph.readData(infile)
+            filetype = 'PHYLIP'
+        #print("@first",labels)
         with open(starttrees,'r') as f:
             StartTrees = [line.strip() for line in f]
     
@@ -699,9 +777,7 @@ if __name__ == "__main__":
         for newick in StartTrees:
             mtree = Tree()
             mtree.myread(newick,mtree.root)
-            #mtree.myprint(mtree.root)
-            #print(";")
-            #continue
+            #print(labels)
             mtree.insertSequence(mtree.root,labels,sequences)
             tic = time.perf_counter()
             original = mtree.likelihood()
@@ -723,16 +799,29 @@ if __name__ == "__main__":
                 print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL,file=sys.stderr)
                 newtree.likelihood()                         
             else:
-                newick = mtree.paupoptimize(infile)                
+                tic = time.perf_counter()        
+                newick2 = mtree.paupoptimize(infile,filetype)
+                #print(newick)
                 newtree = Tree()
                 newtree.root.name='root'
                 newtree.root.blength=0.0
-                newtree.myread(newick[0].strip(),newtree.root)
+                newtree.myread(newick2,newtree.root)
                 newtree.insertSequence(newtree.root,labels,sequences)
-                newtree.likelihood()                            
-                print("Paup optimization: lnL=",newtree.lnL,file=sys.stderr)
+                newtree.likelihood()
+                toc = time.perf_counter()        
+                print(f"({toc-tic} Paup optimization: lnL=",newtree.lnL,file=sys.stderr)
+                #tic = time.perf_counter()
+                #newtree3 = Tree()
+                #newtree3.root.name='root'
+                #newtree3.root.blength=0.0
+                #newtree3.myread(newick,newtree3.root)
+                #newtree3.insertSequence(newtree3.root,labels,sequences)
+                #newtree3.optimizeNR()
+                #newtree3.likelihood()
+                #toc = time.perf_counter()        
+                #print(f"({toc-tic}) NR optimization: lnL=",newtree3.lnL,file=sys.stderr)
            
-            newtree.treeprint(sys.stdout)            
+            #newtree.treeprint(sys.stdout)            
     else:
         newick = "(0BAA:0.0564907002,(0BAB:0.0060581140,(0BAC:0.0025424508,0BAD:0.0025424508):0.0035156632):0.0104325862):0.0000000000"
         labels = ["0BAA","0BAB","0BAC","0BAD"]
@@ -742,6 +831,7 @@ if __name__ == "__main__":
         mtree.insertSequence(mtree.root,labels,sequences)
         tic = time.perf_counter()
         original = mtree.likelihood()
+        
         toc = time.perf_counter()
         print("Likelihood calculation\nTimer:", toc-tic)     
         print("using downpass algorithm:", original)
@@ -754,14 +844,16 @@ if __name__ == "__main__":
         toc = time.perf_counter()
         print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
 
-        tic = time.perf_counter()
-        newtree = mtree.scioptimize()
-        toc = time.perf_counter()
-        print(newtree.lnL)
-        lnl = newtree.likelihood()
-        print("\n\n\nNelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",lnl)
+        #tic = time.perf_counter()
+        #newtree = mtree.scioptimize()
+        #toc = time.perf_counter()
+        #print(newtree.lnL)
+        #lnl = newtree.likelihood()
+        #print("\n\n\nNelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",lnl)
+
         m2tree = Tree()
         m2tree.myread(newick,m2tree.root)
+        print(labels)
         m2tree.insertSequence(m2tree.root,labels,sequences)
 
         tic = time.perf_counter()
