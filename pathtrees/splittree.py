@@ -5,13 +5,13 @@ DEBUG=False
 
 import sys
 from pathlib import Path
+
 file = Path(__file__).resolve()
 parent = file.parent
 sys.path.append(str(file.parent))
 
 #print(sys.path)
 import tree
-
 from io import StringIO
 
 #from the internet, needs reference
@@ -45,7 +45,6 @@ def print_newick_string(tips,edges,tiplen,edgelen):
         p = tree.Node()
         p.name = name
         p.blength = blen
-        #print(name,end=' ')
         treenodes[name]=p
     tmp = zip(edges,edgelen)
     sorted_edges = sorted(tmp,key=lambda x: len(x[0]))
@@ -108,8 +107,8 @@ def print_newick_string(tips,edges,tiplen,edgelen):
                 q.ancestor = p
                 del treenodes[name] #delete these tips from dict
                 del treenodes[candi[0]] #
-                #finished[name]=z
-                #finished[candi[0]]=z
+                finished[name]=z
+                finished[candi[0]]=z
                 del interior[candi[0]]
                 interior[z]=[[name,candi[0]]]
                 if DEBUG:
@@ -140,26 +139,39 @@ def print_newick_string(tips,edges,tiplen,edgelen):
     if len(subtrees)!=2:
         print(f"problem in splittree.py with assembling last subtrees {treenodes}")
         sys.exit()
-    root = tree.Node()
-    root.name = 'root'
-    root.left=subtrees[0]
-    root.right=subtrees[1]
-    root.left.ancestor = root
-    root.right.ancestor = root
-    root.blength = 0.0
-    t = tree.Tree()
-    t.root = root
-    t.remove_internal_labels(t.root)
-    with Redirectedstdout() as newick:
+#    root = tree.Node()
+#    root.name = 'root'
+#    root.left=subtrees[0]
+#    root.right=subtrees[1]
+#    root.left.ancestor = root
+#    root.right.ancestor = root
+#    root.blength = 0.0
+#    t = tree.Tree()
+#    t.root = root
+#    t.remove_internal_labels(t.root)
+#    with Redirectedstdout() as newick:
         #t.myprint(t.root, file=sys.stdout)
         #print(';',file=sys.stdout)
-        t.treeprint(file=sys.stdout)
+#        t.treeprint(file=sys.stdout)
+    q = tree.Node()
+    q.name = 'root'
+    q.left=subtrees[0]
+    q.right=subtrees[1]
+    q.left.ancestor = q
+    q.right.ancestor = q
+    q.blength=0.0
+    
+    t = tree.Tree()
+    t.root = q
+    t.remove_internal_labels(t.root)
+    with Redirectedstdout() as newick:
+        t.myprint(t.root, file=sys.stdout)
     if DEBUG:
         print("Newick",str(newick))
     return str(newick)
 
     
-def print_newick_string_obsolete(tips,edges,tiplen,edgelen):
+def print_newick_string_obsolete(tips,edges,tiplen,edgelen):    #Is this necessary?????
     if len(edges)==0:     #Tara did this for debuging
         newick  = '('+str(tips[0])+':'+str(tiplen[0])+','+ str(tips[1])+':'+str(tiplen[1])+')'+':0.0'
         sys.exit()
