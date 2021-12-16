@@ -100,6 +100,8 @@ class Node:
         self.blength = -1
         self.sequence = []
         self.clean = False
+        self.right_seq = []
+        self.left_seq = []
         
     def tip(self,name):
         """
@@ -242,6 +244,7 @@ class Tree(Node):
     def __init__(self):
         self.root = Node()
         self.root.name = "root"
+        self.root.blength = 0.0
         self.Q, self.basefreqs = like.JukesCantor()
     
     
@@ -270,7 +273,8 @@ class Tree(Node):
         self.myprint(self.root,myfile)
         print(";",file=myfile)
         if is_open:
-            f.close()
+#            f.close()
+            myfile.close()
 
     #this prints the newick string into a variable
     
@@ -300,10 +304,10 @@ class Tree(Node):
         """
         reads a tree in newick format
         """
-
         if(newick[self.i]=="("):
             q = Node()
             p.left = q
+            p.left_seq.append(q)
             self.i += 1
             #print("before myread",self.i)
             self.myread(newick,q)
@@ -329,45 +333,28 @@ class Tree(Node):
             self.i += 1
             q = Node()
             p.right = q
+            p.right_seq.append(q)
             q.ancestor = p
             self.myread(newick,q)
-            #if p is ’root’ of unrooted tree then
-            if(newick[self.i]!=')'):
-                #print("@ near unrooted section",newick[self.i:])
-                if(newick[self.i]==','): # unrooted tree?
-                    #print("@ unrooted", file=sys.stderr)
-                    q = Node()
-                    p.ancestor = q
-                    p.name = ''
-                    p.blength=0.0
-                    #q.name = 'root'
-                    q.blength = 0.0
-                    q.left = p
-                    p = Node()
-                    q.right = p
-                    p.ancestor = q
-                    self.root = q
-                    self.i += 1
-                    #print("@",newick[self.i:])
-                    self.myread(newick,p)
-#                    print("***",end=' ')
-                    #p.myprint()
-                    #q.myprint()
-                else:
-                    print ("error reading, failed to find ')' in %s" % newick)
+            count=1
+            while (newick[self.i]!=')'):
+                self.i += 1
+                q = Node()
+                p.right = q
+                p.right_seq.append(q)
+                q.ancestor = p
+                self.myread(newick,q)
+                count +=1
             self.i += 1
-
+                
         if newick[self.i] == ';':
-            print("reached end",file=sys.stderr)
             return
-        
+
         j, p.name = getName(newick[self.i:])
-#        print ("@@@", self.i, p.name, newick[self.i:])
         self.i = self.i + j
         if(newick[self.i] == ":"):
             self.i = self.i+1
             j, xx = getName(newick[self.i:])
-#            print(float(xx),float(xx.strip("; \n\t")))
             p.blength = float(xx.strip("; \n\t"))
             self.i = self.i + j
 
@@ -415,9 +402,6 @@ class Tree(Node):
                                              p.right.blength,
                                              self.Q)
         #print ("\ninternal node: p=",p,"\n      condlike[first site]=",p.sequence.tolist()[:1])
-
-    
-
 
         
     def likelihood(self):
@@ -540,15 +524,16 @@ class Tree(Node):
 
     def getTips(self,p, tips, tipslength):
         if not(istip(p)):
-            tips, tipslength = self.getTips(p.left, tips, tipslength)
-            tips, tipslength = self.getTips(p.right, tips, tipslength)
+            for a in p.left_seq:
+                tips, tipslength = self.getTips(a, tips, tipslength)
+            for a in p.right_seq:
+                tips, tipslength = self.getTips(a, tips, tipslength)
         else:
             tips.append(p)
             tipslength.append(p.blength)
         return(tips, tipslength)
-
-
-
+    
+    
     def get_edges(self,p,edges,edgelengths):
         tips=[]
         tipslength=[]
@@ -557,8 +542,10 @@ class Tree(Node):
             names=[tips[i].name for i in range(len(tips))]
             edges.append(names)
             edgelengths.append(p.blength)
-            self.get_edges(p.right,edges,edgelengths)
-            self.get_edges(p.left,edges,edgelengths)
+            for a in p.left_seq:
+                self.get_edges(a,edges,edgelengths)
+            for a in p.right_seq:
+                self.get_edges(a,edges,edgelengths)
         return(edges[1:], edgelengths[1:])
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  Kendall ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -688,6 +675,34 @@ def skip_comment(tree):      # to remove the brackets []
         i +=1
     tree_new = tree_new[tree_new.find('=')+1:]
     return tree_new
+
+
+def generate_treelist(filename, dt):
+    data=[]
+    Likelihood=[]
+    File = open(filename, "r")
+    file = File.readlines()
+    for line in file:
+        temp=line.rstrip().split('\t')
+        data.append(temp[-1])
+        Likelihood.append(temp[2])
+    data=data[1:]
+    Likelihood=Likelihood[1:]
+    num=int(len(data)/2)
+    data = data[num:]
+    print("length  of origional file = ", len(data))      #length  of data= 78626
+
+    idx=np.arange(0,len(data),dt)
+    treelist = [data[i].strip() for i in idx]
+    for s, tree in enumerate(treelist):
+        tree_new = skip_comment(tree)
+        treelist[s] = tree_new
+    treelist=[s.replace(' ', '') for s in treelist]
+    np.savetxt ('treelist', treelist,  fmt='%s')
+    print("length of selected treelist file =", len(treelist))    #length of treelist = 983
+    return treelist
+
+
 
 def create_random_tree(labels,blens,outgroup=None):
     nodes = labels[:]

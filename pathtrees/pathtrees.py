@@ -28,7 +28,7 @@ def internalpathtrees(treefile, terminallist, numpathtrees):
     '''
     Generates a path between two trees using the geodesic
     '''
-    precision = 4    
+    precision = 10
     if DEBUG:
         print(f'\n\nReading Data +++++++++++++++++++++++++++++++++++++++\n')    
     #NOTE:  Results_subtrees has all subtrees of T1 and T2.
@@ -50,11 +50,7 @@ def internalpathtrees(treefile, terminallist, numpathtrees):
     T1_edge_dict = edge_dict[0]
     T2_tip_dict = tip_dict[1]
     T2_edge_dict = edge_dict[1]
-    if DEBUG:
-        print("\n\nTree1 tips dictionary :\n",T1_tip_dict)
-        print("\n\nTree1 edges dictionary :\n",T1_edge_dict)
-        print("\n\nTree2 tips dictionary :\n",T2_tip_dict)
-        print("\n\nTree2 edges dictionary :\n",T2_edge_dict)
+
     
     File = open(treefile, "r")
     file = File.readlines()
@@ -62,53 +58,63 @@ def internalpathtrees(treefile, terminallist, numpathtrees):
     
     if DEBUG:
         print(f'\nCreate PathTrees ++++++++++++++++++\n')
-    
+
+    if DEBUG:
+        print(f'\n\n*************************************************************** Starting Pathtrees **************************************************************')
+        #    print("\n\n----> T1 tips dictionary :\n",T1_tip_dict)
+        #    print("\n----> T1 edges dictionary :\n",T1_edge_dict)
+        #    print("\n\n\n----> T2 tips dictionary :\n",T2_tip_dict)
+        #    print("\n----> T2 edges dictionary :\n",T2_edge_dict)
+
     Lamda = np.linspace(0.0, 1.0, num=numpathtrees)
-    Lamda = [round(elem,precision) for elem in Lamda ]        # 4 precision
-    #print("*****TEST******", Lamda)
-    #myfile = open(mypathtrees, 'w')
+    Lamda = [round(elem,precision) for elem in Lamda ]        # precision
+    if DEBUG:
+        print("\n\nlen(Tree1 subtrees) :",len(T1))
+        print("Lamda", Lamda)
     thetreelist = []
-    #for l, lamda in enumerate(Lamda):     ****NEW****
+    
+    if DEBUG:
+        print(f"\n\nTEST sep10 : number of subtrees in start tree = {len(T1)}")
+        print(f"TEST sep10 : number of subtrees in end tree = {len(T2)}")
+        print(f"\n\nsubtrees in start tree = {T1}")
+        print(f"\nsubtrees in end tree = {T2}")
+    
     for l, lamda in enumerate(Lamda[1:-1]):
         if DEBUG:
-            print(f'\nPathTree #{l}, lamda={lamda} ====================\n')
+            print(f'\n============================  PathTree #{l}, lamda={lamda} =========================\n')
+
         T1_path = copy.deepcopy(T1)
         for num in range(len(T1_path)):
-            if DEBUG:
-                print(f"\n\nnum = {num}")
             if num in (disjoint_indices[0]):
                 if DEBUG:
                     print(f'\n~~~~~~~~~~~~~~~~~~~~~~ subtree #{num}    ,    lamda{lamda} ~~~~~~~~~~~~~~~~~~~~~~~~~\n')
-                    print(f"\n########  NOTE:  num #{num} IS inside disjoint_indices ########\n\n ")
-    #            print(f"\nFor subtree #{num}, for lambda {lamda}:\n\n ")
+                    print(f'-------->  NOTE:  IS inside disjoint_indices \n ')
+                    print(f"\n\nlen(T1[num]) = {len(T1[num])} \nlen(T2[num]) = {len(T2[num])} ")
                 lambda_limits, epsilon = subtree.path_legs(num,  T1, T2, T1_edge_dict, T2_edge_dict)
-    #            print(f"\n===> lambda_limits = {lambda_limits}")
-    #            print(f"\n===> epsilon :\n {epsilon}")
                 edited_subtree = subtree.pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict, lamda, lambda_limits, epsilon)
-                #            print(f"\n===> editted path subtree : \n {edited_subtree}\n")        #------*************------
                 T1_path[num] = edited_subtree
-    #            print("Origional T1[num] :\n", T1[num])    #test
-    #            print("\nT1_path[num] :\n", T1_path[num])      #test
+
+
             else:
                 if DEBUG:
-                    print(f'\n~~~~~~~~~~~~~~~~~~~ common subtree #{num}    ,    lamda{lamda} ~~~~~~~~~~~~~~~~~~~~~\n')
-                    print(f"\n########  NOTE:  num #{num} IS NOT inside disjoint_indices ########\n\n ")     #???????Here not work
-    #            print("++++++TEST++++++++++", T1[num][-2], T2[num][-2])
+                    print(f'\n~~~~~~~~~~~~~~~~~~~ common subtree num #{num}    ,    lamda{lamda} ~~~~~~~~~~~~~~~~~~~~~\n')
+                    print(f'-------->  NOTE:  NOT inside disjoint_indices \n ')
+                    print(f"\n----> len(T1[num]) = {len(T1[num])} \n----> len(T2[num]) = {len(T2[num])} ")
+#                print(f"\n\nlen(T1[num][0]) = {len(T1[num][0])} \nlen(T2[num][0]) = {len(T2[num][0])} ")
+#                print(f"\n\nlen(T1[num][-1]) = {len(T1[num][-1])} \nlen(T2[num][-1]) = {len(T2[num][-1])} ")
+#                print(f"\n\nlen(T1[num][-2]) = {len(T1[num][-2])} \nlen(T2[num][-2]) = {len(T2[num][-2])} ")
+
                 T1_path[num][-2] = list( (1-lamda)*(np.array(T1[num][-2]))  + lamda*(np.array(T2[num][-2]) ) )   # length of tips(leaves) " (1-lambda)*e_T +lambda*e_T' "
                 T1_path[num][-2] = [round(elem,precision) for elem in T1_path[num][-2] ]
                 T1_path[num][-1] = list( (1-lamda)*(np.array(T1[num][-1]))  + lamda*(np.array(T2[num][-1]) ) )   #length of each common edge " (1-lambda)*e_T +lambda*e_T' "
                 T1_path[num][-1] = [round(elem,precision) for elem in T1_path[num][-1] ]
-                if DEBUG:
-                    print("starting common subtree :\n", T1[num])    #test
-                    print("endinging common subtree :\n", T2[num])    #test
-                    print("\nEditted starting common subtree :\n", T1_path[num])      #test
         if DEBUG:
             print(f'\n~~~~~~~~~~~~~~~~~~~~~~ generated pathtree #{l} ~~~~~~~~~~~~~~~~~~~~~~~~~\n')
-            print("Origional T1 :\n", T1)
-            print("\nGenerated pathtree from T1 :\n", T1_path)
-            #test
-            print("\n\n\nnewick of T1 :\n", treelist[0])
-            print("\nnewick of T2 :\n", treelist[1])     #TARA
+            print(f"\n----> Origional T1_path : \n{T1} ")
+            print(f"\n----> Generated pathtree from T1 :\n{T1_path} ")
+#        print("\n\n\nnewick of T1 :\n", treelist[0])
+#        print("\nnewick of T2 :\n", treelist[1])
+                
         sub_newicks , newick = subtree.Sub_Newicks(T1_path, disjoint_indices[0] )
         if DEBUG:
             print("\nsubtree newicks of path tree :\n",sub_newicks)

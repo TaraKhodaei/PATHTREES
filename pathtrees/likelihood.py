@@ -54,52 +54,15 @@ def tipCondLikelihood(sequence):
 def logLikelihood(g,basefreq):
     gT = g.T
     g0 = np.dot(basefreq,gT)
-    if DEBUG:
-        print("g0>0", g0, basefreq, g)
-        for gi in g0:
-           if gi < 0:
-               sys.exit()
-    
-    if g0.any() <=0:
-        print(f"g0={g0} basefreq={basefreq} gT={gT}")
-        return -HUGE
-    try:
-        #print("g0=",g0)
-        ssum = np.sum(np.log(g0))
-    except:
-        #print("*g0=",g0)
-        #sys.exit()
-        pass
-    return ssum
+    return np.sum(np.log(g0))
 
 
-
-# conditional likelihood takes g and calculates h
-# g can be a 2D-vector of conditional likelihoods
-#
 def condLikelihood(g, Q, t):
-        #calculate probability transition matrix p(t) = exp(Q t)
-        #print(Q)
-        #print(t)
-        try:
-                p = scipy.linalg.expm(Q * t)
-        except:
-                print(f'Q={Q} t={t} g={g}')
-                if np.isnan(t):
-                        t=0.0
-                        p = scipy.linalg.expm(Q * t)
-                        return np.dot(g,p)
-                else:
-                        sys.exit()
-        if DEBUG:
-                print ("Transition probability p with branchlength", t)
-                #print (p)
-                #print ('g-----------------')
-                print (g)
-                #print ('-----------------')
-                #print (t)
-                print ('-----------------')
-        return np.dot(g,p)
+    p = scipy.linalg.expm(Q * t)
+    result = np.dot(g,p)
+    result [ result == 0 ] = sys.float_info.min
+    return result
+
 
 def nodeLikelihood(ga,gb,ta,tb,Q):
 	ha = condLikelihood(ga, Q, ta)

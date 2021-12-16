@@ -148,11 +148,10 @@ def minimize_neldermead(tree1, maxiter=None, maxiter_multiplier=200, initial_sim
         ind = np.argsort(f_sim)
         sim = np.take(sim, ind, 0)
         f_sim = np.take(f_sim, ind, 0)
-        #if DEBUG:
-        print(f"iteration #{iterations} {np.min(f_sim)} sim[0] = {sim[0][:5]}\n",file=sys.stderr)
+        if DEBUG:
+            print(f"iteration #{iterations} {np.min(f_sim)} sim[0] = {sim[0][:5]}\n",file=sys.stderr)
         iterations += 1
 
-    
     x = sim[0]
     fval = np.min(f_sim)
     
