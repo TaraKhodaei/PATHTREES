@@ -392,7 +392,14 @@ class Tree(Node):
             if DEBUG:
                 print("@@@ tipname", the_name, "Labels:",label)
             #print("@#@", the_name)
-            pos = label.index(the_name.strip())
+            try:
+                pos = label.index(the_name.strip())
+            except:
+                print("Problem with find the label in the list of tips")
+                print(the_name)
+                print(label)
+                sys.exit()
+                
             p.sequence = like.tipCondLikelihood(sequences[pos])
 
 
