@@ -32,6 +32,7 @@ class Redirectedstdout:
         return self._string_io.getvalue()
     
 def print_newick_string(tips,edges,tiplen,edgelen):
+    
     if DEBUG:
         print(tips)
         print(edges)
@@ -47,9 +48,11 @@ def print_newick_string(tips,edges,tiplen,edgelen):
         p.blength = blen
         #print(name,end=' ')
         treenodes[name]=p
-    tmp = zip(edges,edgelen)
+    tmp = list(zip(edges,edgelen))
+    #print("before sorted_edges:", tmp)
     sorted_edges = sorted(tmp,key=lambda x: len(x[0]))
     count = 0
+    #print("sorted_edges:",sorted_edges)
     for edge,elen in sorted_edges:
         count += 1
         p = tree.Node()
@@ -62,7 +65,12 @@ def print_newick_string(tips,edges,tiplen,edgelen):
         pick=[]
         for e in x:
             pick.append(e)  # find all atoms [=tips]
-        #print("count, pick", count,pick)
+        if DEBUG:
+            print("x",x)
+            print("count, pick", count,pick)
+            print("treenodes:",treenodes)
+            print("pick:",pick)
+            print("interior",interior)
         if len(pick)==2: # if there are only 2 this is easy
             # because the interior node connects two tips
             q = treenodes[pick[0]]

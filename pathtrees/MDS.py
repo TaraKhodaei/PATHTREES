@@ -75,12 +75,9 @@ def best_likelihoods(Likelihood):
     #sort=sorted(Likelihood)
     sort_index= sorted(range(len(Likelihood)), key=lambda k: Likelihood[k])
 
-    if not proptype:
-        m =  NUMBESTTREES #either n best likelihood trees or top 1/3 best likelihood tree
-    else:
-        m = int(2 * len(Likelihood)/3)
+    m =  NUMBESTTREES 
         
-    idx=sort_index[-m:]    #10 best
+    idx=sort_index[-m:]    #default is 10 best
     Like_Big = [Likelihood[i] for i in idx]
     print("Number in best trees list = ",len(idx))
     print("Best trees = ",idx)
@@ -104,6 +101,8 @@ def bestNstep_likelihoods(Likelihood, n, step):
 def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2D MDS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     X= MDS(M,2)
+    print(X)
+    print(Likelihood)
     fig = plt.figure(figsize=(12,5))
     axes=[None,None]
 
@@ -263,9 +262,10 @@ if __name__ == "__main__":
     starttreefile = "results/startTrees"
     Likelihood,treelist,pathlist, StartTrees = read_from_files(likelihoodfile,treefile,pathtreefile, starttreefile)
 
-    bestlike = best_likelihoods(Likelihood)
     n = len(treelist)
+    NUMBESTTREES = n
     N= len(pathlist)
+    bestlike = best_likelihoods(Likelihood)
     distances = read_GTP_distances(n,GTPOUTPUT)
     file = "TESTPLOT.pdf"
     plot_MDS(file,N,n,distances, Likelihood, bestlike, treelist, pathlist)

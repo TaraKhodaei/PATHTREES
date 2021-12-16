@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+id = 0
 DEBUG=False
 # node and tree class
 # class Node defines:
@@ -86,10 +86,14 @@ class Node:
     at nodes in a tree
     """
     def __init__(self):
+        global id
         """
         basic node init
         """
         self.name = ""
+        self.id = id
+        #print("init id:",id)
+        id += 1
         self.left = -1
         self.right = -1
         self.ancestor = -1
@@ -217,11 +221,15 @@ class Node:
         """
         Prints the content of a node: name if any and branchlengths if any
         """
-        print (self.name,end=' ')
-        print (self.left,end=' ')
-        print (self.right,end=' ')
-        print (self.ancestor,end=' ')
-        print (":%s" % str(self.blength),end=' ')
+        print ('----')
+        print ("n:", self.name, self.id, end='\n')
+        if self.left != -1:
+            print ('l:', self.left.id,end='\n')
+        if self.right != -1:
+            print ('r:', self.right.id,end='\n')
+        if self.ancestor != -1:
+            print("a:", self.ancestor.id)
+        print ("b: %s" % str(self.blength),end='\n')
         print (self.sequence)
 
 class Tree(Node):
@@ -241,6 +249,7 @@ class Tree(Node):
         """
         prints a tree in Newick format
         """
+        #print(p.debugprint())
         if(p.left != -1):
             print ("(",end='',file=file)
             self.myprint(p.left,file=file)
@@ -286,45 +295,52 @@ class Tree(Node):
             self.remove_internal_labels(p.left)
         if(p.right != -1):
             self.remove_internal_labels(p.right)
-
-
+                    
     def myread(self,newick, p):
         """
         reads a tree in newick format
         """
-#        print("@",self.i)
-#        print(newick[self.i:])
-        #if newick[self.i] =='[':
-        #    while newick[self.i]!=']':
-        #        self.i += 1
-        #    self.i += 1
 
         if(newick[self.i]=="("):
             q = Node()
             p.left = q
             self.i += 1
+            #print("before myread",self.i)
             self.myread(newick,q)
-            if(newick[self.i]!=','):
-                print ("error reading, failed to find ',' in %s" % newick)
+            #print("after myread",self.i)
+            if(newick[self.i]==','):
+                q = Node()
+                if p.right != -1:
+                    print("multifurcation",file=sys.stderr)
+                    w = Node()
+                    w.left = p
+                    w.right= q
+                    q.ancestor = w
+                    p.blength = 0.0
+                    w.ancestor = p.ancestor
+                    p.ancestor = w
+                    self.myread(newick,q)
+                else:
+                    p.right = q
+                    q.ancestor = p
+                    self.myread(newick,p)
+                #print(newick[self.i-4:])
+                #print ("error reading, failed to find ',' in %s" % newick[self.i:self.i+20])
             self.i += 1
-         #   if newick[self.i] =='[':
-         #       while newick[self.i]!=']':
-         #           self.i += 1
-         #       self.i += 1
             q = Node()
             p.right = q
             q.ancestor = p
             self.myread(newick,q)
             #if p is ’root’ of unrooted tree then
             if(newick[self.i]!=')'):
-                print("@ near unrooted section",newick[self.i:])
+                #print("@ near unrooted section",newick[self.i:])
                 if(newick[self.i]==','): # unrooted tree?
-                    print("@ unrooted", file=sys.stderr)
+                    #print("@ unrooted", file=sys.stderr)
                     q = Node()
                     p.ancestor = q
                     p.name = ''
                     p.blength=0.0
-                    q.name = 'root'
+                    #q.name = 'root'
                     q.blength = 0.0
                     q.left = p
                     p = Node()
@@ -332,7 +348,7 @@ class Tree(Node):
                     p.ancestor = q
                     self.root = q
                     self.i += 1
-                    print("@",newick[self.i:])
+                    #print("@",newick[self.i:])
                     self.myread(newick,p)
 #                    print("***",end=' ')
                     #p.myprint()
@@ -340,13 +356,9 @@ class Tree(Node):
                 else:
                     print ("error reading, failed to find ')' in %s" % newick)
             self.i += 1
-          #  if newick[self.i] =='[':
-          #      while newick[self.i]!=']':
-          #          self.i += 1
-          #      self.i += 1
 
         if newick[self.i] == ';':
-#            print("reached end")
+            print("reached end",file=sys.stderr)
             return
         
         j, p.name = getName(newick[self.i:])
@@ -373,7 +385,7 @@ class Tree(Node):
             self.insertSequence(p.right,label,sequences)
         else:
             the_name = p.name.strip()
-            #print("isnertSequence", the_name)
+            print("insertSequence", the_name, label)
             #print()
             
             #the_name.replace(' ','_')
@@ -503,7 +515,7 @@ class Tree(Node):
         self.treeprint(file='temp_paup_tree')
         write_nexus(paupfile,infile,treefile, filetype)
         run_paup(paupfile)
-        localnewick = phy.readTreeString(treefile+'out')
+        localnewick = phy.readTreeString(treefile)
         return(localnewick[-1].strip())
     
     def setParameters(self,Q,basefreqs):
@@ -778,20 +790,23 @@ if __name__ == "__main__":
             mtree = Tree()
             mtree.myread(newick,mtree.root)
             #print(labels)
+            #mtree.treeprint()
+            #sys.exit()
             mtree.insertSequence(mtree.root,labels,sequences)
             tic = time.perf_counter()
             original = mtree.likelihood()
             toc = time.perf_counter()
-            #print("Likelihood calculation\nTimer:", toc-tic)     
-            #print("using downpass algorithm:", original)
+            print("Likelihood calculation\nTimer:", toc-tic)     
+            print("using downpass algorithm:", original)
             delegate = []
-            #print()
+            print()
             tic = time.perf_counter()
             mtree.root.name='root'
             mtree.delegate_extract(mtree.root,delegate)
             x = mtree.delegate_calclike(delegate)
             toc = time.perf_counter()
-            #print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
+            print("Timer:", toc-tic,"\nusing delegate algorithm:",x)
+            #sys.exit()
             #print('\n\n\nNelder-Mead optimization')
             tic = time.perf_counter()
             if nelder:
@@ -799,7 +814,11 @@ if __name__ == "__main__":
                 print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL,file=sys.stderr)
                 newtree.likelihood()                         
             else:
-                tic = time.perf_counter()        
+                tic = time.perf_counter()
+                newtree12 = mtree.optimizeNR()
+                toc = time.perf_counter()
+                print(f"NR opt {toc-tic}", newtree12)
+                tic = time.perf_counter()
                 newick2 = mtree.paupoptimize(infile,filetype)
                 #print(newick)
                 newtree = Tree()

@@ -30,7 +30,7 @@ import pathtrees.splittree as split
 import numpy as np
 import time
 #import shutil
-MYJAVA = '/opt/homebrew/Cellar/openjdk/17/bin/java -jar gtp_211101.jar'
+MYJAVA = '/opt/homebrew/Cellar/openjdk/17.0.1_1/bin/java'
 GTPJAR = 'gtp_211101.jar'
 GTPTREELIST = 'gtptreelist' # a pair of trees formed from the master treelist
 GTPTERMINALLIST = 'terminal_output_gtp'  #GTP terminal output
@@ -47,7 +47,9 @@ def create_treepair(ti,tj,pairtreelist):
     f.close()
 
 def run_gtp(gtptreelist,gtpterminallist,gtpoutput):
-    os.system(f"cd  {GTP}; {MYJAVA} -jar {GTPJAR) -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}")
+    print(f"cd  {GTP}; {MYJAVA} -jar {GTPJAR} -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}",file=sys.stderr)
+    os.system(f"cd  {GTP}; {MYJAVA} -jar {GTPJAR} -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}")
+
     
 def masterpathtrees(treelist): #this is the master treelist
     # loop over treelist:
@@ -82,6 +84,7 @@ def likelihoods(trees,sequences, opt=False):
     for i,newtree in enumerate(trees):
         t = tree.Tree()
         t.myread(newtree,t.root)
+        t.root.name = 'root'
         t.insertSequence(t.root,labels,sequences)
         
         #setup mutation model
