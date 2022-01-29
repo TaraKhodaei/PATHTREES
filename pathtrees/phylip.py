@@ -16,10 +16,10 @@ def readData(myfile, type='STANDARD'):     #testdata.phy : sequences
         if i=='':
             continue
         if type=='STANDARD':
-#            l = i[:10]    #this assumes standard phylip format
-#            s = i[11:]    #
-            l = i[:34]    #this assumes standard phylip format
-            s = i[35:]    #
+            l = i[:10]    #this assumes standard phylip format
+            s = i[11:]    #
+            #l = i[:34]    #this assumes standard phylip format
+            #s = i[35:]    #
         else:
             index = i.rfind('  ')
             l = i[:index]

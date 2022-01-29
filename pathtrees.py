@@ -74,7 +74,11 @@ def run_gtp(gtptreelist,gtpterminallist,gtpoutput):
 
 def masterpathtrees(treelist): #this is the master treelist
     # loop over treelist:
+    global GTPTERMINALLIST,GTPOUTPUT,GTPTREELIST
     allpathtrees = []
+    GTPTERMINALLIST = os.path.join(current,outputdir[it],'terminal_output_gtp')  #GTP terminal output
+    GTPOUTPUT = os.path.join(current,outputdir[it],'output.txt')  #GTP output file
+    GTPTREELIST = os.path.join(current,outputdir[it],'gtptreelist')  #GTP treelist
     if DEBUG:
         print(f"masterpathtrees: {len(treelist)} trees")
         print(f"gtptreelist={GTPTREELIST}")
@@ -86,8 +90,8 @@ def masterpathtrees(treelist): #this is the master treelist
             #form a treelist of the pair
 #            create_treepair(ti,tj,GTPTREELIST) #writes to a file GTPTREELIST
             create_treepair(ti,tj) #this writes into a file GTPTREELIST
-#            run_gtp(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
-            run_gtp(GTPTREELIST, GTPTERMINALLIST)
+            run_gtp(GTPTREELIST, GTPTERMINALLIST, GTPOUTPUT)
+#            run_gtp(GTPTREELIST, GTPTERMINALLIST)
             mypathtrees = pt.internalpathtrees(GTPTREELIST, GTPTERMINALLIST, NUMPATHTREES)
             allpathtrees.extend(mypathtrees)
     return [a.strip() for a in allpathtrees]
@@ -449,7 +453,7 @@ if __name__ == "__main__":
         print(f'\n\n~~~~~~~~~~~~~~~~~~~~~~~~~ Likelihood ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
         tic = time.perf_counter()
         Likelihoods = likelihoods(Treelist,sequences)
-        idx = plo.best_likelihoods(Likelihoods)
+        idx = plo.best_likelihoods(Likelihoods,NUMBESTTREES)
         toc = time.perf_counter()
         timeing = toc - tic
         print(f"\nTime of  Likelihood calculation = {timeing}")
@@ -575,11 +579,11 @@ if __name__ == "__main__":
                 os.system(f'rm {GTPTREELIST}')
             if plotfile != None:
                 if paup_tree:
-                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+1)])   # minus optimizaed trees and 1PAUP
+                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+1)],NUMBESTTREES)   # minus optimizaed trees and 1PAUP
                 elif paup_MAP:
-                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+2)])   # minus optimizaed trees and 1PAUP&1MAP
+                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+2)],NUMBESTTREES)   # minus optimizaed trees and 1PAUP&1MAP
                 else:
-                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt))])   # minus optimizaed trees
+                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt))],NUMBESTTREES)   # minus optimizaed trees
                 print(f"test ---->   len(bestlike) = {len(bestlike)}\n\n\n")
                 n = len(Treelist)
                 #~~~~~~~~~~  RF_distance   OR   GTP_distance~~~~~~~~~~~~~~~~~

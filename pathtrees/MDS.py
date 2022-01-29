@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.cluster.vq import vq, kmeans, whiten
+import matplotlib.cm as cm
+#from scipy.cluster.vq import vq, kmeans, whiten
 
-from sklearn.cluster import KMeans
-from sklearn.cluster import DBSCAN
+#from sklearn.cluster import KMeans
+#from sklearn.cluster import DBSCAN
 
 
 import matplotlib as mpl
@@ -18,6 +19,8 @@ from mpl_toolkits import mplot3d
 
 import matplotlib.lines as mlines
 from scipy.spatial import ConvexHull
+from scipy.spatial import Voronoi, voronoi_plot_2d
+
 from scipy.interpolate import Rbf
 
 #paup_tree = False    #first data option
@@ -81,14 +84,15 @@ def MDS(M,d):
     return X
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~likelihood index~~~~~~~~~~~~~~~~~~~~~~~
-def best_likelihoods(Likelihood):
+def best_likelihoods(Likelihood, n):
+    # n is NUMBESTTREES from options
     sort_index= sorted(range(len(Likelihood)), key=lambda k: Likelihood[k])
+    if n >= len(sort_index):
+        idx=sort_index
+    else:
+        idx=sort_index[-n:]    #default is 10 best
 
-    m =  NUMBESTTREES 
-        
-    idx=sort_index[-m:]    #default is 10 best
-
-    Like_Big = [Likelihood[i] for i in idx]
+#    Like_Big = [Likelihood[i] for i in idx]
 #    print("Number in best trees list = ",len(idx))
 #    print("Best trees = ",idx)
 #    print("Best Likelihoods = ", Like_Big)
@@ -300,36 +304,37 @@ def interpolate_grid(it, filename, M, Likelihood, bestlike, Treelist, StartTrees
     plt.ticklabel_format(useOffset=False)    # to get rid of exponential format of numbers on all axis
 
     #=============================================================================
+    try:
+        ax3 = plt.subplot2grid((40,345), (27,95), rowspan=1, colspan=45, frameon=False)
 
-    ax3 = plt.subplot2grid((40,345), (27,95), rowspan=1, colspan=45, frameon=False)
+        if paup_tree:     #extract paup one
+            Colors_bar = [colormap(i) for i in np.linspace(0.1, 0.9,N_topo+1)]
+            bounds= Likelihood[-(opt):-1]
+            bounds = [bounds[0]-5]+ bounds
+        else:
+            Colors_bar = [colormap(i) for i in np.linspace(0.1, 0.9,N_topo+1)]
+            bounds= Likelihood[-(opt):]
+            bounds = [bounds[0]-5]+ bounds
+            
+            cmap = mpl.colors.ListedColormap(Colors_bar)
+            norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+            cb2 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap, norm=norm, boundaries=bounds, ticks=bounds, spacing='uniform', orientation='horizontal')
+            count=0
+            for label in ax3.get_xticklabels():
+                count +=1
+                label.set_ha("right")
+                label.set_rotation(40)
 
-    if paup_tree:     #extract paup one
-        Colors_bar = [colormap(i) for i in np.linspace(0.1, 0.9,N_topo+1)]
-        bounds= Likelihood[-(opt):-1]
-        bounds = [bounds[0]-5]+ bounds
-    else:
-        Colors_bar = [colormap(i) for i in np.linspace(0.1, 0.9,N_topo+1)]
-        bounds= Likelihood[-(opt):]
-        bounds = [bounds[0]-5]+ bounds
+            ax3.tick_params(labelsize=4.5 , pad=1)    #to change the size of numbers on axis & space between ticks and labels
+            ax3.set_xticklabels(["{:4.4f}".format(i) for i in bounds])    #To get rid of exponention expression of numbers
+            cb2.outline.set_edgecolor('white')   #colorbar externals edge color
 
-    cmap = mpl.colors.ListedColormap(Colors_bar)
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-    cb2 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap, norm=norm, boundaries=bounds, ticks=bounds, spacing='uniform', orientation='horizontal')
-    count=0
-    for label in ax3.get_xticklabels():
-        count +=1
-        label.set_ha("right")
-        label.set_rotation(40)
-
-    ax3.tick_params(labelsize=4.5 , pad=1)    #to change the size of numbers on axis & space between ticks and labels
-    ax3.set_xticklabels(["{:4.4f}".format(i) for i in bounds])    #To get rid of exponention expression of numbers
-    cb2.outline.set_edgecolor('white')   #colorbar externals edge color
-
-    # remove the first label
-    labels = ax3.get_xticklabels()
-    labels[0] = ""
-    ax3.set_xticklabels(labels)
-    
+            # remove the first label
+            labels = ax3.get_xticklabels()
+            labels[0] = ""
+            ax3.set_xticklabels(labels)
+    except:
+        pass
 
 
     fig.tight_layout()
@@ -357,8 +362,8 @@ def interpolate_rbf(it, filename, M,Likelihood, bestlike, Treelist, StartTrees, 
     
     X= MDS(M,3)
     xx = np.linspace(np.min(X),np.max(X),num)
-    yy =  np.linspace(np.min(X),np.max(X),num)
-    zz =  np.linspace(np.min(X),np.max(X),num)
+    yy = np.linspace(np.min(X),np.max(X),num)
+    zz = np.linspace(np.min(X),np.max(X),num)
     
     
     XX, YY = np.meshgrid(xx,yy )
@@ -377,10 +382,22 @@ def interpolate_rbf(it, filename, M,Likelihood, bestlike, Treelist, StartTrees, 
     plt.rcParams['grid.color'] = "white" # change color
     plt.rcParams['grid.linewidth'] = 1   # change linwidth
     plt.rcParams['grid.linestyle'] = '-'
-    
+
+    maxlike = np.max(values)
+    minlike = np.min(values)
+    like = minlike
+    likecontours=[]
+    counts = 0
+    while like < maxlike and counts < 10:
+        likecontours.append(like)
+        like = like + (maxlike-like)/2.
+        counts += 1
+    print(Likelihood)
+    print("@@@@@", likecontours)
     ax1 = plt.subplot2grid((40,345), (14,0),rowspan=13, colspan=80)
-    contour = ax1.contourf(XX,YY,ZZ, 10, alpha=1, vmin=np.nanmin(ZZ), vmax=np.nanmax(ZZ), cmap='viridis')
-#    contour = ax1.contourf(XX,YY,values, 10, alpha=1, vmin=np.nanmin(values), vmax=np.nanmax(values), cmap='viridis')
+#    contour = ax1.contourf(XX,YY,ZZ, 10, alpha=1, vmin=np.nanmin(ZZ), vmax=np.nanmax(ZZ), cmap='viridis')
+    contour = ax1.contourf(XX,YY,values, 10, alpha=1, vmin=np.nanmin(values), vmax=np.nanmax(values), cmap='viridis')
+    #contour  = voronoi2d(X[:,:2],Likelihood, ax1)
     
     
     vmin, vmax = np.nanmin(ZZ.flatten()), np.nanmax(ZZ.flatten())
@@ -466,7 +483,7 @@ def interpolate_rbf(it, filename, M,Likelihood, bestlike, Treelist, StartTrees, 
     ax2.plot_wireframe(XX, YY, ZZ,0.1, cmap='viridis')
     surf = ax2.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, edgecolor='none',alpha=0.25, cmap='viridis',vmin=np.nanmin(ZZ), vmax=np.nanmax(ZZ))
     
-    min_value, max_value = ax2.get_zlim()       #To hadle the distance between surface and contour
+    min_value, max_value = ax2.get_zlim()       #To handle the distance between surface and contour
     
     cset = ax2.contourf(XX, YY, ZZ, vmin=np.nanmin(ZZ), vmax=np.nanmax(ZZ), zdir='z', offset=min_value, cmap='viridis', alpha=0.3)
 #    ax2.scatter3D(X[:N,0], X[:N,1], X[:N,2], marker='^', c=Likelihood[:N] , vmin = vmin, vmax = vmax, cmap='viridis',  edgecolors="black", linewidths=0.5, s=45)    #starttrees
@@ -540,11 +557,12 @@ def interpolate_rbf(it, filename, M,Likelihood, bestlike, Treelist, StartTrees, 
         count +=1
         label.set_ha("right")
         label.set_rotation(40)
-
-    ax3.tick_params(labelsize=4.5 , pad=1)    #to change the size of numbers on axis & space between ticks and labels
-    ax3.set_xticklabels(["{:4.4f}".format(i) for i in bounds])    #To get rid of exponention expression of numbers
-    cb2.outline.set_edgecolor('white')   #colorbar externals edge color
-
+    try:
+        ax3.tick_params(labelsize=4.5 , pad=1)    #to change the size of numbers on axis & space between ticks and labels
+        ax3.set_xticklabels(["{:4.4f}".format(i) for i in bounds])    #To get rid of exponention expression of numbers
+        cb2.outline.set_edgecolor('white')   #colorbar externals edge color
+    except:
+        pass
     # remove the first label
 #    labels = ax3.get_xticklabels()
 #    len_label= len(labels)
@@ -569,8 +587,12 @@ def interpolate_rbf(it, filename, M,Likelihood, bestlike, Treelist, StartTrees, 
         for i in range(len_label-1):
             if i not in v2:
                 labels[i] = ""
-    labels[0] = ""
-    ax3.set_xticklabels(labels)
+    try:
+        labels[0] = ""
+        ax3.set_xticklabels(labels)
+    except:
+        pass
+
 
     
 
@@ -580,6 +602,39 @@ def interpolate_rbf(it, filename, M,Likelihood, bestlike, Treelist, StartTrees, 
     plt.show()
 
 
+def voronoi2d(points,Z, ax1):
+    minx = np.min([i[0] for i in points])
+    miny = np.min([i[1] for i in points])
+    maxx = np.max([i[0] for i in points])
+    maxy = np.max([i[1] for i in points])
+    print(minx,miny,maxx,maxy)
+    points = np.array(points.tolist() + [[-999,0], [999,0], [0,-999], [0,999]])
+    print(points)
+    h=999999
+    # find min/max values for normalization
+    minima = min(Z)
+    maxima = max(Z)
+    Z.extend([-h,-h,-h,-h])
+    Z = np.array(Z)
+    #speed = [x-minima+1 for x in speed]
+    #maxima = maxima - minima + 1
+    #minima = 1
+    # generate Voronoi tessellation
+    vor = Voronoi(points)
+    hi = np.amax(Z)
+    # normalize chosen colormap
+    norm = mpl.colors.Normalize(vmin=minima, vmax=maxima, clip=True)
+    #norm = mpl.colors.LogNorm(vmin=minima, vmax=maxima, clip=True)
+    mapper = cm.ScalarMappable(norm=norm, cmap=cm.viridis)    
+    # plot Voronoi diagram, and fill finite regions with color mapped from speed value
+    fig = voronoi_plot_2d(vor, ax1, show_points=True, show_vertices=False, s=1,line_width=0.1)
+    for r in range(len(vor.point_region)):
+        region = vor.regions[vor.point_region[r]]
+        if not -1 in region:
+            polygon = [vor.vertices[i] for i in region]
+            plt.fill(*zip(*polygon), color=mapper.to_rgba(Z[r]))
+    print("Voronoi finished")
+    return None
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    boundary_convexhull    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -655,7 +710,7 @@ if __name__ == "__main__":
     n = len(treelist)
     NUMBESTTREES = n
     N= len(pathlist)
-    bestlike = best_likelihoods(Likelihood)
+    bestlike = best_likelihoods(Likelihood,NUMBESTTREES)
     distances = read_GTP_distances(n,GTPOUTPUT)
     file = "TESTPLOT.pdf"
     plot_MDS(file,N,n,distances, Likelihood, bestlike, treelist, pathlist)

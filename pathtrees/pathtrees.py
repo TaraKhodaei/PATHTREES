@@ -35,7 +35,7 @@ def internalpathtrees(treefile, terminallist, numpathtrees):
     #       Each subtree has all information of it including
     #       tips,edges,tipslength, edgelengths,
     #       and supports(supports if two corresponding subtrees are disjoint)
-    Results_subtrees, tip_dict , edge_dict = subtree.subtrees(treefile,terminallist)
+    Results_subtrees, tip_dict , edge_dict = subtree.fetch_subtrees(treefile,terminallist)
     T1 = Results_subtrees[0]
     if DEBUG:
         print("T1",T1)

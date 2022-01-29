@@ -20,7 +20,7 @@ import bifurcating
 
 precision = 10
 
-def subtrees(treelist, terminallist):
+def fetch_subtrees(treelist, terminallist):
     File = open(treelist, "r")
     file = File.readlines()
     T=np.array([s.replace('\n', '') for s in file])
@@ -205,6 +205,7 @@ def subtrees(treelist, terminallist):
     mylines = []
     with open (terminallist, 'rt') as myfile:
         for myline in myfile:
+            #print("terminallist:", myline)
             mylines.append(myline.rstrip('\n'))
 
     index=[]
@@ -574,7 +575,7 @@ if __name__ == "__main__":
         sys.exit()
     treelist = sys.argv[1]
     terminallist = sys.argv[2]
-    Results = subtrees(treelist,terminallist)
+    Results = fetch_subtrees(treelist,terminallist)
     print(Results)
     print(f'\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 
