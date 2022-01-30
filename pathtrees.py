@@ -27,6 +27,7 @@ import pathtrees.MDS as plo
 import pathtrees.wrf as wrf
 import pathtrees.splittree as split
 import pathtrees.bifurcating as bifurcating
+import pathtrees.optimize as optimize
 
 import numpy as np
 import time
@@ -69,7 +70,7 @@ def nonzero_lengths(TreeList):
     return treelist_new
 
 def run_gtp(gtptreelist,gtpterminallist,gtpoutput):
-    print(f"cd  {GTP}; {MYJAVA} -jar {GTPJAR} -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}",file=sys.stderr)
+    #print(f"cd  {GTP}; {MYJAVA} -jar {GTPJAR} -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}",file=sys.stderr)
     os.system(f"cd  {GTP}; {MYJAVA} -jar {GTPJAR} -v -o {gtpoutput} {gtptreelist} > {gtpterminallist}")
 
 def masterpathtrees(treelist): #this is the master treelist
@@ -599,8 +600,8 @@ if __name__ == "__main__":
                 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                if DEBUG:
 #                    plo.plot_MDS(plotfile, N, n, distances, Likelihoods, bestlike, Treelist, Pathtrees)
-#                plo.interpolate_grid(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES)
-                plo.interpolate_rbf(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES)
+                plo.interpolate_grid(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES)
+#                plo.interpolate_rbf(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES)
     
         
         #==========================  Next Iteration  ============================

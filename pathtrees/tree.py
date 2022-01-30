@@ -312,6 +312,9 @@ class Tree(Node):
             #print("before myread",self.i)
             self.myread(newick,q)
             #print("after myread",self.i)
+            #Tara's code uses this:  if(newick[self.i]!=','):
+            #    print ("error reading, failed to find ',' in %s" % newick)
+            # Peter's code upt to
             if(newick[self.i]==','):
                 q = Node()
                 if p.right != -1:
@@ -330,6 +333,7 @@ class Tree(Node):
                     self.myread(newick,p)
                 #print(newick[self.i-4:])
                 #print ("error reading, failed to find ',' in %s" % newick[self.i:self.i+20])
+                # Peter's code up to here
             self.i += 1
             q = Node()
             p.right = q
@@ -372,20 +376,25 @@ class Tree(Node):
             self.insertSequence(p.right,label,sequences)
         else:
             the_name = p.name.strip()
-            print("insertSequence", the_name, label)
+            #print("insertSequence", the_name, label)
             #print()
             
             #the_name.replace(' ','_')
             if DEBUG:
                 print("@@@ tipname", the_name, "Labels:",label)
-            #print("@#@", the_name)
+            print("@#@", the_name)
             try:
                 pos = label.index(the_name.strip())
             except:
-                print("Problem with find the label in the list of tips")
-                print(the_name)
-                print(label)
-                sys.exit()
+                try:
+                    newlabel = [replace_right(li, "_", "", 1) for li in label]
+                    print("@",newlabel)
+                    pos = newlabel.index(the_name.strip())
+                except:
+                    print("Problem with find the label in the list of tips")
+                    print(the_name)
+                    print(newlabel,label)
+                    sys.exit()
                 
             p.sequence = like.tipCondLikelihood(sequences[pos])
 
@@ -506,7 +515,7 @@ class Tree(Node):
         self.treeprint(file='temp_paup_tree')
         write_nexus(paupfile,infile,treefile, filetype)
         run_paup(paupfile)
-        localnewick = phy.readTreeString(treefile)
+        localnewick = phy.readTreeString(treefile+'out')
         return(localnewick[-1].strip())
     
     def setParameters(self,Q,basefreqs):
@@ -613,6 +622,9 @@ class Tree(Node):
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Outside class functions  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def replace_right(source, target, replacement, replacements=None):
+    return replacement.join(source.rsplit(target, replacements))
+            
 def neldermeadlike(x0,*args): # args is (delegates,tree1)
     
     delegates,tree1 = args
@@ -818,16 +830,16 @@ if __name__ == "__main__":
             tic = time.perf_counter()
             original = mtree.likelihood()
             toc = time.perf_counter()
-            print("Likelihood calculation\nTimer:", toc-tic)     
-            print("using downpass algorithm:", original)
+            #print("Likelihood calculation\nTimer:", toc-tic)     
+            #print("using downpass algorithm:", original)
             delegate = []
-            print()
+            #print()
             tic = time.perf_counter()
             mtree.root.name='root'
             mtree.delegate_extract(mtree.root,delegate)
             x = mtree.delegate_calclike(delegate)
             toc = time.perf_counter()
-            print("Timer:", toc-tic,"\nusing delegate algorithm:",x)
+            #print("Timer:", toc-tic,"\nusing delegate algorithm:",x)
             #sys.exit()
             #print('\n\n\nNelder-Mead optimization')
             tic = time.perf_counter()
@@ -837,10 +849,10 @@ if __name__ == "__main__":
                 newtree.likelihood()                         
             else:
                 tic = time.perf_counter()
-                newtree12 = mtree.optimizeNR()
-                toc = time.perf_counter()
-                print(f"NR opt {toc-tic}", newtree12)
-                tic = time.perf_counter()
+                #newtree12 = mtree.optimizeNR()
+                #toc = time.perf_counter()
+                #print(f"NR opt {toc-tic}", newtree12)
+                #tic = time.perf_counter()
                 newick2 = mtree.paupoptimize(infile,filetype)
                 #print(newick)
                 newtree = Tree()
