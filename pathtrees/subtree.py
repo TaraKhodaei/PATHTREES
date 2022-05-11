@@ -1,26 +1,25 @@
 #!usr/bin/env python
-DEBUG=False
+
 import sys
 from pathlib import Path
 file = Path(__file__).resolve()
 parent = file.parent
 sys.path.append(str(file.parent))
-#print(sys.path)
 
-import random
-import math
+#import random
+#import math
 import numpy as np
 import tree
 import itertools
 import splittree
 import copy
-
-
 import bifurcating       
 
+DEBUG=False
 precision = 10
 
-def fetch_subtrees(treelist, terminallist):
+
+def subtrees(treelist, terminallist):
     File = open(treelist, "r")
     file = File.readlines()
     T=np.array([s.replace('\n', '') for s in file])
@@ -118,7 +117,7 @@ def fetch_subtrees(treelist, terminallist):
                 subtree = [edge]
                 dict_tips.update( {'subT' + str(i) : dict_edges[str(edge)]} )
 
-                for j, item in enumerate(common_new):     #for some reason this loop does not work!!!!!!!!!!
+                for j, item in enumerate(common_new):
                     if set(item) < set(edge):
                         subtree.append('subT'+ str(j))
 
@@ -179,13 +178,8 @@ def fetch_subtrees(treelist, terminallist):
         edge_dict.append(dict_edges)
         tip_dict.append(dict_tips)
 
-    if DEBUG:
-        print(f'\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
-
     sub_list = [[sorted(sub_list[i][j], key=len)[::-1] for j in range(len(sub_list[i]))] for i in range(2) ]
-
     for s, subT in enumerate([sub_list[0], sub_list[1]]):
-#        print(f"Origional Tree{s+1} subtrees : \n", subT)
         for i in range(1,len(subT)):
             for j, item in enumerate(subT[i]):
                 for k in range(len(subT)):
@@ -195,7 +189,6 @@ def fetch_subtrees(treelist, terminallist):
     if DEBUG:
         print("\n\n\n----> len(sub_list[0]) :", len(sub_list[0]))
         print("----> len(sub_list[1]) :", len(sub_list[1]))
-    
         print(f'\n\n******************************  Extract GTP Informations ********************************\n')
 
     Combinatorial=[]
@@ -205,7 +198,6 @@ def fetch_subtrees(treelist, terminallist):
     mylines = []
     with open (terminallist, 'rt') as myfile:
         for myline in myfile:
-            #print("terminallist:", myline)
             mylines.append(myline.rstrip('\n'))
 
     index=[]
@@ -245,8 +237,6 @@ def fetch_subtrees(treelist, terminallist):
     dict_GTP1 = dict(zip([str(i[0]) for i in start_tree] , [str(i[1]) for i in start_tree]))
     dict_GTP2 = dict(zip([str(i[0]) for i in end_tree] , [str(i[1]) for i in end_tree]))
 
-#    print(f'\n\n******************************************************************************\n')
-
     A_list = []
     B_list = []
 
@@ -255,16 +245,12 @@ def fetch_subtrees(treelist, terminallist):
         B = support[1]
         A = [[dict_GTP1[a[i]] for i in range(len(a))] for a in A]
         B = [[dict_GTP2[b[i]] for i in range(len(b))] for b in B]
-        item_A = [[eval(s.rstrip()) for s in l] for l in A]
+        item_A = [[eval(s.rstrip()) for s in l] for l in A]       # "eval" to convert string representation of list to a list
         item_B = [[eval(s.rstrip()) for s in l] for l in B]
-
         A_list.append(item_A)
         B_list.append(item_B)
 
     support_list = [A_list , B_list]
-
-
-#    print(f'\n\n******************************************************************************\n')
 
     flatten = itertools.chain.from_iterable
     flatten_list = []
@@ -280,7 +266,6 @@ def fetch_subtrees(treelist, terminallist):
 
     if DEBUG:
         print( "\n----> number of supports -----> len(flatten_A) :", len(flatten_A), "\n----> number of supports -----> len(flatten_B) :", len(flatten_B))
-    if DEBUG:
         print(f'\n\n********************  Add GTP Supports to "Results/subtrees file"  *********************\n')
 
     T1 = Results[0]
@@ -293,11 +278,11 @@ def fetch_subtrees(treelist, terminallist):
 
     if DEBUG:
         print(f"\n\n~~~~~~~~~~~~~~~~~~ T1 , T2 disjoint ~~~~~~~~~~~~~~~~~~~~~~")
+        
     disjoint_indices_T1=[]
-
     for i in range(len(flatten_A)):
         GTP_sub_tips = set(flatten_A[i]+flatten_B[i])
-        for j, sub in enumerate(T1_editted):  #TEST sep10
+        for j, sub in enumerate(T1_editted):
             if ( set(GTP_sub_tips) <= set(sub[0])  ):
                 disjoint_indices_T1.append(j)
                 T1[j].append(A_list[i])
@@ -343,8 +328,6 @@ def fetch_subtrees(treelist, terminallist):
 
 
 
-
-
 def Sub_Newicks(T, disjoint_indices):
     sub_newicks_list  = []
     if DEBUG:
@@ -367,8 +350,6 @@ def Sub_Newicks(T, disjoint_indices):
         newick = newick.replace(str('subT' + str(i)), sub_newicks_list[i][:-4])
     newick = newick+';'
     return(sub_newicks_list, newick)
-
-
 
 
 
@@ -448,7 +429,6 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
                     Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
                     if DEBUG:
                         print("Bj_norm = ", Bj_norm)
-        #            EdgeLength_i.append(format(  (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])   , '.5f') )
                     EdgeLength_i.append( (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])  )
                     if DEBUG:
                         print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
@@ -464,11 +444,9 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
                     Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
                     if DEBUG:
                         print("Bj_norm = ", Bj_norm)
-        #            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
                     EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
                     if DEBUG:
                         print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
-        #    EdgeLength_i = [eval(s.rstrip()) for s in EdgeLength_i]       # "eval" to convert string representation of list to a list
 
         if lamda == lambda_limits[i+1]:
             if DEBUG:
@@ -494,7 +472,6 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
                         Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
                         if DEBUG:
                             print("Bj_norm = ", Bj_norm)
-                        #            EdgeLength_i.append(format(  (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])   , '.5f') )
                         EdgeLength_i.append( (((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])  )
                         if DEBUG:
                             print(f"new edge_length = {(((1-lamda)*Aj_norm-lamda*Bj_norm)/Aj_norm)*(T1_edge_dict[str(edge)])}")
@@ -510,14 +487,9 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
                         Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
                         if DEBUG:
                             print("Bj_norm = ", Bj_norm)
-            #            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
                         EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
                         if DEBUG:
                             print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
-           
-            
-            
-            
     if i==k:
         if DEBUG:
             print("\n***********  NOTE:  On the last leg  ***********" )
@@ -535,14 +507,11 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
             Bj_norm = np.linalg.norm([T2_edge_dict[str(e)] for e in B[j]])
             if DEBUG:
                 print("Bj_norm = ", Bj_norm)
-#            EdgeLength_i.append(format(  ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])   , '.5f') )
             EdgeLength_i.append( ((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])  )
             if DEBUG:
                 print(f"new edge_length = {((lamda*Bj_norm-(1-lamda)*Aj_norm)/Bj_norm)*(T2_edge_dict[str(edge)])}")
 
 
-
-    
     EdgeLength_i = [round(elem,precision) for elem in EdgeLength_i ]
     edited_subtree = copy.deepcopy(subT1)     #"deepcopy" to make sure the changes in copy does not effect origional list
     edited_subtree[1][1:] = flatten_epsilon[i]
@@ -563,11 +532,6 @@ def pathtree_edges(num, T1, T2, T1_edge_dict, T2_edge_dict,lamda, lambda_limits,
 
 
 
-
-
-
-
-
 if __name__ == "__main__":
     print("Standalone test")
     if len(sys.argv)<2:
@@ -575,9 +539,9 @@ if __name__ == "__main__":
         sys.exit()
     treelist = sys.argv[1]
     terminallist = sys.argv[2]
-    Results = fetch_subtrees(treelist,terminallist)
+    Results = subtrees(treelist,terminallist)
     print(Results)
-    print(f'\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+    
 
 
 

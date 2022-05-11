@@ -1,21 +1,20 @@
 #!/usr/bin/env python
-#
 # optimization of branchlength using Nelder-Mead
-# (c) Tara Khodaei
 # MIT opensource license
-#
-DEBUG=False
+
+
 import sys
 from pathlib import Path
 file = Path(__file__).resolve()
 parent = file.parent
 sys.path.append(str(file.parent))
-import tree
-import likelihood as like
-import numpy as np
 
-#def minimize_neldermead(func, x0, maxiter=None, initial_simplex=None,
-#                        xatol=1e-4, fatol=1e-4, adaptive=False):
+import tree
+#import likelihood as like
+import numpy as np
+DEBUG=False
+
+#some parts from the internet, needs reference
 def minimize_neldermead(tree1, maxiter=None, maxiter_multiplier=200, initial_simplex=None,
                         xatol=1e-4, fatol=1e-4, adaptive=False,
                         bounds=[0,1e6]):
@@ -24,7 +23,7 @@ def minimize_neldermead(tree1, maxiter=None, maxiter_multiplier=200, initial_sim
     tree1.root.name='root'
     tree1.delegate_extract(tree1.root,delegates)
     x0,s0,clean0,type0 = tree.extract_delegate_branchlengths(delegates)
-    x0 = np.asfarray(x0).flatten() # is this needed? because the x0 should be flat
+    x0 = np.asfarray(x0).flatten() 
     
     if adaptive:
         dim = float(len(x0))
@@ -158,14 +157,7 @@ def minimize_neldermead(tree1, maxiter=None, maxiter_multiplier=200, initial_sim
     return (x,fval,iterations, tree1)
 
 
-# this does not work with the changes made to the minimize_neldermead function
+
 #if __name__ == "__main__":
-#    def f(x):   # The rosenbrock function
-#        return .5*(1 - x[0])**2 + (x[1] - x[0]**2)**2
-#
-#    x0= [2, -1]
-#
-#    x,fval,iterations = minimize_neldermead(f, x0, maxiter=None, initial_simplex=None,
-#                        xatol=1e-4, fatol=1e-4, adaptive=False)
-#    print(f"x_ optimal = {x}\n\nf_ optimal = {fval}\n\nnum of iterations = {iterations}")
+
 

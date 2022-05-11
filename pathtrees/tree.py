@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-id = 0
-DEBUG=False
+
 # node and tree class
 # class Node defines:
 #     -Node (see __init__)
@@ -31,7 +30,6 @@ DEBUG=False
 # utility functions:
 # - getName          : extracts the lable from the newickstring
 # - istip            : returns true if node is a tip
-# PB Oct 2011
 
 
 import io
@@ -40,28 +38,21 @@ from pathlib import Path
 file = Path(__file__).resolve()
 parent = file.parent
 sys.path.append(str(file.parent))
-#try:
-#    sys.path.remove(str(parent))
-#except ValueError: # Already removed
-#    pass
-#print(sys.path)
 
 import os
 import numpy as np
 from numpy.random import default_rng
-from scipy.optimize import linprog
 from scipy.optimize import minimize
 import likelihood as like
 import phylip as phy
+from scipy.optimize import linprog
 import optimize as opt
 
-#=========================================  Peter code  ==========================================
-#import re
+DEBUG=False
 
 
 def getName(s):
     name = ""
-    #s = re.sub('[&.*?]', '', s)
     for j in range(len(s)):
         if((s[j]==')') | (s[j]=='(') | (s[j]==':') | (s[j]==' ') | (s[j]==',')):
             return j,name
@@ -72,12 +63,10 @@ def getName(s):
 
 
 def istip(p):
-    #print("istip:",p)
     if((p.left == -1) & (p.right == -1) & (p.name != "root")):
         return True
     else:
         return False
-
 
 
 class Node:
@@ -86,14 +75,10 @@ class Node:
     at nodes in a tree
     """
     def __init__(self):
-        global id
         """
         basic node init
         """
         self.name = ""
-        self.id = id
-        #print("init id:",id)
-        id += 1
         self.left = -1
         self.right = -1
         self.ancestor = -1
@@ -113,6 +98,7 @@ class Node:
         self.ancestor = -1
         self.blength = -1
     
+    
     def interior(self,left,right):
         """
         connects an interior node with the two descendents
@@ -122,7 +108,8 @@ class Node:
         self.right = right
         self.ancestor = -1
         self.blength = -1
-        
+      
+      
     def optimize_branch(self,thetree):
         iterations = 10
         it = 1
@@ -143,7 +130,6 @@ class Node:
                 it += 1
             else:
                 if like > oldlike:
-                    #print(oldlike,like,b,bold,end=' @ ')
                     bold = b
                     oldlike = like
                     better = True
@@ -151,7 +137,6 @@ class Node:
             if better:
                 if np.abs(slope)<eps:
                     break
-                #    slope = eps
                 b = b + slope/np.abs(curve)
                 if b < eps:
                     b = eps
@@ -167,7 +152,6 @@ class Node:
     def optimize_branch_notwell(self,thetree):
         f = -thetree.likelihood()
         store = self.blength
-        #print("before change:",f)
         if store < 0.000001:
             h = 0.000001
         else:
@@ -176,7 +160,6 @@ class Node:
         if self.blength < 0.0:
             self.blength = 0.0
         f0 = -thetree.likelihood()
-        #print("f0:",f0, "[blen=", store - h,"]")
         self.blength = store + h
         f2 = -thetree.likelihood()
         if DEBUG:
@@ -185,7 +168,6 @@ class Node:
             return
         if np.abs(f2-f0) > 0.000001 and h > 0.000001:
             fdash = (f2 - f0)/h
-            #ftwodash = ((f2 - 2*f + f0)/(h*h))
             self.blength = store - f / fdash
             if self.blength < 0.0:
                 self.blength = 0.0
@@ -193,7 +175,6 @@ class Node:
             fdash = 0.0
             self.blength = store
         x = -thetree.likelihood()
-        #print(f"final:b={self.blength},borig={store}, f={f}/f'={fdash}, [{f}, {f0}, {f2}, lnL={x}")
         mult = 0.5
         counter = 0
         while x == np.inf or x > f: # or x < f0 or x < f2:
@@ -205,10 +186,7 @@ class Node:
             if np.abs(fdash) < 0.00001 or counter > 20:
                 break
             counter += 1
-            #if DEBUG:
-            #print(f"@@@final:b={self.blength}, mult={mult} borig={store}, f={f}/f'={fdash}, [{f}, {f0}, {f2}, lnL={x}")
-        #else:
-        #    print(f"opt lnL {x}")
+
 
     def myprint(self,file=sys.stdout):
         """
@@ -218,20 +196,18 @@ class Node:
             print (self.name,end='',file=file)
         if(self.blength != -1):
             print (":%s" % str(self.blength),end='',file=file)
+            
+
 
     def debugprint(self):
         """
         Prints the content of a node: name if any and branchlengths if any
         """
-        print ('----')
-        print ("n:", self.name, self.id, end='\n')
-        if self.left != -1:
-            print ('l:', self.left.id,end='\n')
-        if self.right != -1:
-            print ('r:', self.right.id,end='\n')
-        if self.ancestor != -1:
-            print("a:", self.ancestor.id)
-        print ("b: %s" % str(self.blength),end='\n')
+        print (self.name,end=' ')
+        print (self.left,end=' ')
+        print (self.right,end=' ')
+        print (self.ancestor,end=' ')
+        print (":%s" % str(self.blength),end=' ')
         print (self.sequence)
 
 class Tree(Node):
@@ -241,18 +217,19 @@ class Tree(Node):
     """
     i = 0
     
+    
     def __init__(self):
         self.root = Node()
         self.root.name = "root"
         self.root.blength = 0.0
         self.Q, self.basefreqs = like.JukesCantor()
+        self.tree_len=0
     
     
     def myprint(self,p, file=sys.stdout):
         """
         prints a tree in Newick format
         """
-        #print(p.debugprint())
         if(p.left != -1):
             print ("(",end='',file=file)
             self.myprint(p.left,file=file)
@@ -260,6 +237,28 @@ class Tree(Node):
         if(p.right != -1):
             self.myprint(p.right,file=file)
             print (")",end='',file=file)
+        p.myprint(file=file)
+        print ("",end='',file=file)
+                
+        
+    def myprint_multi(self,p, file=sys.stdout):
+        """
+        prints a tree in Newick format
+        """
+        if(p.left != -1):
+            print ("(",end='',file=file)
+            self.myprint_multi(p.left,file=file)
+            print (",",end='',file=file)
+        if(len(p.right_seq) != 0):
+            if(len(p.right_seq) ==1):
+                self.myprint_multi(p.right_seq[0],file=file)
+                print (")",end='',file=file)
+            else:
+                for a in p.right_seq[:-1]:
+                    self.myprint_multi(a,file=file)
+                    print (",",end='',file=file)
+                self.myprint_multi(p.right_seq[-1],file=file)    # to remove "," from the last
+                print (")",end='',file=file)
         p.myprint(file=file)
         print ("",end='',file=file)
 
@@ -273,11 +272,10 @@ class Tree(Node):
         self.myprint(self.root,myfile)
         print(";",file=myfile)
         if is_open:
-#            f.close()
             myfile.close()
 
+
     #this prints the newick string into a variable
-    
     def treeprintvar(self):
         old_stdout = sys.stdout
         new_stdout = io.StringIO()
@@ -291,15 +289,29 @@ class Tree(Node):
     
     def remove_internal_labels(self,p):
         """
-            prints a tree in Newick format
-            """
+        prints a tree in Newick format
+        """
         if p.left != -1 and p.right != -1:
             p.name = ""
         if(p.left != -1):
             self.remove_internal_labels(p.left)
         if(p.right != -1):
             self.remove_internal_labels(p.right)
-                    
+            
+            
+    def remove_internal_labels_multi(self,p):
+        """
+        prints a tree in Newick format
+        """
+        if p.left != -1 and len(p.right_seq) != 0:
+            p.name = ""
+        if(p.left != -1):
+            self.remove_internal_labels_multi(p.left)
+        if(len(p.right_seq) != 0):
+            for a in p.right_seq:
+                self.remove_internal_labels_multi(a)
+            
+            
     def myread(self,newick, p):
         """
         reads a tree in newick format
@@ -309,58 +321,39 @@ class Tree(Node):
             p.left = q
             p.left_seq.append(q)
             self.i += 1
-            #print("before myread",self.i)
             self.myread(newick,q)
-            #print("after myread",self.i)
-            #Tara's code uses this:  if(newick[self.i]!=','):
-            #    print ("error reading, failed to find ',' in %s" % newick)
-            # Peter's code upt to
-            if(newick[self.i]==','):
-                q = Node()
-                if p.right != -1:
-                    print("multifurcation",file=sys.stderr)
-                    w = Node()
-                    w.left = p
-                    w.right= q
-                    q.ancestor = w
-                    p.blength = 0.0
-                    w.ancestor = p.ancestor
-                    p.ancestor = w
-                    self.myread(newick,q)
-                else:
-                    p.right = q
-                    q.ancestor = p
-                    self.myread(newick,p)
-                #print(newick[self.i-4:])
-                #print ("error reading, failed to find ',' in %s" % newick[self.i:self.i+20])
-                # Peter's code up to here
+
+            if(newick[self.i]!=','):      #iteration from here mostly
+                print ("error reading, failed to find ',' in %s" % newick)
             self.i += 1
             q = Node()
             p.right = q
             p.right_seq.append(q)
             q.ancestor = p
             self.myread(newick,q)
+            
             count=1
             while (newick[self.i]!=')'):
                 self.i += 1
                 q = Node()
                 p.right = q
-                p.right_seq.append(q)
+                if newick[self.i]!=')':
+                    p.right_seq.append(q)
                 q.ancestor = p
                 self.myread(newick,q)
                 count +=1
             self.i += 1
-                
-        if newick[self.i] == ';':
-            return
-
         j, p.name = getName(newick[self.i:])
         self.i = self.i + j
         if(newick[self.i] == ":"):
             self.i = self.i+1
             j, xx = getName(newick[self.i:])
             p.blength = float(xx.strip("; \n\t"))
+            self.tree_len += p.blength
             self.i = self.i + j
+
+        if newick[self.i] == ';':
+            return
 
     def printTiplabels(self,p):
         if not(istip(p)):
@@ -368,56 +361,47 @@ class Tree(Node):
             self.printTiplabels(p.right)
         else:
             print (p.name)
+            
 
     def insertSequence(self, p, label, sequences):
-        #print("insert:", label)
         if not(istip(p)):
             self.insertSequence(p.left,label,sequences)
             self.insertSequence(p.right,label,sequences)
         else:
             the_name = p.name.strip()
-            #print("insertSequence", the_name, label)
-            #print()
             
-            #the_name.replace(' ','_')
             if DEBUG:
                 print("@@@ tipname", the_name, "Labels:",label)
-            print("@#@", the_name)
             try:
                 pos = label.index(the_name.strip())
             except:
                 try:
                     newlabel = [replace_right(li, "_", "", 1) for li in label]
-                    print("@",newlabel)
                     pos = newlabel.index(the_name.strip())
                 except:
                     print("Problem with find the label in the list of tips")
                     print(the_name)
                     print(newlabel,label)
                     sys.exit()
-                
             p.sequence = like.tipCondLikelihood(sequences[pos])
 
 
     def condLikelihood(self,p):
         if not(istip(p)):
-            #print ("\nbefore left: p=",p,": p.left=",p.left,"p.left.name=","'"+p.left.name+"'")
             self.condLikelihood(p.left)
-            #print ("\nbefore right: p=",p,": p.right=",p.right, "p.right.name=","'"+p.right.name+"'")
             self.condLikelihood(p.right)
             p.sequence = like.nodeLikelihood(p.left.sequence,
                                              p.right.sequence,
                                              p.left.blength,
                                              p.right.blength,
                                              self.Q)
-        #print ("\ninternal node: p=",p,"\n      condlike[first site]=",p.sequence.tolist()[:1])
 
-        
     def likelihood(self):
         self.condLikelihood(self.root)
         self.lnL = like.logLikelihood(self.root.sequence,self.basefreqs)
         return self.lnL
-
+        
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Optimize ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def delegate_extract(self,p,delegate):
         if not(istip(p)):
             self.delegate_extract(p.left,delegate)
@@ -448,7 +432,6 @@ class Tree(Node):
         done = False
         while not done:
             for d in delegates:
-                #print(d)
                 if d[0].clean and d[1].clean:
                     d[2].sequence = like.nodeLikelihood(d[0].sequence,d[1].sequence,d[0].blength, d[1].blength, self.Q)
                     d[2].clean = True
@@ -457,16 +440,11 @@ class Tree(Node):
                         break
                 else:
                     continue
-        #print('before lnL')        
         self.lnL = like.logLikelihood(self.root.sequence,self.basefreqs)
-        #print(self.lnL)
         return self.lnL
         
     def optimizeNR(self):
         self.optimize_branch(self.root)
-        #print("finished1",self.likelihood())
-        #self.optimize_branch(self.root)
-        #print("finished2",self.likelihood())
         return self.lnL
         
     def optimize_branch(self,p):
@@ -485,16 +463,13 @@ class Tree(Node):
         x0,s0,clean0,type0 = extract_delegate_branchlengths(delegates)
         bounds = [(0,100)]*len(x0)
         result = minimize(neldermeadlike, x0, args=(delegates,self),method='Nelder-Mead',bounds=bounds)
-        #result = minimize(neldermeadlike, x0, args=(delegates,self),method='L-BFGS-B',bounds=bounds)
         x = result['x']
         iterations = result['nit']
         print(x,iterations)
-        #x,fval,iterations, tree1 = minimize(neldermeadlike, x0, args=(delegates,self),method='Nelder-Mead')
-        #,maxiter=None, initial_simplex=None, xatol=1e-2, fatol=1e-2, adaptive=False)
         instruct_delegate_branchlengths(x,delegates)
         self.delegate_calclike(delegates)
-        #if DEBUG:
-        print("scioptimize: optimize tree likelihood:", self.lnL,iterations)
+        if DEBUG:
+            print("scioptimize: optimize tree likelihood:", self.lnL,iterations)
         return(self)
 
     def optimize(self):
@@ -504,8 +479,8 @@ class Tree(Node):
         tree1.delegate_extract(tree1.root,delegates)
         instruct_delegate_branchlengths(x,delegates)
         tree1.lnL = -fval
-        #if DEBUG:
-        print("optimize tree likelihood:", -fval,iterations)
+        if DEBUG:
+            print("optimize tree likelihood:", -fval,iterations)
         return(tree1)
 
     def paupoptimize(self, infile, filetype='RelPHYLIP'):
@@ -529,8 +504,7 @@ class Tree(Node):
         return self.lnL
     
 
-    #=========================================  Tara code  ==========================================
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  get Tips&edges ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def getTips(self,p, tips, tipslength):
         if not(istip(p)):
             for a in p.left_seq:
@@ -556,6 +530,7 @@ class Tree(Node):
             for a in p.right_seq:
                 self.get_edges(a,edges,edgelengths)
         return(edges[1:], edgelengths[1:])
+
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  Kendall ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -589,7 +564,7 @@ class Tree(Node):
 
 
 
-    def PairTips(self,p, tips):   # *** New code changes here ***
+    def PairTips(self,p, tips):
         pairlist=[]
         for i in range(len(tips)):
             for j in range(i+1, len(tips)):
@@ -599,7 +574,7 @@ class Tree(Node):
     
 
 
-    def MetricsVectors(self, newick):    #*** New code changes here ***
+    def MetricsVectors(self, newick):
         m=[]
         M=[]
         tips=[]
@@ -621,10 +596,12 @@ class Tree(Node):
         return (m, M)
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   Outside class functions  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#==========================   Outside class functions  =======================
+
+#~~~~~~~~~~~~~~~~   optimize  ~~~~~~~~~~~~~~~~~~
 def replace_right(source, target, replacement, replacements=None):
     return replacement.join(source.rsplit(target, replacements))
-            
+
 def neldermeadlike(x0,*args): # args is (delegates,tree1)
     
     delegates,tree1 = args
@@ -660,7 +637,8 @@ def instruct_delegate_branchlengths(x0, delegates):
             d[2].clean = False
         z += 1
 
-def TreesDistance(m, M, c):      # 0<=c <=1     (Peter: For scaling)
+#~~~~~~~~~~~~~~~~   Kendal  ~~~~~~~~~~~~~~~~~~
+def TreesDistance(m, M, c):      # 0<=c <=1     (For scaling)
     s0=np.sum(np.array(m[0]))
     S0=np.sum(np.array(M[0]))
     s1=np.sum(np.array(m[1]))
@@ -715,21 +693,15 @@ def generate_treelist(filename, dt):
     return treelist
 
 
-
+#~~~~~~~~~~~~~~~~   random trees  ~~~~~~~~~~~~~~~~~~
 def create_random_tree(labels,blens,outgroup=None):
     nodes = labels[:]
     if outgroup != None:
         if outgroup not in nodes:
             print("Warning: outgroup was not correctly specified")
             sys.exit(-1)
-    print("@",len(blens),file=sys.stderr)
     biter = iter(blens)
-    #print(biter)
     rng = default_rng()
-    #print(nodes)
-    #print("@@@@@@@@",labels)
-    #sys.exit()
-    #print(len(blens))
     if outgroup != None:
         i = nodes.index(outgroup)
         nodes.pop(i)
@@ -737,21 +709,15 @@ def create_random_tree(labels,blens,outgroup=None):
     while len(nodes)>1:
         a,b = rng.permutation(range(len(nodes)))[:2] #rng.integers(low=0, high=len(nodes), size=2)
         la,lb = next(biter),next(biter)
-        # [(a:4,b:2),c,d,e]
-        # [((a:4,b:2):4,e:2),c,d]
         c = f'({nodes[a]}:{la:.10f},{nodes[b]}:{lb:.10f})'
         counter += 2
         nodes[a] = c
         nodes.pop(b)
-        #print("@nodelen",len(nodes))
-    #print(nodes)
     if outgroup != None:
         la,lb = next(biter),next(biter)
         c = f'({nodes[0]}:{la:.10f},{outgroup}:{lb:.10f})'
         nodes[0] = c
         counter += 2
-    #sys.exit()
-    print("@",counter,file=sys.stderr)
     return nodes[0]+":0.0;"
     
 def generate_random_tree(labels,totaltreelength,outgroup=None):
@@ -759,8 +725,6 @@ def generate_random_tree(labels,totaltreelength,outgroup=None):
     a = [1]*(-2 + len(labels)*2)
     blen = totaltreelength * rng.dirichlet(a)
     rt = create_random_tree(labels, blen.tolist(), outgroup)
-    #print(rt)
-    #sys.exit()
     return rt
 
 def write_nexus(nexfile,phylipfile,treefile,filetype):
@@ -777,9 +741,13 @@ def write_nexus(nexfile,phylipfile,treefile,filetype):
     print('end;',file=f)
     f.close()
 
+
+#~~~~~~~~~~~~~~~~   paup optimize  ~~~~~~~~~~~~~~~~~~
 def run_paup(nexfile):
     os.system(f'(paup -n {nexfile}) 2>1 > paup_temp.log')
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def centered(b, thenode, thetree):
     eps = 0.000001
     h = 0.01
@@ -800,11 +768,12 @@ def centered(b, thenode, thetree):
     slope = (fu - fl)/h
     curve = (fu - 2*f + fl) / (h*h)
     return slope, curve, f
-    
+ 
+ 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if __name__ == "__main__":
     import time
     nelder = False
-        #    import data
     if "--test" in sys.argv:
         import phylip as ph
         infile = sys.argv[2]
@@ -815,7 +784,6 @@ if __name__ == "__main__":
         else:
             labels, sequences, variable_sites = ph.readData(infile)
             filetype = 'PHYLIP'
-        #print("@first",labels)
         with open(starttrees,'r') as f:
             StartTrees = [line.strip() for line in f]
     
@@ -823,36 +791,25 @@ if __name__ == "__main__":
         for newick in StartTrees:
             mtree = Tree()
             mtree.myread(newick,mtree.root)
-            #print(labels)
-            #mtree.treeprint()
-            #sys.exit()
             mtree.insertSequence(mtree.root,labels,sequences)
             tic = time.perf_counter()
             original = mtree.likelihood()
             toc = time.perf_counter()
-            #print("Likelihood calculation\nTimer:", toc-tic)     
-            #print("using downpass algorithm:", original)
+            #print("Likelihood calculation\nTimer:", toc-tic)
             delegate = []
-            #print()
             tic = time.perf_counter()
             mtree.root.name='root'
             mtree.delegate_extract(mtree.root,delegate)
             x = mtree.delegate_calclike(delegate)
             toc = time.perf_counter()
-            #print("Timer:", toc-tic,"\nusing delegate algorithm:",x)
-            #sys.exit()
-            #print('\n\n\nNelder-Mead optimization')
+            #print("Timer:", toc-tic,"\nusing delegate algorithm:",x)     
             tic = time.perf_counter()
             if nelder:
                 newtree = mtree.optimize()
                 print("Nelder_mead optimization:\nTimer:", toc-tic,"\nlnL=",newtree.lnL,file=sys.stderr)
                 newtree.likelihood()                         
             else:
-                tic = time.perf_counter()
-                #newtree12 = mtree.optimizeNR()
-                #toc = time.perf_counter()
-                #print(f"NR opt {toc-tic}", newtree12)
-                #tic = time.perf_counter()
+                tic = time.perf_counter()        
                 newick2 = mtree.paupoptimize(infile,filetype)
                 #print(newick)
                 newtree = Tree()

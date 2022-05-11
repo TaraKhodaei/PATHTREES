@@ -13,14 +13,13 @@
 #                      left and right nodes
 # -test              : when this file is called alone then it runs this test 
 import sys
-import numpy as np    # this loads numpy as shortcut np
-import scipy as sc    #
-import scipy.linalg   #
+import numpy as np
+import scipy as sc
+import scipy.linalg
 
-#
+
 # set this to true if you want intermediate output
 DEBUG = False
-HUGE = 1000000
 
 def JukesCantor():
 	Q =  np.array(
