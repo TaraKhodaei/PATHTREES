@@ -72,7 +72,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * String "user_trees" considers user_trees to be plotted and compared with the best tree of PATHTREES, 
 > * Otherwise it considers no extra trees to be plotted and compared       
 
-<br/><br/>
+<br/>
 
 **-interp, --interpolate**
 > * Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. 
