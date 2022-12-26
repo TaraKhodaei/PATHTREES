@@ -121,7 +121,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * **"D1.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format.
 
 > **Extracting Boundary Trees:**
-    python pathtrees.py -hull sampletrees_D1 D1.phy
+        python pathtrees.py -hull sampletrees_D1 D1.phy
 
 
 
