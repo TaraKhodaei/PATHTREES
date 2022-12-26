@@ -50,22 +50,24 @@ optional arguments:
                     Forces an outgroup when generating random trees.
                         
     -i NUM_ITERATIONS, --iterate NUM_ITERATIONS
-                    Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees, this will add an iteration number to the
-                    outputdir, and also adds iteration to the plotting.
+                    Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees, this will add
+                    an iteration number to the outputdir, and also adds iteration to the plotting.
                         
     -e, --extended        
                     If the phylip dataset is in the extended format, use this.
     
     -hull, --convex_hull
-                    Extracts the convex hull of input sample trees and considers them as starting trees in the first iteration to generate pairwise
-                    pathtrees. If false, it directly considers input sample trees as starting trees in the first iteration to generate pairwise
-                    pathtrees.
+                    Extracts the convex hull of input sample trees and considers them as starting trees in the first iteration
+                    to generate pairwise pathtrees. If false, it directly considers input sample trees as starting trees in the
+                    first iteration to generate pairwise pathtrees.
                         
     -gtp, --gtp_distance    
-                    Use GTP derived geodesic distance for MDS plotting [slower], if false use weighted Robinson-Foulds distance for MDS plotting [faster]
+                    Use GTP derived geodesic distance for MDS plotting [slower], if false use weighted Robinson-Foulds distance
+                    for MDS plotting [faster]
                         
     -nel, --neldermead
-                    Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson to optimize branchlengths [fast]
+                    Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson to optimize
+                    branchlengths [fast]
                         
     -c, --compare_trees
                     String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the best tree of PATHTREES, string                      "D2" considers the second dataset (D_2) with two trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string                            "user_trees" considers user_trees to be compared with the best tree of PATHTREES, otherwise it considers nothing to be compared
