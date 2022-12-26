@@ -108,8 +108,8 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
 
-<p align="center">
-## Extracting Boundary Trees
+## <p align="center">
+Extracting Boundary Trees
 </p>
 
 ## Example 1
