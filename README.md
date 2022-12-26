@@ -87,17 +87,17 @@ optional arguments:
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output FirstData FirstData.phy
 
-<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3.png" width="900"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
 
 
 ## Example 2
     python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output SecondData SecondData.phy
 
-<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter1_RF_rbf_s1e-10_n6_b100.png" width="900"/></div>
-<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter2_RF_rbf_s1e-10_n7.png" width="900"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter1_RF_rbf_s1e-10_n6_b100.png" width="1000"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter2_RF_rbf_s1e-10_n7.png" width="1000"/></div>
 
 
 ## Example 3
     python pathtrees.py -n 3 -b 15 -gtp -c user_trees -p myplot -o output FirstData FirstData.phy
 
-<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3_b15_usertrees.png" width="900"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3_b15_usertrees.png" width="1000"/></div>
