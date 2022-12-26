@@ -75,12 +75,12 @@ Python package **PATHTREES** enables the construction, visualization and explora
                     distance for MDS plotting [faster]
                         
     
-### $\color{purple}{\math{-nel, --neldermead}}$
+### $\color{purple}{\texttt{-nel, --neldermead}}$
 > Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson
                     to optimize branchlengths [fast]
                         
     
-### $\color{purple}{\texttt{-c, $--compare_trees$}}$
+### $\color{purple}{\texttt{-c, --compare_trees}}$
 > String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the
                     best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two trees to be compared
                     (PAUP and RAxML) with the best tree of PATHTREES, string "user_trees" considers user_trees to be 
