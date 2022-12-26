@@ -5,7 +5,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-# $\color{purple}{\textsf{Usage}}$
+## $\color{purple}{\textsf{Usage}}$
     pathtrees.py [-h] [-o OUTPUTDIR] [-v] [-p PLOTFILE] [-n NUMPATHTREES]
                         [-b NUMBESTTREES] [-r NUM_RANDOM_TREES] [-g OUTGROUP]
                         [-i NUM_ITERATIONS] [-e] [-hull] [-gtp] [-nel] [-c COMPARE_TREES]
@@ -13,7 +13,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
                         STARTTREES DATAFILE
 
 
-# $\color{purple}{\textsf{Positional Arguments}}$
+## $\color{purple}{\textsf{Positional Arguments}}$
 
     STARTTREES     mandatory input file that holds a set of trees in Newick format
 
@@ -21,7 +21,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-# $\color{purple}{\textsf{Optional Arguments}}$
+## $\color{purple}{\textsf{Optional Arguments}}$
 
 **-h, --help**
 > show this help message and exi  
@@ -109,7 +109,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-# $\color{purple}{\textsf{Extracting Boundary Trees}}$
+## $\color{purple}{\textsf{Extracting Boundary Trees}}$
 
 
 ## Example 1
