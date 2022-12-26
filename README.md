@@ -115,7 +115,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 ## $\color{purple}{\textsf{Application To Real Data}}$
 ### $\color{purple}{\textsf{1. Dataset1}}$
-> "sampletrees_D1" in folder "data" shows a sample of around 1000 tree extracted from \textsc{REVBAYES}
+> "sampletrees_D1" in folder "data" shows a sample of around 1000 trees extracted from $\textsc{REVBAYES}$
 ### $\color{purple}{\textsf{2. Dataset2}}$
 
 ## Example 1
