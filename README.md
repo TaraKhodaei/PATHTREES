@@ -115,7 +115,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 ## $\color{purple}{\textsf{Application To Real Data}}$
 ### $\color{purple}{\textsf{1. Dataset1}}$
-> "sampletrees_D1" in folder "data" shows a sample of around 1000 trees extracted from RevBayes for dataset D1 of primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.
+> **"sampletrees_D1"** in folder "data" shows a sample of around 1000 trees in Newick format which are extracted from RevBayes for dataset D1 of primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.
 > 
 ### $\color{purple}{\textsf{2. Dataset2}}$
 
