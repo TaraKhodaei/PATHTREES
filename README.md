@@ -120,7 +120,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 > **Extracting Boundary Trees:**
 > * Input data should be in the same directory as "pathtrees.py".<br/>
-> python pathtrees.py -hull sampletrees_D1 D1.phy
+>               python pathtrees.py -hull sampletrees_D1 D1.phy
 
 
 
