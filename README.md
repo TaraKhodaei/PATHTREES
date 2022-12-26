@@ -71,7 +71,9 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 **-e, --extended**
 > If the phylip dataset is in the extended format, use this.    
-    
+
+<br/>
+
 **-hull, --convex_hull**
 > * Extracts the convex hull of input sample trees and considers them as starting trees in the first iteration to generate pairwise pathtrees. 
 > * If false, it directly considers input sample trees as starting trees in the first iteration to generate pairwise pathtrees.                       
