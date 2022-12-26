@@ -26,8 +26,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 optional arguments:
 
 > $\color{purple}{\text{-h, --help}}$
-
-> show this help message and exit
+>> show this help message and exit
     
     -o OUTPUTDIR, --output OUTPUTDI            
                     directory that holds the output files
