@@ -60,24 +60,24 @@ Python package **PATHTREES** enables the construction, visualization and explora
                     add an iteration number to the outputdir, and also adds iteration to the plotting.
                         
     
-**\texttt{-e, --extended**
+**-e, --extended**
 > If the phylip dataset is in the extended format, use this.
     
     
-**\texttt{-hull, --convex_hull**
+**-hull, --convex_hull**
 > Extracts the convex hull of input sample trees and considers them as starting trees in the first 
                     iteration to generate pairwise pathtrees. If false, it directly considers input sample trees as 
                     starting trees in the first iteration to generate pairwise pathtrees.
                         
     
 **-gtp, --gtp_distance}}**
-> Use GTP derived geodesic distance for MDS plotting [slower], if false use weighted Robinson-Foulds
-                    distance for MDS plotting [faster]
+> * Use GTP derived geodesic distance for MDS plotting [slower]
+> * If false, use weighted Robinson-Foulds distance for MDS plotting [faster]
                         
     
 **-nel, --neldermead**
-> Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson
-                    to optimize branchlengths [fast]
+> * Use Nelder-Mead optimization method to optimize branchlengths [slower], 
+> * If false, use Newton-Raphson to optimize branchlengths [fast]
                         
     
 
