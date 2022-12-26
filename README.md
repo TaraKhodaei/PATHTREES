@@ -76,7 +76,7 @@ optional arguments:
                     compared with the best tree of PATHTREES, otherwise it considers nothing to be compared
                     
     -interp, --interpolate
-        * Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use 
+    -   Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use 
                     scipy.interpolate.Rbf [less overshooting]. 
                     * String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline 
                     interpolation, with default smoothness=1e-10. 
