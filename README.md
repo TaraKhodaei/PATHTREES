@@ -5,7 +5,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $\color{purple}{Usage}}$
+## $\color{purple}{Usage}$
     pathtrees.py [-h] [-o OUTPUTDIR] [-v] [-p PLOTFILE] [-n NUMPATHTREES]
                         [-b NUMBESTTREES] [-r NUM_RANDOM_TREES] [-g OUTGROUP]
                         [-i NUM_ITERATIONS] [-e] [-hull] [-gtp] [-nel] [-c COMPARE_TREES]
