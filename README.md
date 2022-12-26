@@ -119,11 +119,13 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > **Input:**
 > * **"sampletrees_D1"** in folder "data" shows a sample of around 1000 trees in Newick format which are extracted from RevBayes for dataset D1 of primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.
 > * **"D1.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format.
-> > **Extracting Boundary Trees:**
+
+> **Extracting Boundary Trees:**
+    python pathtrees.py -hull sampletrees_D1 D1.phy
 
 
 
-# $\color{purple}{\textsf{2. Dataset2}}$
+## $\color{purple}{\textsf{2. Dataset2}}$
 
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
