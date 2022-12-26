@@ -65,7 +65,11 @@ optional arguments:
                     Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-                     Raphson to optimize branchlengths [fast]
                         
     -c, --compare_trees
-                    String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP)                       with the best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two                         trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string  "user_trees"                     considers user_trees to be compared with the best tree of PATHTREES, otherwise it considers                     nothing to be compared
+                    String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) 
+                    with the best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two 
+                    trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string  "user_trees" 
+                    considers user_trees to be compared with the best tree of PATHTREES, otherwise it considers 
+                    nothing to be compared
                     
     -interp, --interpolate
                     Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use 
