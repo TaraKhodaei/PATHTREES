@@ -108,7 +108,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
 ## Example 1
-    python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output FirstData FirstData.phy
+    python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
 
 <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
 
