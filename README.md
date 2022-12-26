@@ -1,7 +1,7 @@
 <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/pathtrees_logo.jpg" width="420"/></div>
 
 # $$\text{PATHTREES}$$
-$\text{Python package **PATHTREES** enables the construction, visualization and exploration of the continuous tree landscape interior of the convex hull of given starting trees, using insights from the Billera-Holmes-Vogtmann treespace.}$
+Python package **PATHTREES** enables the construction, visualization and exploration of the continuous tree landscape interior of the convex hull of given starting trees, using insights from the Billera-Holmes-Vogtmann treespace.
 
 
 
