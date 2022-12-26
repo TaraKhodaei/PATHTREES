@@ -75,7 +75,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
                     distance for MDS plotting [faster]
                         
     
-### $\color{purple}{\texttt{-nel, --neldermead}}$
+**-nel, --neldermead**
 > Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson
                     to optimize branchlengths [fast]
                         
