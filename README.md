@@ -113,7 +113,8 @@ Python package **PATHTREES** enables the construction, visualization and explora
 ## $\color{purple}{\textsf{Application To Real Data}}$
 
 ## $\color{purple}{\textsf{1. First Dataset D1}}$
-Dataset D1 of primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.
+Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.<br/>
+
 > **Input for Generating Boundary Trees:**
 > * **"D1.sampletrees"** in folder "data" shows a sample of around 1000 trees in Newick format which are extracted from RevBayes for D1.
 > * **"D1.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format.
