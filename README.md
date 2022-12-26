@@ -1,11 +1,11 @@
 <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/pathtrees_logo.jpg" width="420"/></div>
 
-# $$\text{PATHTREES}$$
+# $$\textsf{PATHTREES}$$
 Python package **PATHTREES** enables the construction, visualization and exploration of the continuous tree landscape interior of the convex hull of given starting trees, using insights from the Billera-Holmes-Vogtmann treespace.
 
 
 
-## $$\text{Usage}$$
+## $$\textsf{Usage}$$
 
     pathtrees.py [-h] [-o OUTPUTDIR] [-v] [-p PLOTFILE] [-n NUMPATHTREES]
                         [-b NUMBESTTREES] [-r NUM_RANDOM_TREES] [-g OUTGROUP]
@@ -16,7 +16,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $$\text{Positional Arguments}$$
+## $$\textsf{Positional Arguments}$$
 
     STARTTREES     mandatory input file that holds a set of trees in Newick format
 
@@ -24,7 +24,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $$\text{Optional Arguments}$$
+## $$\textsf{Optional Arguments}$$
 
 **-h, --help**
 > show this help message and exi  
@@ -112,7 +112,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $$\text{Extracting Boundary Trees}$$
+## $$\textsf{Extracting Boundary Trees}$$
 
 
 ## Example 1
