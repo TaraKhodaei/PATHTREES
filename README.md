@@ -113,7 +113,9 @@ Python package **PATHTREES** enables the construction, visualization and explora
     python pathtrees.py -hull sampletrees_D1 D1.phy
     
 
-# $\color{purple}{\textsf{APPLICATION TO REAL DATA}}$
+## $\color{purple}{\textsf{APPLICATION TO REAL DATA}}$
+* Example 1
+* Example 2
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
 
