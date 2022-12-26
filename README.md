@@ -85,7 +85,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * String "D1" considers my two trees (PAUP_MAP in data folder) to be plotted and compared with the best tree of PATHTREES for first dataset,
 > * String "D2" considers my two trees (PAUP_RXML_bropt in data folder) to be plotted and compared with the best tree of PATHTREES, 
 > * String "user_trees" considers user_trees to be plotted and compared with the best tree of PATHTREES, 
-> * Otherwise it considers no extra trees to be plotted and compared
+> * Otherwise it considers no extra trees to be plotted and compared       
                     
     
 **-interp, --interpolate**
