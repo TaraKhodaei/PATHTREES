@@ -114,7 +114,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 ## Example 2
-    python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output SecondData SecondData.phy
+    python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output boundarytrees_D2 D2.phy
 
 <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter1_RF_rbf_s1e-10_n6_b100.png" width="1000"/></div>
 <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter2_RF_rbf_s1e-10_n7.png" width="1000"/></div>
