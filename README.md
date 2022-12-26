@@ -56,8 +56,8 @@ Python package **PATHTREES** enables the construction, visualization and explora
                         
     
 **-i NUM_ITERATIONS, --iterate NUM_ITERATIONS**
-> Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees, this will
-                    add an iteration number to the outputdir, and also adds iteration to the plotting.
+> * With specified NUM_ITERATIONS > 1, PATHTREESS will run NUM_ITERATIONS iterations. In each iteration, this will add an iteration number to the outputdir, and also adds iteration to the plotting.
+> * Otherwise, it just runs one iteration. 
                         
     
 **-e, --extended**
