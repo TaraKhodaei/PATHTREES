@@ -73,7 +73,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * Otherwise it considers no extra trees to be plotted and compared       
 
 <br/><br/>
-&nbsp;
+
 **-interp, --interpolate**
 > * Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. 
 > * String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10. 
