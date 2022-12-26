@@ -23,11 +23,11 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 ## Optional Arguments
 
-### $\color{purple}{\texttt{-h, --help}}$
+### $\color{purple}{\textsf{-h, --help}}$
 > show this help message and exit
     
 
-### $\color{purple}{\texttt{-o OUTPUTDIR, --output OUTPUTDI}}$
+### $\color{purple}{\textsf{-o OUTPUTDIR, --output OUTPUTDI}}$
 > directory that holds the output files
                         
     -v, --verbose            
