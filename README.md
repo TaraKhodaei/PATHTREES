@@ -24,6 +24,8 @@ Python package **PATHTREES** enables the construction, visualization and explora
 ## Optional Arguments
 
 optional arguments:
+
+    $\color{green}{-h, --help}$
     
     -h, --help            
                     show this help message and exit
