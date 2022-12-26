@@ -25,7 +25,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 optional arguments:
 
-   # <font color= teal> Gibbs Sampling</font> 
+   #<font color= teal> Gibbs Sampling</font> 
     
     -h, --help            
                     show this help message and exit
