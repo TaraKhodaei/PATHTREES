@@ -81,7 +81,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
                         
     
 
-### $\mathrm{-c, --compare_trees}$
+### -c, --compare_trees
 > String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the
                     best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two trees to be compared
                     (PAUP and RAxML) with the best tree of PATHTREES, string "user_trees" considers user_trees to be 
