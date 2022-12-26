@@ -5,7 +5,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $\color{purple}{\textsf{Usage}}$
+## $\color{purple}{\textsf{USAGE}}$
     pathtrees.py [-h] [-o OUTPUTDIR] [-v] [-p PLOTFILE] [-n NUMPATHTREES]
                         [-b NUMBESTTREES] [-r NUM_RANDOM_TREES] [-g OUTGROUP]
                         [-i NUM_ITERATIONS] [-e] [-hull] [-gtp] [-nel] [-c COMPARE_TREES]
@@ -13,7 +13,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
                         STARTTREES DATAFILE
 
 
-## $\color{purple}{\textsf{Positional Arguments}}$
+## $\color{purple}{\textsf{POSITIONAL ARGUMENTS}}$
 
     STARTTREES     mandatory input file that holds a set of trees in Newick format
 
@@ -21,7 +21,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $\color{purple}{\textsf{Optional Arguments}}$
+## $\color{purple}{\textsf{OPTIONAL ARGUMENTS}}$
 
 **-h, --help**
 > show this help message and exi  
@@ -109,11 +109,11 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $\color{purple}{\textsf{Extracting Boundary Trees}}$
+## $\color{purple}{\textsf{EXTRACTING BOUNDARY TREES}}$
     python pathtrees.py -hull sampletrees_D1 D1.phy
     
 
-# $\color{purple}{\textsf{Application to Real Data}}$
+# $\color{purple}{\textsf{APPLICATION TO REAL DATA}}$
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
 
