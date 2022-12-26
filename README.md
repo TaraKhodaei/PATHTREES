@@ -30,7 +30,7 @@ optional arguments:
 > **<span style="color:purple">-h, --help</span>**
 > * show this help message and exit
 
-    *$\color{red}{\text{-h, --help}}$*
+    $\color{red}{\text{-h, --help}}$
                     show this help message and exit
     
     -o OUTPUTDIR, --output OUTPUTDI            
