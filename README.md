@@ -25,7 +25,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 optional arguments:
 
-<span style="color:purple">-h, --help</span>
+<span style="color:blue">-h, --help</span>
 
 > **<span style="color:purple">-h, --help</span>**
 > * show this help message and exit
