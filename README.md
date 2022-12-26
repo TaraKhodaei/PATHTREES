@@ -80,7 +80,12 @@ Python package **PATHTREES** enables the construction, visualization and explora
                     to optimize branchlengths [fast]
                         
     
+### $\color{purple}{\mathbf{-c,--compare\_trees}}$
 ### $\color{purple}{\mathbf{-c, --compare\_trees}}$
+### $\color{purple}{\mathsf{-c, --compare\_trees}}$
+### $\color{purple}{\mathrm{-c, --compare\_trees}}$
+### $\color{purple}{\mathit{-c, --compare\_trees}}$
+### $\color{purple}{\mathtt{-c, --compare\_trees}}$
 > String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the
                     best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two trees to be compared
                     (PAUP and RAxML) with the best tree of PATHTREES, string "user_trees" considers user_trees to be 
