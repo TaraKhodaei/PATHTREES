@@ -24,6 +24,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 ## Optional Arguments
 
 optional arguments:
+
     <font color= teal>  -h, --help :</font> 
     
     -h, --help            
