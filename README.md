@@ -50,7 +50,8 @@ optional arguments:
                     Forces an outgroup when generating random trees.
                         
     -i NUM_ITERATIONS, --iterate NUM_ITERATIONS
-                    Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees,                     this will add an iteration number to the outputdir, and also adds iteration to the plotting.
+                    Takes the trees, generates the pathtrees, then picks the 10 best trees and reruns pathtrees, this will add an iteration number to the
+                    outputdir, and also adds iteration to the plotting.
                         
     -e, --extended        
                     If the phylip dataset is in the extended format, use this.
@@ -61,7 +62,7 @@ optional arguments:
                     pathtrees.
                         
     -gtp, --gtp_distance    
-                    Use GTP derived geodesic distance for MDS plotting [slower], if false use weighted Robinson-                     Foulds distance for MDS plotting [faster]
+                    Use GTP derived geodesic distance for MDS plotting [slower], if false use weighted Robinson-Foulds distance for MDS plotting [faster]
                         
     -nel, --neldermead
                     Use Nelder-Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson to optimize branchlengths [fast]
