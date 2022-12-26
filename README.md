@@ -25,7 +25,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 optional arguments:
 
-    $\color{green}{-h, --help}$
+    $\textcolor{yellow}{This\ is\ a\ Big\ Title}$
     
     -h, --help            
                     show this help message and exit
