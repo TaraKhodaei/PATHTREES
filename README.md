@@ -13,7 +13,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
                         STARTTREES DATAFILE
 
 
-## Positional Arguments
+# $\color{purple}{\textsf{Positional Arguments}}$
 
     STARTTREES     mandatory input file that holds a set of trees in Newick format
 
@@ -21,7 +21,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## Optional Arguments
+# $\color{purple}{\textsf{Optional Arguments}}$
 
 **-h, --help**
 > show this help message and exi  
@@ -109,7 +109,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## Extracting Boundary Trees
+# $\color{purple}{\textsf{Extracting Boundary Trees}}$
 
 
 ## Example 1
