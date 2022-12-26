@@ -68,7 +68,13 @@ optional arguments:
                     String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP)                       with the best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two                         trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string  "user_trees"                     considers user_trees to be compared with the best tree of PATHTREES, otherwise it considers                     nothing to be compared
                     
     -interp, --interpolate
-                    Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use                       scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf,                         Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10.                     String "rbf,s_value", for example "rbg,0.0001", considers scipy.interpolate.Rbf with                             smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic                         spline interpolation. Otherwise, with None interpolation, it considers default                                   scipy.interpolate.Rbf with smoothness=1e-10
+                    Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use 
+                    scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf,                         
+                    Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10.                     
+                    String "rbf,s_value", for example "rbg,0.0001", considers scipy.interpolate.Rbf with                             
+                    smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic                         
+                    spline interpolation. Otherwise, with None interpolation, it considers default                                  
+                    scipy.interpolate.Rbf with smoothness=1e-10
 
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output FirstData FirstData.phy
