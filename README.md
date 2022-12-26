@@ -78,9 +78,9 @@ optional arguments:
     -interp, --interpolate
                     Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use 
                     scipy.interpolate.Rbf [less overshooting]. 
-                    - String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation,
-                    with default smoothness=1e-10. 
-                    - String "rbf,s_value", e.g. "rbg,0.0001", considers scipy.interpolate.Rbf with smoothness= s_value= 0.0001.
+                    - String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline 
+                    interpolation, with default smoothness=1e-10. 
+                    - String "rbf,s_value", e.g. "rbf,0.0001", considers scipy.interpolate.Rbf with smoothness=0.0001.
                     - String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. 
                     - Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
