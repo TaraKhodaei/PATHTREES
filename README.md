@@ -110,8 +110,10 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 ## $\color{purple}{\textsf{Extracting Boundary Trees}}$
+    python pathtrees.py -hull sampletrees_D1 D1.phy
+    
 
-
+# $\color{purple}{\textsf{Application to Real Data}}$
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
 
