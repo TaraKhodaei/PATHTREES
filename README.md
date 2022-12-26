@@ -107,6 +107,8 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. 
 > * Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
+## $$Extracting Boundary Trees$$
+
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
 
