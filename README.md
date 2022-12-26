@@ -108,9 +108,6 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
 
-
-## $\color{purple}{\textsf{Extracting Boundary Trees}}$
-    python pathtrees.py -hull sampletrees_D1 D1.phy
     
 
 ## $\color{purple}{\textsf{Application To Real Data}}$
@@ -121,7 +118,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * **"D1.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format.
 
 > **Extracting Boundary Trees:**
-        python pathtrees.py -hull sampletrees_D1 D1.phy
+> python pathtrees.py -hull sampletrees_D1 D1.phy
 
 
 
