@@ -114,8 +114,8 @@ Python package **PATHTREES** enables the construction, visualization and explora
     
 
 ## $\color{purple}{\textsf{Application To Real Data}}$
-### 1. $\color{purple}{\textsf{Dataset1}}$
-### 2. $\color{purple}{\textsf{Dataset2}}$
+### $\color{purple}{\textsf{1. Dataset1}}$
+### $\color{purple}{\textsf{2. Dataset2}}$
 
 ## Example 1
     python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
