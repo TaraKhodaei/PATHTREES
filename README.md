@@ -118,9 +118,9 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 > **Input for Generating Boundary Trees:**
 > * **"D_sampletrees"** is a sample of around 1000 rooted trees in Newick format which are extracted from RevBayes for D1 <br/>
-> (find that in the folder "data" in GitHub Repository).
+> (find that in the folder "data" in the github repository).
 > * **"D1.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format <br/>
-> (find that in the folder "data" in GitHub Repository).
+> (find that in the folder "data" in the github repository).
 
 <br/>
 
@@ -130,7 +130,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > python pathtrees.py -hull -gtp  D1_sampletrees D1.phy
 > ```
 > * Output : **Boundary_Trees** <br/>
-> (Renamed as "D1_boundarytrees" in the folder "data" in GitHub Repository)
+> (Renamed as "D1_boundarytrees" in the folder "data" in the github repository)
 
 <br/>
 
@@ -166,9 +166,9 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 
 > **Input for Generating Boundary Trees:**
 > * **"D2_sampletrees"** is a sample of around 500 rooted trees in Newick format which are extracted from RevBayes for D2 <br/>
-> (find thatin the folder "data" in GitHub Repository).
+> (find thatin the folder "data" in the github repository).
 > * **"D2.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format <br/>
-> (find that in the folder "data" in GitHub Repository).
+> (find that in the folder "data" in the github repository).
 
 <br/>
 
@@ -178,7 +178,7 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 > python pathtrees.py -e -hull D2_sampletrees D2.phy
 > ```
 > * Output : **Boundary_Trees** <br/>
-> (Renamed as "D2_boundarytrees" in the folder "data" in GitHub Repository)
+> (Renamed as "D2_boundarytrees" in the folder "data" in the github repository)
 
 <br/>
 
