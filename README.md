@@ -122,7 +122,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 > **Extracting Boundary Trees:**
 > * Input data should be in the same directory as "pathtrees.py".<br/>
-> $\qquad\qquad$ $\color{teal}{\textsf{python ~ pathtrees.py ~ -hull ~ D1.sampletrees ~ D1.phy}}$
+> $\qquad\qquad$ $\color{teal}{\textsf{python ~ pathtrees.py ~ -hull ~ D1.sampletrees ~ D1.phy}}$ <br/>
 > **Output : Boundary_Trees**
 
 
