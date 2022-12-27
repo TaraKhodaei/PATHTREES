@@ -130,6 +130,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > * Output : **Boundary_Trees** <br/>
 > (find that renamed as "D1.boundarytrees" in folder "data")
 
+<br/>
 
 > **Experiment 1.1**.<br/>
 > ```
@@ -137,6 +138,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > ```
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
 
+<br/>
 
 > **Experiment 1.2**.<br/>
 > ```
