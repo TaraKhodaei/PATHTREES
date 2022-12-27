@@ -112,7 +112,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 ## $\color{purple}{\textsf{Application To Real Data}}$
 
-## $\color{purple}{\textsf{First Dataset D1}}$
+## $\color{purple}{\textsf{1. First Dataset D1}}$
 
 Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.<br/>
 
@@ -160,7 +160,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 
 
-## $\color{purple}{\textsf{Second Dataset D2}}$
+## $\color{purple}{\textsf{2. Second Dataset D2}}$
 
 A larger mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 
