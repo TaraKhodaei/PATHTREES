@@ -130,7 +130,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 
 > **Experiment 1.1**.<br/>
-> $\qquad\qquad$ $\color{teal}{\textsf{python ~ pathtrees.py ~ -n  3 ~ -gtp ~ -c  D1 ~ -p ~ myplot -o ~ output ~ D1.boundarytrees ~ D1.phy}}$ <br/> 
+> $\qquad\qquad$ $\color{teal}{\textsf{python ~ pathtrees.py ~ -n  3 ~ -gtp ~ -c  D1 ~ -p  myplot -o  output ~ D1.boundarytrees ~ D1.phy}}$ <br/> 
 
 
 
