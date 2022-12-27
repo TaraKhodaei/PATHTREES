@@ -135,14 +135,14 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > ```
 > python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output D1.boundarytrees D1.phy
 > ```
-> <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
+> <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
 
 
 > **Experiment 1.2**.<br/>
 > ```
 > python pathtrees.py -n 3 -b 15 -gtp -c usertrees -p myplot -o output D1.boundarytrees D1.phy
 > ``` 
-> <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3_b15_usertrees.png" width="1000"/></div>
+> <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3_b15_usertrees.png" width="1000"/></div>
 
 
 
@@ -154,8 +154,8 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 ## Example 2
     python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output boundarytrees_D2 D2.phy
 
-<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter1_RF_rbf_s1e-10_n6_b100.png" width="1000"/></div>
-<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig7_iter2_RF_rbf_s1e-10_n7.png" width="1000"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D2_iter1_RF_rbf_s1e-10_n6_b100.png" width="1000"/></div>
+<div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D2_iter2_RF_rbf_s1e-10_n7.png" width="1000"/></div>
 
 
 ## Example 3
