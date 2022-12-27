@@ -109,12 +109,12 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
     
-
+***
 ## $\color{purple}{\textsf{Application To Real Data}}$
 ***
 
 ## $\color{purple}{\textsf{First Dataset D1}}$
-__
+
 Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.<br/>
 
 > **Input for Generating Boundary Trees:**
