@@ -129,6 +129,9 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > (find that renamed as "D1.boundarytrees" in folder "data")
 
 
+> **Experiment 1.1**.<br/>
+> $\qquad\qquad$ $\color{teal}{\textsf{python ~ pathtrees.py ~ -n ~ 3 ~ -gtp ~ -c ~ D1 ~ -p ~ myplot -o ~ output ~ D1.boundarytrees ~ D1.phy}}$ <br/> 
+
 
 
 ## $\color{purple}{\textsf{2. Second Dataset D2}}$
