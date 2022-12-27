@@ -5,7 +5,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-# $\color{purple}{\texttt{Usage}}$
+# $\color{purple}{\textsf{Usage}}$
     pathtrees.py [-h] [-o OUTPUTDIR] [-v] [-p PLOTFILE] [-n NUMPATHTREES]
                         [-b NUMBESTTREES] [-r NUM_RANDOM_TREES] [-g OUTGROUP]
                         [-i NUM_ITERATIONS] [-e] [-hull] [-gtp] [-nel] [-c COMPARE_TREES]
@@ -21,7 +21,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
 
 
-## $\color{purple}{\textsf{Optional Arguments}}$
+# $\color{purple}{\textsf{Optional Arguments}}$
 
 **-h, --help**
 > show this help message and exi  
@@ -110,7 +110,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
     
 
-## $\color{purple}{\textsf{Application To Real Data}}$
+# $\color{purple}{\textsf{Application To Real Data}}$
 
 ## $\color{purple}{\textsf{1. First Dataset D1}}$
 
