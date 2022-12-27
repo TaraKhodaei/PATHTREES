@@ -175,7 +175,7 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 > **Extracting Boundary Trees:**
 > * Input data should be in the same directory as "pathtrees.py".<br/>
 > ```
-> python pathtrees.py -e -hull D2.sampletrees D2.phy
+> python pathtrees.py -e -hull D2_sampletrees D2.phy
 > ```
 > * Output : **Boundary_Trees** <br/>
 > (find that renamed as "D2_boundarytrees" in folder "data")
