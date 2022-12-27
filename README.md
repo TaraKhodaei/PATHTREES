@@ -159,7 +159,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 
 
-## $\color{purple}{\textsf{2. Second Dataset D2}}$
+## $\color{purple}{\textbf\textsf{Second Dataset D2}}$
 
 > **Experiment 2.1**.<br/>
 > ```
