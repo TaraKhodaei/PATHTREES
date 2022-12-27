@@ -43,7 +43,7 @@ GTP = os.path.join(parent, 'pathtrees','gtp')
 PAUPTREE = os.path.join(current, 'paup_tree')
 PAUPMAP = os.path.join(current, 'PAUP_MAP')     #First Data: comparing with PAUP and MAP
 PAUPRXML = os.path.join(current, 'PAUP_RXML_bropt')       #Second Data: comparing with PAUP and RAxML
-USER_TREES = os.path.join(current, 'user_trees')
+USER_TREES = os.path.join(current, 'usertrees')
 HUGE =100000000
 
 
@@ -118,7 +118,7 @@ def myparser():
                         help='mandatory input file that holds a sequence data set in PHYLIP format')
     parser.add_argument('-o','--output', dest='outputdir', #action='store_const',
                         #const='outputdir',
-                        default='pathtree_outputdir',
+                        default='output',
                         help='directory that holds the output files')
     parser.add_argument('-v','--verbose', action='store_true',
                         default=None, #const='keep_intermediate',
@@ -155,7 +155,7 @@ def myparser():
                         help='Use Nelder–Mead optimization method to optimize branchlengths [slower], if false use Newton-Raphson to optimize branchlengths [fast]')
     parser.add_argument('-c','--compare_trees', dest='compare_trees',
                         default=None, action='store',type=str,
-                        help='String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string "user_trees" considers user_trees to be compared with the best tree of PATHTREES, otherwise it considers nothing to be compared')
+                        help='String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string "usertrees" considers usertrees to be compared with the best tree of PATHTREES, otherwise it considers nothing to be compared')
     parser.add_argument('-interp','--interpolate', dest='interpolation',
                         default=None, action='store',
                         help='Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10. String "rbf,s_value", for example "rbg,0.0001", considers scipy.interpolate.Rbf with smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10 ')
@@ -210,34 +210,34 @@ if __name__ == "__main__":
         paup_tree = False
         paup_MAP = True
         paup_RXML = False
-        user_trees = False
+        usertrees = False
         if DEBUG:
-            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, user_trees]}")
+            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, usertrees]}")
             
     elif compare_trees == "D2":     #dataset2: PAUP and RAxML to be compared
         paup_tree = False
         paup_MAP = False
         paup_RXML = True
-        user_trees = False
+        usertrees = False
         if DEBUG:
-            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, user_trees]}")
+            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, usertrees]}")
             
     elif compare_trees is not None and compare_trees != "D1" and compare_trees != "D2":           #user extra-trees to be compared
         paup_tree = False
         paup_MAP = False
         paup_RXML = False
-        user_trees = True
+        usertrees = True
         if DEBUG:
-            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, user_trees]}")
+            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, usertrees]}")
             
     elif compare_trees is None:     #noting to be compared
         paup_tree = False
         paup_MAP = False
         paup_RXML = False
-        user_trees = False
+        usertrees = False
         if DEBUG:
-            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, user_trees]}")
-    compare_trees_list = [paup_tree, paup_MAP, paup_RXML, user_trees]
+            print(f"compare_trees_list = {[paup_tree, paup_MAP, paup_RXML, usertrees]}")
+    compare_trees_list = [paup_tree, paup_MAP, paup_RXML, usertrees]
     
     
     phyliptype = args.phyliptype
@@ -263,10 +263,10 @@ if __name__ == "__main__":
             outputdir.append(f'{o}{it}')
             plotfile2.append(f"MDS_iter{it}_{plotfile}.pdf")
 
-    NUMPATHTREES_list = list(map(int, args.NUMPATHTREES.split(',')))
-    NUMBESTTREES_list = list(map(int, args.NUMBESTTREES.split(',')))
-    NUMPATHTREES = NUMPATHTREES_list[0]
-    NUMBESTTREES = NUMBESTTREES_list[0]
+#    NUMPATHTREES_list = list(map(int, args.NUMPATHTREES.split(',')))
+#    NUMBESTTREES_list = list(map(int, args.NUMBESTTREES.split(',')))
+#    NUMPATHTREES = NUMPATHTREES_list[0]
+#    NUMBESTTREES = NUMBESTTREES_list[0]
     
     
     STEPSIZE = 1  # perhaps this should be part of options
@@ -277,23 +277,34 @@ if __name__ == "__main__":
         with open(start_trees,'r') as f:
             sampletrees = [line.strip() for line in f]
         store_results(outputdir[0],'sampletrees', sampletrees)
-        
+
         GTPOUTPUT = os.path.join(current,outputdir[0],'output.txt')
         new_sampletrees = os.path.join(current, outputdir[0], 'sampletrees')
-        run_gtp(new_sampletrees, GTPTERMINALLIST, GTPOUTPUT)
-        distances = plo.read_GTP_distances(len(sampletrees),GTPOUTPUT)
+        if gtp_dist:
+            run_gtp(new_sampletrees, GTPTERMINALLIST, GTPOUTPUT)
+            distances = plo.read_GTP_distances(len(sampletrees),GTPOUTPUT)
+        else:
+            distances = wrf.RF_distances(len(sampletrees), new_sampletrees, type="weighted")
         
         Likelihoods_sampletrees = likelihoods(sampletrees,sequences)
                     
-        iter_num=0
+        iter_num=1
         Boundary_Trees = plo.boundary_convexhull(distances,Likelihoods_sampletrees,sampletrees, iter_num)
         store_results(outputdir[0],'Boundary_Trees',Boundary_Trees)
+        np.savetxt ('Boundary_Trees',Boundary_Trees, fmt='%s')
         StartTrees = Boundary_Trees
+        sys.exit()
     else:
         with open(start_trees,'r') as f:
             StartTrees = [line.strip() for line in f]
     
 #    sys.exit()       #To do debugging
+
+
+    NUMPATHTREES_list = list(map(int, args.NUMPATHTREES.split(',')))
+    NUMBESTTREES_list = list(map(int, args.NUMBESTTREES.split(',')))
+    NUMPATHTREES = NUMPATHTREES_list[0]
+    NUMBESTTREES = NUMBESTTREES_list[0]
 
     #==========================  Random Trees  ============================
     if num_random_trees>0:
@@ -319,10 +330,10 @@ if __name__ == "__main__":
             T_opt = myfile.readlines()
             paup_RXML = bifurcating.bifurcating_newick(T_opt)
 
-    elif user_trees:     #user trees
+    elif usertrees:     #user trees
         with open(USER_TREES,'r') as myfile:
             T_opt = myfile.readlines()
-            user_trees = bifurcating.bifurcating_newick(T_opt)
+            usertrees = bifurcating.bifurcating_newick(T_opt)
 
     print(f'\n\nGenerating pathtrees through tree space...')
 
@@ -497,13 +508,13 @@ if __name__ == "__main__":
             Likelihoods += Likelihood_PAUP_RXML
             if DEBUG:
                 print(f"length of Likelihoods after adding 2-trees (PAUP & RAxML) ---->  {len(Likelihoods)}")
-        elif user_trees:
-            Treelist += user_trees
-            print(f"\nlength of treelist  after adding {len(user_trees)}-trees (user_trees)---->  {len(Treelist)}")
-            Likelihood_user_trees = likelihoods(user_trees,sequences)
-            Likelihoods += Likelihood_user_trees
+        elif usertrees:
+            Treelist += usertrees
+            print(f"\nlength of treelist  after adding {len(usertrees)}-trees (usertrees)---->  {len(Treelist)}")
+            Likelihood_usertrees = likelihoods(usertrees,sequences)
+            Likelihoods += Likelihood_usertrees
             if DEBUG:
-                print(f"length of Likelihoods after adding {len(user_trees)}-trees (user_trees) ---->  {len(Likelihoods)}")
+                print(f"length of Likelihoods after adding {len(usertrees)}-trees (usertrees) ---->  {len(Likelihoods)}")
         store_results(outputdir[it],'optimized_BestTrees',BestTrees_opt)
         store_results(outputdir[it],'treelist',Treelist)
         store_results(outputdir[it],'Topologies_opt',Topologies_opt)
@@ -524,8 +535,8 @@ if __name__ == "__main__":
                     bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+2)],NUMBESTTREES)   # minus optimizaed trees and 1PAUP&1MAP
                 elif paup_RXML:
                     bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+2)],NUMBESTTREES)    # minus optimizaed trees and 1PAUP&1RXML
-                elif user_trees:
-                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+len(user_trees))],NUMBESTTREES)    # minus optimizaed trees and 1PAUP&1RXML
+                elif usertrees:
+                    bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt)+len(usertrees))],NUMBESTTREES)    # minus optimizaed trees and 1PAUP&1RXML
                 else:
                     bestlike = plo.best_likelihoods(Likelihoods[:-(len(BestTrees_opt))],NUMBESTTREES)   # minus optimizaed trees
                 n = len(Treelist)
