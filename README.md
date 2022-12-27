@@ -164,6 +164,24 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 A larger mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 
+> **Input for Generating Boundary Trees:**
+> * **"2.sampletrees"** is a sample of around 500 trees in Newick format which are extracted from RevBayes for D2 <br/>
+> (find that in folder "data").
+> * **"D2.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format <br/>
+> (find that in folder "data").
+
+<br/>
+
+> **Extracting Boundary Trees:**
+> * Input data should be in the same directory as "pathtrees.py".<br/>
+> ```
+> python pathtrees.py -hull D2.sampletrees D2.phy
+> ```
+> * Output : **Boundary_Trees** <br/>
+> (find that renamed as "D2.boundarytrees" in folder "data")
+
+<br/>
+
 > **Experiment 2.1**.<br/>
 > ```
 > python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output D2.boundarytrees D2.phy
