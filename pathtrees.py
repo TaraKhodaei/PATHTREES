@@ -262,11 +262,6 @@ if __name__ == "__main__":
             os.system(f'mkdir -p {o}{it}')
             outputdir.append(f'{o}{it}')
             plotfile2.append(f"MDS_iter{it}_{plotfile}.pdf")
-
-#    NUMPATHTREES_list = list(map(int, args.NUMPATHTREES.split(',')))
-#    NUMBESTTREES_list = list(map(int, args.NUMBESTTREES.split(',')))
-#    NUMPATHTREES = NUMPATHTREES_list[0]
-#    NUMBESTTREES = NUMBESTTREES_list[0]
     
     
     STEPSIZE = 1  # perhaps this should be part of options
