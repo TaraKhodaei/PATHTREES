@@ -134,13 +134,12 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
 
 
+> **Experiment 1.2**.<br/>
+> $\qquad\qquad$ $\color{teal}{\textsf{python ~ pathtrees.py ~ -n  3 ~ -b  15 ~ -gtp ~ -c  user_trees ~ -p  myplot ~ -o  output ~ D1.boundarytrees ~ D1.phy}}$ <br/> 
+> <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/fig5_GTP_rbf_s1e-10_n3_b15_usertrees.png" width="1000"/></div>
+
 
 ## $\color{purple}{\textsf{2. Second Dataset D2}}$
-
-## Example 1
-    python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output boundarytrees_D1 D1.phy
-
-
 
 
 ## Example 2
