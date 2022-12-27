@@ -204,7 +204,6 @@ if __name__ == "__main__":
         print(f"smoothness = {smoothness}")
 
     
-
     compare_trees = args.compare_trees
     if compare_trees == "D1":     #dataset1 : PAUP and MAP to be compared
         paup_tree = False
