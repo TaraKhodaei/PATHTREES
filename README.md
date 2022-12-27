@@ -117,7 +117,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate taxa.<br/>
 
 > **Input for Generating Boundary Trees:**
-> * **"D1.sampletrees"** is a sample of around 1000 rooted trees in Newick format which are extracted from RevBayes for D1 <br/>
+> * **"D_sampletrees"** is a sample of around 1000 rooted trees in Newick format which are extracted from RevBayes for D1 <br/>
 > (find that in folder "data").
 > * **"D1.phy"** is an mandatory input file that holds a sequence data set in PHYLIP format <br/>
 > (find that in folder "data").
@@ -127,7 +127,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > **Extracting Boundary Trees:**
 > * Input data should be in the same directory as "pathtrees.py".<br/>
 > ```
-> python pathtrees.py -hull -gtp  D1.sampletrees D1.phy
+> python pathtrees.py -hull -gtp  D1_sampletrees D1.phy
 > ```
 > * Output : **Boundary_Trees** <br/>
 > (find that renamed as "D1.boundarytrees" in folder "data")
