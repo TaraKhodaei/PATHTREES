@@ -110,7 +110,7 @@ Python package **PATHTREES** enables the construction, visualization and explora
 
     
 
-# $\color{purple}{\textsf{Application To Real Data}}$
+# $\color{purple}{\textsf{Application to Real Data}}$
 
 ## $\color{purple}{\textsf{1. First Dataset D1}}$
 
