@@ -162,7 +162,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 ## $\color{purple}{\textsf{2. Second Dataset D2}}$
 
-A larger mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
+A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 
 > **Input for Generating Boundary Trees:**
 > * **"2.sampletrees"** is a sample of around 500 trees in Newick format which are extracted from RevBayes for D2 <br/>
