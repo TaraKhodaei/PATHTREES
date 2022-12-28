@@ -127,7 +127,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > **Extracting Boundary Trees:**
 > * Input data should be in the same directory as "pathtrees.py".<br/>
 > ```
-> python pathtrees.py -hull -gtp  D1_sampletrees D1.phy
+>                   python pathtrees.py -hull -gtp  D1_sampletrees D1.phy
 > ```
 > * Output : **Boundary_Trees** <br/>
 > (Renamed as "D1_boundarytrees" in the folder "data" in the github repository)
@@ -136,7 +136,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 > **Experiment 1.1**.<br/>
 > ```
->             python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output D1_boundarytrees D1.phy
+>                   python pathtrees.py -n 3 -gtp -c D1 -p myplot -o output D1_boundarytrees D1.phy
 > ```
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3.png" width="1000"/></div>
 
@@ -144,7 +144,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 > **Experiment 1.2**.<br/>
 > ```
-> python pathtrees.py -n 3 -b 15 -gtp -c usertrees -p myplot -o output D1_boundarytrees D1.phy
+>                   python pathtrees.py -n 3 -b 15 -gtp -c usertrees -p myplot -o output D1_boundarytrees D1.phy
 > ``` 
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3_b15_usertrees.png" width="1000"/></div>
 
@@ -152,7 +152,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 
 > **Experiment 1.3**.<br/>
 > ```
-> python pathtrees.py -n 3 -gtp -p myplot -o output D1_boundarytrees D1.phy
+>                   python pathtrees.py -n 3 -gtp -p myplot -o output D1_boundarytrees D1.phy
 > ``` 
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3_NoCompare.png" width="1000"/></div>
 
@@ -175,7 +175,7 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 > **Extracting Boundary Trees:**
 > * Input data should be in the same directory as "pathtrees.py".<br/>
 > ```
-> python pathtrees.py -e -hull D2_sampletrees D2.phy
+>                   python pathtrees.py -e -hull D2_sampletrees D2.phy
 > ```
 > * Output : **Boundary_Trees** <br/>
 > (Renamed as "D2_boundarytrees" in the folder "data" in the github repository)
@@ -184,7 +184,7 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 
 > **Experiment 2.1**.<br/>
 > ```
-> python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output D2_boundarytrees D2.phy
+>                   python pathtrees.py -e -i 2  -n 6,7 -b 100 -c D2 -p myplot -o output D2_boundarytrees D2.phy
 > ``` 
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D2_iter1_RF_rbf_s1e-10_n6_b100.png" width="1000"/></div>
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D2_iter2_RF_rbf_s1e-10_n7.png" width="1000"/></div> 
