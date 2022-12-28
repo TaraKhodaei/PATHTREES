@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-#
+#Tara Khodaei and Peter Beerli, Tallahassee 2021
+
 # main code for the pathtrees project either check in the parser() section or
-# then execute python pathtrees.py --help
-# to learn more
-#
-#
-# (c) Tara Khodaei and Peter Beerli, Tallahassee 2021
+# then execute python pathtrees.py --help to learn more
 # this project is licensed to you under the MIT opensource license
-# 
+
 import sys
 import os
 
@@ -33,7 +30,6 @@ import numpy as np
 import time
 
 
-
 #MYJAVA = '/opt/homebrew/Cellar/openjdk/17.0.1_1/bin/java'
 MYJAVA =  '/usr/bin/java'
 GTPJAR = 'gtp_211101.jar'
@@ -44,7 +40,6 @@ GTP = os.path.join(parent, 'pathtrees','gtp')
 PAUPTREE = os.path.join(current, 'paup_tree')
 PAUPMAP = os.path.join(current, 'PAUP_MAP')     #First Data: comparing with PAUP and MAP
 PAUPRXML = os.path.join(current, 'PAUP_RXML_bropt')       #Second Data: comparing with PAUP and RAxML
-#USER_TREES = os.path.join(current, 'user_trees')    #Dec26.2022
 USER_TREES = os.path.join(current, 'usertrees')
 HUGE =100000000
 
@@ -97,9 +92,7 @@ def likelihoods(trees,sequences):
         t.myread(newtree,t.root)
         t.insertSequence(t.root,labels,sequences)
         
-        #setup mutation model
-        # the default for tree is JukesCantor,
-        # so these two steps are not really necessary
+        #setup mutation model, the default for tree is JukesCantor, so these two steps are not really necessary
         Q, basefreqs = like.JukesCantor()
         t.setParameters(Q,basefreqs)
         t.likelihood()
@@ -118,12 +111,7 @@ def myparser():
                         help='mandatory input file that holds a set of trees in Newick format')
     parser.add_argument('DATAFILE', 
                         help='mandatory input file that holds a sequence data set in PHYLIP format')
-#    parser.add_argument('-o','--output', dest='outputdir', #action='store_const',        #Dec27.2022
-#                        #const='outputdir',
-#                        default='pathtree_outputdir',
-#                        help='directory that holds the output files')
-    parser.add_argument('-o','--output', dest='outputdir', #action='store_const',
-                        #const='outputdir',
+    parser.add_argument('-o','--output', dest='outputdir', #action='store_const', #const='outputdir',
                         default='output',
                         help='directory that holds the output files')
     parser.add_argument('-v','--verbose', action='store_true',
@@ -165,6 +153,10 @@ def myparser():
     parser.add_argument('-interp','--interpolate', dest='interpolation',
                         default=None, action='store',
                         help='Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10. String "rbf,s_value", for example "rbf,0.0001", considers scipy.interpolate.Rbf with smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10 ')
+    parser.add_argument('-valid','--validatioon', dest='validation_mds',
+                        default=None, action='store_true',
+                        help=' Validates the MDS plots by computing correlation measures Pearson r,  Spearman rho, and Kendall Tau between the original distances and the MDS distances, and a plot showing the real distances VS MDS distances')  #Dec27.2022
+                            
 
     args = parser.parse_args()
     return args
@@ -187,6 +179,7 @@ if __name__ == "__main__":
     convex_hull = args.convex_hull
     gtp_dist = args.gtp
     nel = args.nel
+    validation_mds = args.validation_mds
 
 
     interpolation = args.interpolation
@@ -365,15 +358,15 @@ if __name__ == "__main__":
             # make bifurcating and nonzero since we optimized trees that may be not biforcating now in the second iteration
             T_bifurcate = bifurcating.bifurcating_newick(optimized_starttrees)
             optimized_starttrees = nonzero_lengths(optimized_starttrees)
-#            store_results(outputdir[it],'bifurcating_newick',optimized_starttrees)
+            if DEBUG:
+                store_results(outputdir[it],'bifurcating_newick',optimized_starttrees)
             StartTrees = optimized_starttrees
             print(f"\nlength of random_and_optimize = len(StartTrees) =  {len(StartTrees)}")
     
     
         store_results(outputdir[it],'starttrees',StartTrees)
         print(f"\n    length of StartTrees  = {len(StartTrees)}")
-        
-        
+                
         
         print(f'\n\n>>> Generating {NUMPATHTREES-2}-pathtree(s) for each pair of StartTrees ...')
         tic = time.perf_counter()
@@ -595,17 +588,26 @@ if __name__ == "__main__":
                     plo.plot_MDS(plotfile, N, n, distances, Likelihoods, bestlike, Treelist, Pathtrees)
                     
                 if interpolation_type == "cubic":
-                    plo.interpolate_grid(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES, compare_trees_list , compare_trees)
+                    plo.interpolate_grid(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES, compare_trees_list , compare_trees, validation_mds)
                 elif interpolation_type == "rbf":
-                    plo.interpolate_rbf(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES, compare_trees_list , compare_trees, smoothness)
+                    plo.interpolate_rbf(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES, compare_trees_list , compare_trees, smoothness, validation_mds)
 
 
-        print(f'\nNOTE: find the following files in the folder "output{it1}"')
+        print(f'\nNOTE :')
+        print(f'    find the following outputs of iteration{it1} in the folder "output{it1}":')
         print(f'    - "starttrees"  includes the starting trees')
         print(f'    - "pathtrees"  includes all pathtrees generated by PATHTREES using starttrees')
         print(f'    - "treelist"  shows all trees in the order of starttrees + pathtrees + optimized trees + external trees')
         print(f'    - "likelihoods" shows the log-likeligood values of treelist')
-        print(f'    - "PATHTREES_optimal" includes the highest likelihood tree found by PATHTREES and the corresponding log-likelihood value\n')
+        print(f'    - "PATHTREES_optimal" includes the highest likelihood tree found by PATHTREES and the corresponding log-likelihood value')
+        
+        print(f'\n    find the following plots in the directory:')
+        print(f'    - "MDS_iter{it1}"  shows 2D and 3D plot of generated tree lanscape')
+        if it1>1:
+            print(f'    - "Boundary_iter{it1}"  displays the boundary trees of optimized trees from previous iteration')
+        if validation_mds:
+            print(f'    - "ShepardDiagram_iter{it1}"  is the shepard diagram showing real distances vs MDS distances')
+        print(f'\n')
         
 
         if it1 < num_iterations-1:

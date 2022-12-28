@@ -9,6 +9,12 @@ from scipy.interpolate import griddata
 from scipy.interpolate import Rbf
 from scipy.spatial import ConvexHull
 
+import statsmodels.api as sm
+import scipy.stats
+
+import warnings
+warnings.filterwarnings("ignore")
+
 mpl.rcParams['agg.path.chunksize'] = 100000
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Reading Files~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,8 +87,44 @@ def bestNstep_likelihoods(Likelihood, n, step):
     sort_index= sorted(range(len(Likelihood)), key=lambda k: Likelihood[k])
     idx=sort_index[-n::step]    # last m best, every step  ---> n=0 & step=1 : all trees
     Like_Big = [Likelihood[i] for i in idx]
-#    return list(zip(idx,Like_Big))
     return idx
+    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MDS Validation ~~~~~~~~~~~~~~~~~~~~~~~
+def MDS_validation(M,X,k, it):  # M: real distance matrix & X: MDS coordinates
+    n=len(M)
+    D = np.zeros((n,n))     # D: MDS distance matrix
+    for i in range(n):
+        for j in range(n):
+            if i<j:
+                D[i,j] = np.linalg.norm(np.abs(X[i]-X[j]))
+    D=D+D.T
+    x= M.flatten()
+    y=D.flatten()
+
+    x,y=zip( *sorted( zip(x, y) ) )
+    x1=x[0::k]   # choose every kth of data
+    y1=y[0::k]
+    
+    Pearson = scipy.stats.pearsonr(x, y)[0]    # Pearson's r
+    Spearman = scipy.stats.spearmanr(x, y)[0]   # Spearman's rho
+    Kendall = scipy.stats.kendalltau(x, y)[0]  # Kendall's tau
+    print(f'\n>>> MDS validation ...')
+    print(f"    Pearson's r = {Pearson} \n    Spearman's rho = {Spearman} \n    Kendall's tau = {Kendall}")
+    MDS_validation_values = [Pearson,Spearman,Kendall]
+
+    lowess = sm.nonparametric.lowess
+    Z = lowess(y1,x1)
+
+    fig = plt.figure(figsize=(7,5))
+    plt.scatter(x,y, marker='.',s=0.07, color='orange')
+    plt.plot(Z[:,0],Z[:,1],'.', markersize=0.05, color='teal')
+    plt.xlabel('Distance in treespace')
+    plt.ylabel('Distance on MDS')
+    plt.savefig('ShepardDiagram_iter{}.pdf'.format(it), format='pdf')
+    plt.close(fig)
+#    plt.show()
+    return D, MDS_validation_values
+    
 
 
 def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
@@ -123,9 +165,8 @@ def plot_MDS(plotfile, N, n, M,Likelihood, bestlike, treelist, pathlist):
     #plt.show()
 
 #=================== Interpolation method2: Griddata (Contour & Surface) ====================
-#meth: linear, cubic, nearest
 
-def interpolate_grid(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,  optimized_BestTrees, Topologies,NUMPATHTREES, dataset_option_list,dataset_option, hull_indices=None):
+def interpolate_grid(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,  optimized_BestTrees, Topologies,NUMPATHTREES, dataset_option_list,dataset_option, validation_mds, hull_indices=None ):
 
     paup_tree = dataset_option_list[0]
     paup_MAP = dataset_option_list[1]
@@ -226,7 +267,7 @@ def interpolate_grid(it, filename, M, Likelihood, bestlike, Treelist, StartTrees
     ax1.ticklabel_format(useOffset=False, style='plain')
     fig.autofmt_xdate()    #to fix the issue of overlapping x-axis labels
     
-    #Labels:
+    
     if n_path==1:
         smallgreen_circle = mlines.Line2D([], [], color='limegreen', marker='o', linestyle='None',mec="black", mew=0.3, markersize=3, label="{} pathtrees + {} starting trees:\n{}-tree between each pair".format(all_path,N, n_path))
     else:
@@ -393,12 +434,18 @@ def interpolate_grid(it, filename, M, Likelihood, bestlike, Treelist, StartTrees
         label.set_visible(False)
         
     ax3.tick_params(size=0) #Remove all ticks
+    ax3.set_title("Topology spectrum of {} optimized trees \ncorresponding to their LogLike values ".format(N_topo), loc='center', pad=7, fontsize=6, fontweight ="bold")
 
-    ax3.set_title("Topology spectrum of {} optimized trees \ncorresponding to their LogLike values ".format(N_topo), loc='center', pad=7, fontsize=6, fontweight ="bold")    #give title
-    fig.tight_layout()
     plt.subplots_adjust(left=0.05, bottom=-0.25, right=0.98, top=1.3, wspace=None, hspace=None)  #to adjust white spaces around figure
     plt.savefig(filename, format='pdf')
     plt.show()
+    
+  
+    if validation_mds:
+        MDS_distances, mds_validation_values = MDS_validation(M,X,1,it+1)
+        np.savetxt ('MDS_distances', MDS_distances,  fmt='%s')
+        np.savetxt ('X_MDS_coordinates', X,  fmt='%s')
+        np.savetxt ('Real_distances', M,  fmt='%s')
 
 
 #=================== Interpolation method2: RBF (Radial basis function interpolation) (Contour & Surface) ====================
@@ -409,7 +456,7 @@ def point_in_hull(point, hull, tolerance=1e-12):
         
         
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,  optimized_BestTrees, Topologies,NUMPATHTREES, dataset_option_list,dataset_option, smoothness, hull_indices=None):
+def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,  optimized_BestTrees, Topologies,NUMPATHTREES, dataset_option_list,dataset_option, smoothness, validation_mds, hull_indices=None):
 
     paup_tree = dataset_option_list[0]
     paup_MAP = dataset_option_list[1]
@@ -444,10 +491,8 @@ def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,
     
     interp_types = ['multiquadric', 'inverse', 'gaussian', 'linear', 'cubic',
                 'quintic', 'thin_plate']
-#    rbfi = Rbf(np.real(X[:,0]), np.real(X[:,1]), Likelihood, smooth=0.000001, function = interp_types[-1])
+#    Test:
 #    smooth_list=[0.0, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2, 10]
-#    smooth_list=[0.0, 0.0000001]
-#    smooth_list=[0.0]
 #    smooth_list=[0.0, 1e-10]
 #    smooth_list=[1e-10]
     smooth_list=[smoothness]
@@ -530,7 +575,7 @@ def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,
         ax1.ticklabel_format(useOffset=False, style='plain')
         fig.autofmt_xdate()    #to fix the issue of overlapping x-axis labels
         
-        #Labels:
+
         if n_path==1:
             smallgreen_circle = mlines.Line2D([], [], color='limegreen', marker='o', linestyle='None',mec="black", mew=0.3, markersize=3, label="{} pathtrees + {} starting trees:\n{}-tree between each pair".format(all_path,N, n_path))
         else:
@@ -621,8 +666,8 @@ def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,
         ax2.tick_params(axis='z',labelsize=5 , pad=4)    #to change the size of numbers on axis & space between ticks and labels
         
         ax2.ticklabel_format(useOffset=False, style='plain')   # to get rid of exponential format of numbers on all axis
-        ax2.view_init(20, -45)     #change the angle of 3D plot
-#        ax2.view_init(20, 135)     #change the angle of 3D plot
+#        ax2.view_init(20, -45)     #change the angle of 3D plot
+        ax2.view_init(20, 135)     #change the angle of 3D plot
 
 
         v1 = np.linspace(np.min(Likelihood), np.max(Likelihood), 5, endpoint=True)
@@ -696,10 +741,8 @@ def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,
             label.set_visible(False)
             
         ax3.tick_params(size=0) #Remove all ticks
+        ax3.set_title("Topology spectrum of {} optimized trees \ncorresponding to their LogLike values ".format(N_topo), loc='center', pad=7, fontsize=6, fontweight ="bold")
 
-
-        ax3.set_title("Topology spectrum of {} optimized trees \ncorresponding to their LogLike values ".format(N_topo), loc='center', pad=7, fontsize=6, fontweight ="bold")    #give title
-        fig.tight_layout()
         plt.subplots_adjust(left=0.05, bottom=-0.25, right=0.98, top=1.3, wspace=None, hspace=None)  #to adjust white spaces around figure
         if len(smooth_list)==1:
             plt.savefig(filename, format='pdf')
@@ -708,8 +751,13 @@ def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,
         plt.show()
 
 
+    if validation_mds:
+        MDS_distances, mds_validation_values = MDS_validation(M,X,1,it+1)
+        np.savetxt ('MDS_distances', MDS_distances,  fmt='%s')
+        np.savetxt ('X_MDS_coordinates', X,  fmt='%s')
+        np.savetxt ('Real_distances', M,  fmt='%s')
 
-#=========================================== Convex Hull ===================================================
+#=========================================== Convex Hull: (default griddata cubic) ===================================================
 def boundary_convexhull(M,Likelihood,treelist, iter_num):
     meth= 'cubic'
     num=100
@@ -729,7 +777,7 @@ def boundary_convexhull(M,Likelihood,treelist, iter_num):
     contour = ax1.contourf(XX, YY, values, alpha=0.75, vmin=np.nanmin(values), vmax=np.nanmax(values))
     points=ax1.scatter(X[:,0], X[:,1], alpha=1,  marker='o', c=Likelihood , cmap='viridis',  edgecolors="black", linewidths=0.001, s=14)  #Trees
     
-    ax1.grid(linestyle=':', linewidth='0.1', color='grey', alpha=0.6)
+    ax1.grid(linestyle=':', linewidth='0.2', color='white', alpha=0.6)
     ax1.set_xlim(np.min(X[:,0])-0.01, np.max(X[:,0])+0.01)
     ax1.set_ylim(np.min(X[:,1])-0.01, np.max(X[:,1])+0.01)
     ax1.set_xlabel('Coordinate 1', labelpad=3, fontsize=9)
@@ -741,8 +789,7 @@ def boundary_convexhull(M,Likelihood,treelist, iter_num):
     hull = ConvexHull(X)
     # Get the indices of the hull points.
     hull_indices = hull.vertices
-    print("Boundary trees idx =",hull_indices)
-    print("len of Boundary trees =",len(hull_indices))
+    print(f"    Number of Boundary trees = {len(hull_indices)}\n")
     # These are the actual points.
     hull_pts = X[hull_indices, :]
     Boundary_Trees = [treelist[i] for i in hull_indices]
@@ -762,7 +809,7 @@ def boundary_convexhull(M,Likelihood,treelist, iter_num):
 
     ax2.scatter(hull_pts[:,0], hull_pts[:,1], marker='o', c='r',  s=40)
     plt.fill(hull_pts[:,0], hull_pts[:,1], fill=False, facecolor='none', edgecolor='r',  linewidth=1, ls='--')
-    cbar.set_label('Log Likelihood', rotation=90 , labelpad=12, fontsize=10)
+    cbar.set_label('Log Likelihood', rotation=90 , labelpad=10, fontsize=10)     #Dec27.2022
     ax2.set_xlabel('Coordinate 1', labelpad=3,  fontsize=9)
     ax2.set_ylabel('Coordinate 2', labelpad=3,  fontsize=9)
     ax2.set_xlim(np.min(X[:,0])-0.01, np.max(X[:,0])+0.01)
@@ -776,6 +823,7 @@ def boundary_convexhull(M,Likelihood,treelist, iter_num):
     plt.subplots_adjust(left=0.05, bottom=-0.1, right=1.2, top=1.1, wspace=None, hspace=None)  #to adjust hite spaces around figure
     plt.savefig('Boundary_iter{}.pdf'.format(iter_num), format='pdf')
 #    plt.show()
+    plt.close(fig)
     return Boundary_Trees
 
 
@@ -785,18 +833,4 @@ def boundary_convexhull(M,Likelihood,treelist, iter_num):
 
 
 if __name__ == "__main__":
-    GTPOUTPUT = 'results/output.txt'
-    likelihoodfile = "results/likelihoods"
-    treefile = "results/treelist"
-    pathtreefile = "results/pathTrees"
-    starttreefile = "results/startTrees"
-    Likelihood,treelist,pathlist, StartTrees = read_from_files(likelihoodfile,treefile,pathtreefile, starttreefile)
 
-    n = len(treelist)
-    NUMBESTTREES = n
-    N= len(pathlist)
-    bestlike = best_likelihoods(Likelihood,NUMBESTTREES)
-    distances = read_GTP_distances(n,GTPOUTPUT)
-    file = "TESTPLOT.pdf"
-    plot_MDS(file,N,n,distances, Likelihood, bestlike, treelist, pathlist)
-    interpolate_grid(distances,Likelihood, bestlike, StartTrees)
