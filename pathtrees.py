@@ -33,6 +33,7 @@ import numpy as np
 import time
 
 
+
 #MYJAVA = '/opt/homebrew/Cellar/openjdk/17.0.1_1/bin/java'
 MYJAVA =  '/usr/bin/java'
 GTPJAR = 'gtp_211101.jar'
@@ -43,6 +44,7 @@ GTP = os.path.join(parent, 'pathtrees','gtp')
 PAUPTREE = os.path.join(current, 'paup_tree')
 PAUPMAP = os.path.join(current, 'PAUP_MAP')     #First Data: comparing with PAUP and MAP
 PAUPRXML = os.path.join(current, 'PAUP_RXML_bropt')       #Second Data: comparing with PAUP and RAxML
+#USER_TREES = os.path.join(current, 'user_trees')    #Dec26.2022
 USER_TREES = os.path.join(current, 'usertrees')
 HUGE =100000000
 
@@ -116,6 +118,10 @@ def myparser():
                         help='mandatory input file that holds a set of trees in Newick format')
     parser.add_argument('DATAFILE', 
                         help='mandatory input file that holds a sequence data set in PHYLIP format')
+#    parser.add_argument('-o','--output', dest='outputdir', #action='store_const',        #Dec27.2022
+#                        #const='outputdir',
+#                        default='pathtree_outputdir',
+#                        help='directory that holds the output files')
     parser.add_argument('-o','--output', dest='outputdir', #action='store_const',
                         #const='outputdir',
                         default='output',
@@ -158,7 +164,7 @@ def myparser():
                         help='String "D1" considers the first dataset (D_1) with two trees to be compared (PAUP and MAP) with the best tree of PATHTREES, string "D2" considers the second dataset (D_2) with two trees to be compared (PAUP and RAxML) with the best tree of PATHTREES, string "usertrees" considers usertrees to be compared with the best tree of PATHTREES, otherwise it considers nothing to be compared')
     parser.add_argument('-interp','--interpolate', dest='interpolation',
                         default=None, action='store',
-                        help='Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10. String "rbf,s_value", for example "rbg,0.0001", considers scipy.interpolate.Rbf with smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10 ')
+                        help='Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10. String "rbf,s_value", for example "rbf,0.0001", considers scipy.interpolate.Rbf with smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10 ')
 
     args = parser.parse_args()
     return args
@@ -204,6 +210,7 @@ if __name__ == "__main__":
         print(f"smoothness = {smoothness}")
 
     
+
     compare_trees = args.compare_trees
     if compare_trees == "D1":     #dataset1 : PAUP and MAP to be compared
         paup_tree = False
@@ -260,8 +267,9 @@ if __name__ == "__main__":
         for it in range(1,num_iterations):
             os.system(f'mkdir -p {o}{it}')
             outputdir.append(f'{o}{it}')
-            plotfile2.append(f"MDS_iter{it}_{plotfile}.pdf")
-    
+            plotfile2.append(f"MDS_iter{it}.pdf")
+
+
     
     STEPSIZE = 1  # perhaps this should be part of options
     labels, sequences, variable_sites = ph.readData(datafile, ttype)
@@ -292,8 +300,6 @@ if __name__ == "__main__":
         with open(start_trees,'r') as f:
             StartTrees = [line.strip() for line in f]
     
-#    sys.exit()       #To do debugging
-
 
     NUMPATHTREES_list = list(map(int, args.NUMPATHTREES.split(',')))
     NUMBESTTREES_list = list(map(int, args.NUMBESTTREES.split(',')))
@@ -329,14 +335,18 @@ if __name__ == "__main__":
             T_opt = myfile.readlines()
             usertrees = bifurcating.bifurcating_newick(T_opt)
 
-    print(f'\n\nGenerating pathtrees through tree space...')
-
+    
     for it1 in range(1,num_iterations):
-        print(f'\n============================  iteration {it1}  ================================')
+        if it1==1:
+            print(f'\n\n============================  iteration {it1}  ================================')
         it = it1-1
         
+        if DEBUG:
+            print(f'\nGenerating pathtrees through tree space...')
+        
+        
         if Optimize_Randoms and it==0:
-            print(f'~~~~~~~~~~~~~~~~~~~~~~~  Optimizing random starttrees  ~~~~~~~~~~~~~~~~~~~~~~')
+            print(f'\nOptimizing random starttrees...\n')
             tic = time.perf_counter()
             optimized_starttrees=[]
             for j,tree_num in enumerate(StartTrees):
@@ -349,48 +359,59 @@ if __name__ == "__main__":
                 optimized_starttrees.append(optnewick)
             toc = time.perf_counter()
             timeing = toc - tic
-            print(f"\n\n\nTime of optimizing starttrees = {timeing}")
+            if DEBUG:
+                print(f"\nTime of optimizing starttrees = {timeing}")
             store_results(outputdir[it],'optimized_starttrees',optimized_starttrees)
-            
             # make bifurcating and nonzero since we optimized trees that may be not biforcating now in the second iteration
             T_bifurcate = bifurcating.bifurcating_newick(optimized_starttrees)
             optimized_starttrees = nonzero_lengths(optimized_starttrees)
 #            store_results(outputdir[it],'bifurcating_newick',optimized_starttrees)
             StartTrees = optimized_starttrees
-            print(f"\nlength of random_and_optimize = len(StartTrees) ---->  {len(StartTrees)}")
+            print(f"\nlength of random_and_optimize = len(StartTrees) =  {len(StartTrees)}")
     
-        store_results(outputdir[it],'StartTrees',StartTrees)
-        print(f"\nlength of StartTrees ---->  {len(StartTrees)}")
+    
+        store_results(outputdir[it],'starttrees',StartTrees)
+        print(f"\n    length of StartTrees  = {len(StartTrees)}")
         
         
-        print(f'\n\n~~~~~~~~~~~  Generating {NUMPATHTREES-2}-pathtrees for each pair of StartTrees  ~~~~~~~~~~\n')
+        
+        print(f'\n\n>>> Generating {NUMPATHTREES-2}-pathtree(s) for each pair of StartTrees ...')
         tic = time.perf_counter()
         Pathtrees = masterpathtrees(StartTrees)
-        store_results(outputdir[it],'Pathtrees',Pathtrees)
-        print(f"length of Pathtrees ---->  {len(Pathtrees)}")
+        store_results(outputdir[it],'pathtrees',Pathtrees)
+        print(f"    length of Pathtrees = {len(Pathtrees)}")
         toc = time.perf_counter()
         timeing = toc - tic
-        print(f"Time of generating pathtrees = {timeing}")
+        if DEBUG:
+            print(f"Time of generating pathtrees = {timeing}")
         Treelist= StartTrees+Pathtrees
-        print(f"length of treelist = StartTrees + Pathtrees = {len(StartTrees)} + {len(Pathtrees)} ---->  {len(Treelist)}")
+        print(f"    length of treelist = len(StartTrees) + len(Pathtrees) = {len(StartTrees)} + {len(Pathtrees)} = {len(Treelist)}")
         
         if DEBUG:
-            print(f'\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Likelihood ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+            print(f'\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Likelihood ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+        print(f'\n\n>>> Calculating likelihoods ...')
         tic = time.perf_counter()
         Likelihoods = likelihoods(Treelist,sequences)
         idx = plo.best_likelihoods(Likelihoods,NUMBESTTREES)
         toc = time.perf_counter()
         timeing = toc - tic
-        print(f"\nTime of  calculating {len(Treelist)}-trees Likelihood = {timeing}")
-        
-        print(f'\n\n~~~~~~~~~~~~~  Topologies of best {len(idx)}-trees using unweighted-RF ~~~~~~~~~~~\n')
+        if DEBUG:
+            print(f"\nTime of  calculating {len(Treelist)}-trees Likelihood = {timeing}")
+
+
+
+        if DEBUG:
+            print(f'\n~~~~~~~~~~~~~  Topologies of best {len(idx)}-trees using unweighted-RF ~~~~~~~~~~~\n')
+        print(f'\n\n>>> Calculating topologies of best {len(idx)}-trees using unweighted-RF ...')
         tic = time.perf_counter()
         BestTrees1=[Treelist[i] for i in idx]
         BestTrees= bifurcating.bifur_to_mulfur_newick(BestTrees1)
+        
         store_results(outputdir[it],'BestTrees',BestTrees)
         dict_idx = dict(zip(range(0, len(idx)) , idx))
         best_treelist = os.path.join(outputdir[it], 'BestTrees')
         best_distances = wrf.RF_distances(len(BestTrees), best_treelist, type="unweighted")
+        
         L= []
         for i in range(len(best_distances)):
             l=[]
@@ -413,15 +434,15 @@ if __name__ == "__main__":
             best_topo_idx = topo_idx[sort_index[-1]]
             best_topo_like_idx.append(best_topo_idx)
         
-        print(f"Number of Topologies = {len(Topologies)}")
+        print(f"    Number of topologies = {len(Topologies)}")
         if DEBUG:
             print(f"Topologies = {Topologies}\n")
             print(f"best_topo_like_idx = {best_topo_like_idx}")
         
         toc = time.perf_counter()
         timeing = toc - tic
-        print(f"Time of  generating topologies = {timeing}")
-        
+        if DEBUG:
+            print(f"Time of  generating topologies = {timeing}")
         
         #length of pathtrees before optimization : To do histogram analysis:
         pathtrees_len_before =[]
@@ -436,7 +457,11 @@ if __name__ == "__main__":
         pathtrees_len_before_opt =[]
         pathtrees_len_after_opt =[]
         
-        print(f'\n\n~~~~~~~~~~~  Optimizing one tree from each topology(highest loglike tree)  ~~~~~~~~~~\n')
+  
+  
+        if DEBUG:
+            print(f'\n\n~~~~~~~~~~~  Optimizing one tree from each topology(highest loglike tree)  ~~~~~~~~~~\n')
+        print(f'\n\n>>> Optimizing one tree from each topology ...')
         tic = time.perf_counter()
         optimized_BestTrees=[]
         for j,num in enumerate(best_topo_like_idx):
@@ -463,7 +488,8 @@ if __name__ == "__main__":
             optimized_BestTrees.append(optnewick)
         toc = time.perf_counter()
         timeing = toc - tic
-        print(f"Time of optimizing = {timeing}")
+        if DEBUG:
+            print(f"Time of optimizing = {timeing}")
         
         if DEBUG:    #To do histogram analysis
             print(f"\npathtrees_len_before_opt = {pathtrees_len_before_opt}")
@@ -477,46 +503,64 @@ if __name__ == "__main__":
         Topologies_opt = [Topologies[i] for i in sort_index_opt]
 
         Treelist += BestTrees_opt
-        print(f"length of treelist = StartTrees + Pathtrees + Optimized Trees = {len(StartTrees)} + {len(Pathtrees)} + {len(BestTrees_opt)}---->  {len(Treelist)}")
+        print(f"    length of treelist = len(StartTrees) + len(Pathtrees) + len(Optimized Trees) = {len(StartTrees)} + {len(Pathtrees)} + {len(BestTrees_opt)} =  {len(Treelist)}")
     
         Likelihoods += Like_opt
+        
+        
+
+        with open(os.path.join(outputdir[it], "PATHTREES_optimal"), "w") as myfile:
+            myfile.write("Tree:\n" + "".join(Treelist[-1]) + "\n")
+            myfile.write("\nLog-Likelihood:\n" + "".join(str(Likelihoods[-1])) + "\n")
+        
+
                 
         if paup_tree:
+            print(f'\n\n>>> Adding some external trees to treelist to compare ...')
             Treelist += paup
-            print(f"\nlength of treelist  after adding  1-tree (PAUP)---->  {len(Treelist)}")
+            print(f"    length of treelist  after adding  1-tree (PAUP) = {len(Treelist)}\n\n")
             Likelihood_PAUP = likelihoods(paup,sequences)
             Likelihoods += Likelihood_PAUP
             if DEBUG:
-                print(f"length of Likelihoods after adding 1-tree (PAUP) ---->  {len(Likelihoods)}\n\n\n")
+                print(f"length of Likelihoods after adding 1-tree (PAUP) ---->  {len(Likelihoods)}")
         elif paup_MAP:
+            print(f'\n\n>>> Adding some external trees to treelist to compare ...')
             Treelist += paup_MAP
-            print(f"\nlength of treelist  after adding  2-trees (PAUP & MAP)---->  {len(Treelist)}")
+            print(f"    length of treelist  after adding  2-trees (PAUP & MAP) = {len(Treelist)}\n\n")
             Likelihood_PAUP_MAP = likelihoods(paup_MAP,sequences)
             Likelihoods += Likelihood_PAUP_MAP
             if DEBUG:
                 print(f"length of Likelihoods after adding 2-trees (PAUP & MAP) ---->  {len(Likelihoods)}")
         elif paup_RXML:
+            print(f'\n\n>>> Adding some external trees to treelist to compare ...')
             Treelist += paup_RXML
-            print(f"\nlength of treelist  after adding  2-trees (PAUP & RAxML)---->  {len(Treelist)}")
+            print(f"    length of treelist  after adding  2-trees (PAUP & RAxML) = {len(Treelist)}\n\n")
             Likelihood_PAUP_RXML = likelihoods(paup_RXML,sequences)
             Likelihoods += Likelihood_PAUP_RXML
             if DEBUG:
                 print(f"length of Likelihoods after adding 2-trees (PAUP & RAxML) ---->  {len(Likelihoods)}")
         elif usertrees:
+            print(f'\n\n>>> Adding some external trees to treelist to compare ...')
             Treelist += usertrees
-            print(f"\nlength of treelist  after adding {len(usertrees)}-trees (usertrees)---->  {len(Treelist)}")
+            print(f"    length of treelist  after adding {len(usertrees)}-trees (usertrees) = {len(Treelist)}\n\n")
             Likelihood_usertrees = likelihoods(usertrees,sequences)
             Likelihoods += Likelihood_usertrees
             if DEBUG:
                 print(f"length of Likelihoods after adding {len(usertrees)}-trees (usertrees) ---->  {len(Likelihoods)}")
-        store_results(outputdir[it],'optimized_BestTrees',BestTrees_opt)
+
+
         store_results(outputdir[it],'treelist',Treelist)
-        store_results(outputdir[it],'Topologies_opt',Topologies_opt)
-        store_results(outputdir[it],'likelihood',Likelihoods)
+        store_results(outputdir[it],'likelihoods',Likelihoods)
+        
+        if DEBUG:
+            store_results(outputdir[it],'Topologies_opt',Topologies_opt)
+            store_results(outputdir[it],'optimized_BestTrees',BestTrees_opt)
         
 
         if plotfile != None:
-            print(f'\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MDS plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+            if DEBUG:
+                print(f'\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MDS plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+            print(f'>>> Generating 2D and 3D plots of generated tree landscape ...\n')
             tic3 = time.perf_counter()
             newtreelist = os.path.join(current,outputdir[it], 'treelist')
             if not keep:
@@ -539,10 +583,12 @@ if __name__ == "__main__":
                 if gtp_dist:
                     run_gtp(newtreelist, GTPTERMINALLIST, GTPOUTPUT)
                     distances = plo.read_GTP_distances(n,GTPOUTPUT)
-                    store_results(outputdir[it],'GTP_distances',distances)
+                    if DEBUG:
+                        store_results(outputdir[it],'GTP_distances',distances)
                 else:
                     distances = wrf.RF_distances(n, newtreelist, type="weighted")
-                    store_results(outputdir[it],'RF_distances',distances)
+                    if DEBUG:
+                        store_results(outputdir[it],'RF_distances',distances)
                 
 
                 if DEBUG:
@@ -553,10 +599,18 @@ if __name__ == "__main__":
                 elif interpolation_type == "rbf":
                     plo.interpolate_rbf(it, plotfile2[it], distances,Likelihoods, bestlike,Treelist, StartTrees,BestTrees_opt, Topologies_opt,NUMPATHTREES, compare_trees_list , compare_trees, smoothness)
 
-        #==========================  Next Iteration  ============================
+
+        print(f'\nNOTE: find the following files in the folder "output{it1}"')
+        print(f'    - "starttrees"  includes the starting trees')
+        print(f'    - "pathtrees"  includes all pathtrees generated by PATHTREES using starttrees')
+        print(f'    - "treelist"  shows all trees in the order of starttrees + pathtrees + optimized trees + external trees')
+        print(f'    - "likelihoods" shows the log-likeligood values of treelist')
+        print(f'    - "PATHTREES_optimal" includes the highest likelihood tree found by PATHTREES and the corresponding log-likelihood value\n')
+        
+
         if it1 < num_iterations-1:
-            
-            print(f'\n\n~~~~~~~~~~~~~  For next iteration ---> Boundary of optimized trees ~~~~~~~~~~~~~~~~\n')
+            if DEBUG:
+                print(f'\n\n~~~~~~~~~~~~~  For next iteration ---> Boundary of optimized trees ~~~~~~~~~~~~~~~~\n')
             tic = time.perf_counter()
             
             # make bifurcating and nonzero since we optimized trees that may be not biforcating now in the second iteration
@@ -569,19 +623,24 @@ if __name__ == "__main__":
                 store_results(outputdir[it1],'BestTrees_opt',BestTrees_opt)
                 store_results(outputdir[it1],'T_bifurcate',T_bifurcate)
                 store_results(outputdir[it1],'T_nonzero',T_nonzero)
-            store_results(outputdir[it1],'StartTrees_forboundaries',StartTrees_forboundaries)
                 
+            store_results(outputdir[it1],'StartTrees_forboundaries',StartTrees_forboundaries)
             distancefile = os.path.join(outputdir[it1], 'StartTrees_forboundaries')
             distances =  wrf.RF_distances(len(StartTrees_forboundaries), distancefile, type="weighted")
+            
             iter_num = it1+1
+            print(f'\n============================  iteration {iter_num}  ================================\n')
+            print(f'>>> Extracting boundary trees of {len(StartTrees_forboundaries)} optimized trees from previous iteration ...')
             Boundary_Trees = plo.boundary_convexhull(distances,Likelihoods_starttrees,StartTrees_forboundaries, iter_num)
             
-            store_results(outputdir[it1],'Boundary_Trees',Boundary_Trees)
+            
             toc = time.perf_counter()
             timeing = toc - tic
-            print(f"Time of generating BoundaryTrees = {timeing}")
+            if DEBUG:
+                store_results(outputdir[it1],'Boundary_Trees',Boundary_Trees)
+                print(f"Time of generating BoundaryTrees = {timeing}")
             
-            print(f'\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n')
+
             StartTrees = Boundary_Trees
             if len(NUMPATHTREES_list)>it1:
                 NUMPATHTREES = NUMPATHTREES_list[it1]
