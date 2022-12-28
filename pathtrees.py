@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #Tara Khodaei and Peter Beerli, Tallahassee 2021
 
-# main code for the pathtrees project either check in the parser() section or
-# then execute python pathtrees.py --help to learn more
+# main code for the pathtrees project, either check in the parser() section or execute "python pathtrees.py --help" to learn more
 # this project is licensed to you under the MIT opensource license
 
 import sys
