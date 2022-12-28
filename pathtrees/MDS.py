@@ -833,4 +833,5 @@ def boundary_convexhull(M,Likelihood,treelist, iter_num):
 
 
 if __name__ == "__main__":
+        print(f"TEST")
 
