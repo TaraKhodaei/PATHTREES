@@ -7,13 +7,11 @@
 import sys
 import os
 
-import sys
 from pathlib import Path
 file = Path(__file__).resolve()
 parent = file.parent
 sys.path.append(str(file.parent))
 current = os.getcwd()
-
 
 import pathtrees.pathtrees as pt
 import pathtrees.likelihood as like
