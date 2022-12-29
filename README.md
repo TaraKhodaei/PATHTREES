@@ -107,7 +107,11 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. 
 > * Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
+<br/>
 
+**-valid, --validation**
+> * Validates the MDS plots by computing correlation measures Pearson r,  Spearman rho, and Kendall Tau between the original distances and the MDS distances 
+> * Creates a Shepard diagram showing the real distances VS MDS distances
     
 
 # $\color{purple}{\textsf{Application to Real Data}}$
@@ -156,7 +160,19 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > ``` 
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D1_GTP_rbf_s1e-10_n3_NoCompare.png" width="1000"/></div>
 
+<br/>
 
+> **Experiment 1.4**.<br/>
+> ```
+> python pathtrees.py -n 3 -valid -gtp -c D1 -p myplot -o output D1_boundarytrees D1.phy
+> ``` 
+> With argument "-valid", PATHTREES computes the following correlation measures and creates the Shepard diagram:
+> ```
+> Pearson's r = 0.9236859153718908 
+> Spearman's rho = 0.9071808059933395 
+> Kendall's tau = 0.7517609707944715
+> ```
+> <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/ShepardDiagram.png" width="450"/></div>
 
 
 
