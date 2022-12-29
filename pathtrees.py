@@ -6,10 +6,6 @@
 
 import sys
 import os
-#tests
-
-
-
 
 from pathlib import Path
 file = Path(__file__).resolve()
