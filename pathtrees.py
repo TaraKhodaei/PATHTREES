@@ -153,8 +153,8 @@ def myparser():
     parser.add_argument('-valid','--validation', dest='validation_mds',
                         default=None, action='store_true',
                         help=' Validates the MDS plots by computing correlation measures Pearson r,  Spearman rho, and Kendall Tau between the original distances and the MDS distances, and creates a Shepard diagram showing the real distances VS MDS distances')
-                        
-                        
+                            
+
     args = parser.parse_args()
     return args
 

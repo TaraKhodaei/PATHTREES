@@ -4,10 +4,7 @@ from dendropy.calculate import treecompare
 import time
 import sys
 
-# to use this the RUN_PARALLEL needs to be True
-# but my other changes are actually faster so do not change
-# RUN_PARALLEL
-#from concurrent.futures import ThreadPoolExecutor, as_completed
+
 
 RUN_PARALLEL = False
 
@@ -61,5 +58,5 @@ def RF_distances(n, filename_treelist, type="weighted"):
                 distance_matrix[j][i] = d
     toc2 = time.perf_counter()
     time2 = toc2 - tic2
-    print(f"Time of distance matrix of {n}-trees using {type}-RF = {time2}")
+#    print(f"Time of distance matrix of {n}-trees using {type}-RF = {time2}")
     return distance_matrix
