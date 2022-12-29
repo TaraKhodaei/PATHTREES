@@ -162,7 +162,7 @@ Primates of 1141 base pairs of the mitochondrial cytochrome b gene of 23 primate
 > ```
 > python pathtrees.py -n 3 -valid -gtp -c D1 -p myplot -o output D1_boundarytrees D1.phy
 > ``` 
-> With argument "-valid",PATHTREES computes correlation measures and the Shepard diagram:
+> With argument "-valid", PATHTREES computes the following correlation measures and creates the Shepard diagram:
 > ```
 > Pearson's r = 0.9236859153718908 
 > Spearman's rho = 0.9071808059933395 
