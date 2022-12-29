@@ -443,9 +443,9 @@ def interpolate_grid(it, filename, M, Likelihood, bestlike, Treelist, StartTrees
   
     if validation_mds:
         MDS_distances, mds_validation_values = MDS_validation(M,X,1,it+1)
-        np.savetxt ('MDS_distances', MDS_distances,  fmt='%s')
-        np.savetxt ('X_MDS_coordinates', X,  fmt='%s')
-        np.savetxt ('Real_distances', M,  fmt='%s')
+#        np.savetxt ('MDS_distances', MDS_distances,  fmt='%s')
+#        np.savetxt ('X_MDS_coordinates', X,  fmt='%s')
+#        np.savetxt ('Real_distances', M,  fmt='%s')
 
 
 #=================== Interpolation method2: RBF (Radial basis function interpolation) (Contour & Surface) ====================
@@ -753,9 +753,9 @@ def interpolate_rbf(it, filename, M, Likelihood, bestlike, Treelist, StartTrees,
 
     if validation_mds:
         MDS_distances, mds_validation_values = MDS_validation(M,X,1,it+1)
-        np.savetxt ('MDS_distances', MDS_distances,  fmt='%s')
-        np.savetxt ('X_MDS_coordinates', X,  fmt='%s')
-        np.savetxt ('Real_distances', M,  fmt='%s')
+#        np.savetxt ('MDS_distances', MDS_distances,  fmt='%s')
+#        np.savetxt ('X_MDS_coordinates', X,  fmt='%s')
+#        np.savetxt ('Real_distances', M,  fmt='%s')
 
 #=========================================== Convex Hull: (default griddata cubic) ===================================================
 def boundary_convexhull(M,Likelihood,treelist, iter_num):
