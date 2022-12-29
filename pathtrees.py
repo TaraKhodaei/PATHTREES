@@ -150,7 +150,7 @@ def myparser():
     parser.add_argument('-interp','--interpolate', dest='interpolation',
                         default=None, action='store',
                         help='Use interpolation scipy.interpolate.griddata for interpolation [more overshooting], or use scipy.interpolate.Rbf [less overshooting]. String "rbf" considers scipy.interpolate.Rbf, Radial basis function (RBF) thin-plate spline interpolation, with default smoothness=1e-10. String "rbf,s_value", for example "rbf,0.0001", considers scipy.interpolate.Rbf with smoothness= s_value= 0.0001. String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10 ')
-        parser.add_argument('-valid','--validation', dest='validation_mds',
+    parser.add_argument('-valid','--validation', dest='validation_mds',
                         default=None, action='store_true',
                         help=' Validates the MDS plots by computing correlation measures Pearson r,  Spearman rho, and Kendall Tau between the original distances and the MDS distances, and creates a Shepard diagram showing the real distances VS MDS distances')
                         
