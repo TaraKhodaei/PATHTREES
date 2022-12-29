@@ -107,7 +107,11 @@ Python package **PATHTREES** enables the construction, visualization and explora
 > * String "cubic" considers scipy.interpolate.griddata, cubic spline interpolation. 
 > * Otherwise, with None interpolation, it considers default scipy.interpolate.Rbf with smoothness=1e-10
 
+<br/>
 
+**-valid, --validation**
+> * Validates the MDS plots by computing correlation measures Pearson r,  Spearman rho, and Kendall Tau between the original distances and the MDS distances 
+> * Creates a Shepard diagram showing the real distances VS MDS distances
     
 
 # $\color{purple}{\textsf{Application to Real Data}}$
