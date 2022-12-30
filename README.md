@@ -204,7 +204,7 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D2_iter1_RF_rbf_s1e-10_n6_b100.png" width="1000"/></div>
 > <div align="center"><img src="https://raw.githubusercontent.com/TaraKhodaei/pathtrees_project/main/images/D2_iter2_RF_rbf_s1e-10_n7.png" width="1000"/></div>
 >  
-> * **NOTE** <br/>
+> $\color{orange}{\textsf{NOTE}}$ <br/>
 > * At the end of first iteration,  the 2D and 3D plot of the generated landscape will be saved in the directory. You will see the plot in your screen. As far as it is not closed, you can rotate and see the 3D plot in other angles or even save that.
 > * To go to the second iteration, you need to close the plot. Pay attention that after closing the plot you still see that in your screen. just ignore that. It is running the second iteration. 
 
