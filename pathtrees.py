@@ -362,7 +362,7 @@ if __name__ == "__main__":
     
     
         store_results(outputdir[it],'starttrees',StartTrees)
-        print(f"\n    length of StartTrees  = {len(StartTrees)}")
+        print(f"\n    Length of StartTrees  = {len(StartTrees)}")
                 
         
         print(f'\n\n>>> Generating {NUMPATHTREES-2}-pathtree(s) for each pair of StartTrees ...')

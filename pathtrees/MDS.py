@@ -120,7 +120,8 @@ def MDS_validation(M,X,k, it):  # M: real distance matrix & X: MDS coordinates
     plt.plot(Z[:,0],Z[:,1],'.', markersize=0.05, color='teal')
     plt.xlabel('Distance in treespace')
     plt.ylabel('Distance on MDS')
-    plt.savefig('ShepardDiagram_iter{}.pdf'.format(it), format='pdf')
+#    plt.savefig('ShepardDiagram_iter{}.pdf'.format(it), format='pdf')
+    plt.savefig('ShepardDiagram_iter{}.png'.format(it), format='png')
     plt.close(fig)
 #    plt.show()
     return D, MDS_validation_values
