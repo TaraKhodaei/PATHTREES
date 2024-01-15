@@ -212,6 +212,12 @@ A mitochondrial cytochrome b dataset of 182 milksnakes (1117 bp). <br/>
 
 
 
+# $\color{purple}{\textsf{Citing PATHTREES}}$
+
+If you use PATHTREES software for publications, please cite this:
+
+    Khodaei, M., Owen, M. and Beerli, P., 2023. Geodesics to characterize the phylogenetic landscape.
+    Plos one, 18(6), p.e0287350.  
 
 
 
